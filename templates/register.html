@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h1>Register</h1>
+
+<form action="/register" method="post">
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name" required="true" placeholder="Name"><br>
+    <label for="birthdate">Date of Birth</label>
+    <input type="date" name="birthdate" id="birthdate" required="true" placeholder="Birthdate"><br>
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required="true" placeholder="Email"><br>
+    <label for="phone">Phone Number</label>
+    <input type="text" name="phone" id="phone" required="true" placeholder="Phone Number"><br>
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username" required="true" placeholder="Username"><br>
+    <label for="id-num">National ID Number</label>
+    <input type="text" name="id-num" id="id-num" required="true" placeholder="National ID Number"><br>
+    <label for="document">ID Document Upload</label>
+    <input type="file" name="document" id="document" required="true" placeholder="ID document Upload" accept=".jpg, .jpeg, .png, .pdf"><br>
+    <input type="submit" value="Send for Verification"><br>
+</form>
+<small>Already have an account? <a href="{{url_for('login')}}">Login</a></small> <br>
+<a href="{{url_for('login')}}">Login page</a><br>
+<a href="{{url_for('home')}}">Home page</a>
+{% endblock %}
