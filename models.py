@@ -2,6 +2,7 @@ from cs50 import SQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from flask_login import UserMixin
+from datetime import datetime
 
 db = SQL("sqlite:///idguardian.db")
 
@@ -139,61 +140,76 @@ class PendingUser():
         self.username = username
         self.national_id_fast = national_id_fast
 
-        @staticmethod
-        def get_by_username(username):
-            result = db.execute("SELECT * FROM pending_verifications WHERE username = ?", username)
-            if result:
-                row = result[0]
-                return PendingUser(
-                    id = row["id"],
-                    full_name = row["full_name"],
-                    national_id = row["national_id_hash"],
-                    birthdate = row["birthdate"],
-                    contact_email = row["contact_email"],
-                    contact_phone = row["contact_phone"],
-                    username = row["username"],
-                    document_type = row["document_type"],
-                    file_path = row["file_path"],
-                    submitted_at = row["submitted_at"],
-                    status = row["status"],
-                    reviewer = row["reviewer"],
-                    review_notes = row["review_notes"],
-                    national_id_fast = row["national_id_fast"]
-                )
-            else:
-                return None
+    @staticmethod
+    def get_by_username(username):
+        result = db.execute("SELECT * FROM pending_verifications WHERE username = ?", username)
+        if result:
+            row = result[0]
+            return PendingUser(
+                id = row["id"],
+                full_name = row["full_name"],
+                national_id = row["national_id_hash"],
+                birthdate = row["birthdate"],
+                contact_email = row["contact_email"],
+                contact_phone = row["contact_phone"],
+                username = row["username"],
+                document_type = row["document_type"],
+                file_path = row["file_path"],
+                submitted_at = row["submitted_at"],
+                status = row["status"],
+                reviewer = row["reviewer"],
+                review_notes = row["review_notes"],
+                national_id_fast = row["national_id_fast"]
+            )
+        else:
+            return None
+    
+    @staticmethod
+    def get_email_by_username(username):
+        """Get user's email by their username"""
+        result = db.execute(
+            "SELECT email FROM pending_verifications WHERE username = ?", 
+            username)
         
-        @staticmethod
-        def get_email_by_username(username):
-            """Get user's email by their username"""
-            result = db.execute(
-                "SELECT email FROM pending_verifications WHERE username = ?", 
-                username)
-            
-            if result:
-                row = result[0]
-                return row["email"]
-            else:
-                return None
-            
-    def insert(self):
+        if result:
+            row = result[0]
+            return row["email"]
+        else:
+            return None
+        
+    def insert_to_pending(self):
         """Insert new user into the pending verifications table"""
-        hashed_national_id = generate_password_hash(self.national_id)
-        national_id_fast = hashlib.sha256(self.national_id.encode("utf-8")).hexdigest()
+        hashed_national_id = hashlib.sha256(self.national_id.encode("utf-8")).hexdigest()
+        national_id_fast = hashed_national_id[-10:]
+        submitted_at = datetime.now()
         db.execute(
-            "INSERT INTO pending_verifications (full_name, national_id_hash, birthdate, contact_email, contact_phone, username, document_type, file_path, submitted_at, status, reviewer, review_notes, national_id_fast) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO pending_verifications (full_name, national_id_hash, birthdate, contact_email, contact_phone, username, file_path, submitted_at, status, national_id_fast) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.full_name,
             hashed_national_id,
             self.birthdate,
             self.contact_email,
             self.contact_phone,
             self.username,
-            self.document_type,
             self.file_path,
-            self.submitted_at,
+            submitted_at,
             self.status,
-            self.reviewer,
-            self.review_notes,
             national_id_fast
         )
-
+    
+    def insert_to_identities(self):
+        """Insert user into the identities table"""
+        national_id_hash = hashlib.sha256(self.national_id.encode("utf-8")).hexdigest()
+        national_id_fast = national_id_hash[-10:]
+        created_at = datetime.now()
+        db.execute(
+            "INSERT INTO identities (full_name, national_id_hash, national_id_fast, birthdate, contact_email, contact_phone, username, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            self.full_name,
+            national_id_hash,
+            national_id_fast,
+            self.birthdate,
+            self.contact_email,
+            self.contact_phone,
+            self.username,
+            self.status,
+            created_at
+        )

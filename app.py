@@ -1,0 +1,186 @@
+import os
+from cs50 import SQL
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_session import Session
+from datetime import datetime
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from models import User, PendingUser
+from helpers import allowed_extensions, binary_search_field, generate_new_filename, handle_intergrity_error
+from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
+
+app = Flask(__name__, template_folder='templates', static_folder='static')
+app.config["SECRET_KEY"] = "secretkey"
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+# Ensure that the upload folder exists
+app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+# Enable debug mode
+app.config["DEBUG"] = True
+
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+# Configure CS50 Library to use SQLite database
+db = SQL("sqlite:///idguardian.db")
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    # model method that returns user by their id
+    return User.get_by_id(int(user_id))
+
+# ------- Error Handlers --------------------------------------------
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_file(e):
+    flash("File too large. Maximum allowed size is 5 MB.")
+    return redirect("/register")
+
+# ------- Routes ----------------------------------------------------
+
+# Home page
+@app.route('/')
+@login_required
+def home():
+    return render_template("home.html")
+
+# log user in
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "GET":
+        logout_user()
+        return render_template("login.html")
+    else:
+        identifier = request.form.get("identifier")
+        password = request.form.get("password")
+
+        # Check if identifier or password weren't provided
+        if not identifier:
+            flash("You must provide your username or national id", "error")
+            return redirect("/login")
+        elif not password:
+            flash("You must provide your password", "error")
+            return redirect("/login")
+        else:
+
+            # Try username
+            user = User.get_by_username(identifier)
+            # If no user was found, try national id
+            if not user:
+                user = User.get_by_national_id(identifier)
+            if not user:
+                flash("Invalid credentials", "error")
+                return redirect("/login")
+            if user.verify_password(password):
+                login_user(user)
+                return redirect("/")
+            else:
+                flash("Invalid credentials", "error")
+                return redirect("/login")
+
+# log user out           
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/login")
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register.html")
+    else:
+        full_name = request.form.get("name", "").strip()
+        birthdate = request.form.get("birthdate")
+        email = request.form.get("email", "").strip().lower()
+        phone = request.form.get("phone", "").strip().replace(" ", "")
+        username = request.form.get("username", "").strip()
+        national_id = request.form.get("id-num", "").strip().replace(" ", "")
+        document = request.files.get("document")
+
+        # Placing the required field in a dictionary in oreder to iterate
+        required_fields = {
+            "Full name" : full_name,
+            "Birthdate" : birthdate,
+            "Email" : email,
+            "Phone number" : phone,
+            "Username" : username,
+            "National ID number" : national_id
+        }
+
+        # Iterate over the required fields to make sure they are provide
+        for key, value in required_fields.items():
+            if not value:
+                flash(f"Please fill in your {key} field")
+                return redirect("/register")
+        
+        # Check if there is a document uploaded
+        if not document or document.filename == "":
+            flash("Please upload your ID document file")
+            return redirect("/register")
+
+        # Check if the document type supported
+        if not allowed_extensions(document.filename):
+            flash("The Document formate you uploaded is not supported")
+            return redirect("/register")
+            
+        # Validate the national_id
+        if not national_id.isdigit() or len(national_id) != 11:
+            flash ("National ID Number must be exactly 11 digits")
+            return redirect("/register")
+
+        # Insert information in identities table and check if data is unique
+        user = PendingUser()
+
+        user.full_name = full_name
+        user.national_id = national_id
+        user.contact_email = email
+        user.contact_phone = phone
+        user.birthdate = birthdate
+        user.username = username
+        user.status = "pending"
+
+        try:
+            user.insert_to_identities()
+        except Exception as e:
+            flash(handle_intergrity_error(e))
+            return redirect("/register")
+
+        # Secure and generate filename
+        filename = secure_filename(document.filename)
+        new_filename = generate_new_filename(filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+
+        # Save the uploaded file
+        document.save(file_path)
+
+        # Insert the path of the file in the user object
+        user.file_path = file_path
+
+        # Insert Object into pending_verifications table
+        user.insert_to_pending()
+
+        flash("Registration submitted successfully. Await verification.")
+        return redirect("/register")
+
+        
+    
+
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    return render_template("reset-password.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
