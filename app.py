@@ -5,9 +5,12 @@ from flask_session import Session
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser
-from helpers import allowed_extensions, binary_search_field, generate_new_filename, handle_intergrity_error
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
+# to be deleted
+from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config["SECRET_KEY"] = "secretkey"
@@ -48,7 +51,6 @@ def handle_large_file(e):
 
 # Home page
 @app.route('/')
-@login_required
 def home():
     return render_template("home.html")
 
@@ -58,6 +60,37 @@ def login():
 
     if request.method == "GET":
         logout_user()
+    #     password1 = generate_password_hash("testtest")
+    #     national_id1 = str(00000000000)
+    #     national_id1 = generate_password_hash(national_id1)
+    #     national_id1_fast = national_id1[-10:]
+    #     db.execute(
+    #     """
+    #     INSERT INTO users (
+    #         username,
+    #         password_hash,
+    #         national_id_hash,
+    #         full_name,
+    #         birthdate,
+    #         contact_email,
+    #         contact_phone,
+    #         verification_status,
+    #         verified_at,
+    #         national_id_fast
+    #     )
+    #     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+    #     """,
+    #     "testuser",
+    #     password1,
+    #     national_id1,
+    #     "Test User",
+    #     "2004-05-12",
+    #     "testuser@example.com",
+    #     "+201234567890",
+    #     "verified",
+    #     national_id1_fast
+    # )
+
         return render_template("login.html")
     else:
         identifier = request.form.get("identifier")
@@ -82,7 +115,12 @@ def login():
                 return redirect("/login")
             if user.verify_password(password):
                 login_user(user)
-                return redirect("/")
+                if user.role == "admin":
+                    return redirect("/admin_dashboard")
+                elif user.role == "reviewer":
+                    return redirect("/reviewer_dashboard")
+                else:
+                    return redirect("user_dashboard")
             else:
                 flash("Invalid credentials", "error")
                 return redirect("/login")
@@ -171,9 +209,25 @@ def register():
         flash("Registration submitted successfully. Await verification.")
         return redirect("/register")
 
-        
-    
 
+@app.route("/user_dashboard")
+@login_required
+@roles_required("user", "admin")
+def user_dashboard():
+    return render_template("user_dashboard.html", user=current_user)
+
+@app.route("/reviewer_dashboard")
+@login_required
+@roles_required("admin", "reviewer")
+def reviewer_dashboard():
+    return render_template("reviewer_dashboard.html", user=current_user)
+
+@app.route("/admin_dashboard")
+@login_required
+@roles_required("admin")
+def admin_dashboard():
+    return render_template("admin_dashboard.html", user=current_user)
+        
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():

@@ -8,7 +8,7 @@ db = SQL("sqlite:///idguardian.db")
 
 # created a user object using copilot to understand the structure 
 class User(UserMixin):
-    def __init__(self, id, username, password, national_id, full_name, birthdate, email, verification_status, verified_at):
+    def __init__(self, id, username, password, national_id, full_name, birthdate, email, verification_status, verified_at, role):
         self.id = id
         self.username = username
         self.password = password
@@ -18,6 +18,7 @@ class User(UserMixin):
         self.email = email
         self.verification_status = verification_status
         self.verified_at = verified_at
+        self.role = role
 
     # Check if password match the database
     def verify_password(self, password):
@@ -31,7 +32,7 @@ class User(UserMixin):
     @staticmethod
     def get_by_id(user_id):
         """Retrieve a user by ID"""
-        result = db.execute("SELECT id, username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at FROM users WHERE id = ?", user_id)
+        result = db.execute("SELECT id, username, password_hash, national_id_hash, full_name, birthdate, contact_email, verification_status, verified_at, role FROM users WHERE id = ?", user_id)
         if result:
             row = result[0]
             return User(
@@ -41,9 +42,10 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["email"],
+                email=row["contact_email"],
                 verification_status=row["verification_status"],
-                verified_at=row["verified_at"]
+                verified_at=row["verified_at"],
+                role=row["role"]
             )
         return None
 
@@ -51,7 +53,7 @@ class User(UserMixin):
     @staticmethod
     def get_by_username(username):
         """Retrieve a user by username"""
-        result = db.execute("SELECT id, username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at FROM users WHERE username = ?", username)
+        result = db.execute("SELECT * FROM users WHERE username = ?", username)
         if result:
             row = result[0]
             return User(
@@ -61,9 +63,10 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["email"],
+                email=row["contact_email"],
                 verification_status=row["verification_status"],
-                verified_at=row["verified_at"]
+                verified_at=row["verified_at"],
+                role=row["role"]
             )
         return None
 
@@ -82,7 +85,8 @@ class User(UserMixin):
                 birthdate=row["birthdate"],
                 email=row["email"],
                 verification_status=row["verification_status"],
-                verified_at=row["verified_at"]  
+                verified_at=row["verified_at"],
+                role=row["role"]
             )
         return None
     
@@ -102,7 +106,8 @@ class User(UserMixin):
                     birthdate=row["birthdate"],
                     email=row["email"],
                     verification_status=row["verification_status"],
-                    verified_at=row["verified_at"]  
+                    verified_at=row["verified_at"],
+                    role=row["role"]  
                 )
         return None
 
@@ -112,7 +117,7 @@ class User(UserMixin):
         hashed_password = generate_password_hash(self.password)
         hashed_national_id = generate_password_hash(self.national_id)
         db.execute(
-            "INSERT INTO users (username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.username,
             hashed_password,
             hashed_national_id,
@@ -120,7 +125,8 @@ class User(UserMixin):
             self.birthdate,
             self.email,
             self.verification_status,
-            self.verified_at
+            self.verified_at,
+            self.role
         )
 
 class PendingUser():

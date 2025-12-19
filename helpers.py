@@ -38,7 +38,7 @@ def roles_required(*roles):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 abort(401) # login required
-            if current_user.role != roles:
+            if current_user.role not in roles:
                 abort(403) # Forbidden
             return f(*args, **kwargs)
         return decorated_function
