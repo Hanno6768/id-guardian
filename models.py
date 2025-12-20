@@ -8,7 +8,7 @@ db = SQL("sqlite:///idguardian.db")
 
 # created a user object using copilot to understand the structure 
 class User(UserMixin):
-    def __init__(self, id, username, password, national_id, full_name, birthdate, email, verification_status, verified_at, role):
+    def __init__(self, id, username, password, national_id, full_name, birthdate, email, phone, verification_status, verified_at, national_id_fast, role):
         self.id = id
         self.username = username
         self.password = password
@@ -16,23 +16,21 @@ class User(UserMixin):
         self.full_name = full_name
         self.birthdate = birthdate
         self.email = email
+        self.phone = phone
         self.verification_status = verification_status
         self.verified_at = verified_at
         self.role = role
+        self.national_id_fast = national_id_fast
 
     # Check if password match the database
     def verify_password(self, password):
         return check_password_hash(self.password, password)
-    
-    # Check if national id matches the database
-    def verify_national_id(self, national_id):
-        return check_password_hash(self.national_id, national_id)
 
     # Get the user by id
     @staticmethod
     def get_by_id(user_id):
         """Retrieve a user by ID"""
-        result = db.execute("SELECT id, username, password_hash, national_id_hash, full_name, birthdate, contact_email, verification_status, verified_at, role FROM users WHERE id = ?", user_id)
+        result = db.execute("SELECT * FROM users WHERE id = ?", user_id)
         if result:
             row = result[0]
             return User(
@@ -43,8 +41,10 @@ class User(UserMixin):
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
                 email=row["contact_email"],
+                phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
+                national_id_fast=row["national_id_fast"],
                 role=row["role"]
             )
         return None
@@ -64,8 +64,10 @@ class User(UserMixin):
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
                 email=row["contact_email"],
+                phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
+                national_id_fast=row["national_id_fast"],
                 role=row["role"]
             )
         return None
@@ -83,9 +85,11 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["email"],
+                email=row["contact_email"],
+                phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
+                national_id_fast=row["national_id_fast"],
                 role=row["role"]
             )
         return None
@@ -93,29 +97,33 @@ class User(UserMixin):
     # will be changed to a more efficient approach (for test)
     @staticmethod
     def get_by_national_id(national_id):
-        """Retrieve user by national id (naive, O(N), OK for tests)"""
-        rows = db.execute("SELECT * FROM users")
-        for row in rows:
-            if check_password_hash(row["national_id_hash"], national_id):
-                return User(
-                    id=row["id"],
-                    username=row["username"],
-                    password=row["password_hash"],
-                    national_id=row["national_id_hash"],
-                    full_name=row["full_name"],
-                    birthdate=row["birthdate"],
-                    email=row["email"],
-                    verification_status=row["verification_status"],
-                    verified_at=row["verified_at"],
-                    role=row["role"]  
-                )
+        """Retrieve user by national id"""
+        national_id_hash = hashlib.sha256(national_id.encode("utf-8")).hexdigest()
+        national_id_fast = national_id_hash[-10:]
+        rows = db.execute("SELECT * FROM users WHERE national_id_fast = ?", national_id_fast)
+        if rows:
+            row = rows[0]
+            return User(
+                id=row["id"],
+                username=row["username"],
+                password=row["password_hash"],
+                national_id=row["national_id_hash"],
+                full_name=row["full_name"],
+                birthdate=row["birthdate"],
+                email=row["contact_email"],
+                phone=row["contact_phone"],
+                verification_status=row["verification_status"],
+                verified_at=row["verified_at"],
+                national_id_fast=row["national_id_fast"],
+                role=row["role"]  
+            )
         return None
 
     # insert a user into the database
     def insert(self):
         """Insert a user into the users table"""
         hashed_password = generate_password_hash(self.password)
-        hashed_national_id = generate_password_hash(self.national_id)
+        hashed_national_id = hashlib.sha256(self.national_id.encode("utf_8")).hexdigest()
         db.execute(
             "INSERT INTO users (username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.username,

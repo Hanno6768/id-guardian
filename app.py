@@ -1,7 +1,6 @@
 import os
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, url_for
-from flask_session import Session
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser
@@ -26,7 +25,6 @@ app.config["DEBUG"] = True
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///idguardian.db")
@@ -60,9 +58,9 @@ def login():
 
     if request.method == "GET":
         logout_user()
-    #     password1 = generate_password_hash("testtest")
-    #     national_id1 = str(00000000000)
-    #     national_id1 = generate_password_hash(national_id1)
+    #     password1 = generate_password_hash("test")
+    #     national_id1 = str(11111111111)
+    #     national_id1 = hashlib.sha256(national_id1.encode("utf-8")).hexdigest()
     #     national_id1_fast = national_id1[-10:]
     #     db.execute(
     #     """
@@ -76,25 +74,27 @@ def login():
     #         contact_phone,
     #         verification_status,
     #         verified_at,
-    #         national_id_fast
+    #         national_id_fast,
+    #         role
     #     )
-    #     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+    #     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
     #     """,
-    #     "testuser",
+    #     "admin1",
     #     password1,
     #     national_id1,
-    #     "Test User",
+    #     "Admin1",
     #     "2004-05-12",
-    #     "testuser@example.com",
-    #     "+201234567890",
+    #     "admin1@example.com",
+    #     "+201234567891",
     #     "verified",
-    #     national_id1_fast
+    #     national_id1_fast,
+    #     "admin"
     # )
 
         return render_template("login.html")
     else:
-        identifier = request.form.get("identifier")
-        password = request.form.get("password")
+        identifier = request.form.get("identifier").strip().replace(" ", "")
+        password = request.form.get("password").strip().replace(" ", "")
 
         # Check if identifier or password weren't provided
         if not identifier:
