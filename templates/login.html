@@ -1,32 +1,61 @@
-{% extends "layout.html" %}
+{%extends "layout.html"%}
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul class="flashes">
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+<!-- used the validation form from bootstrap and asked chatgpt to redesign it -->
+<div class="container mt-5 d-flex justify-content-start">
+    <form action="/login" method="post" class=" needs-validation p-4" style="max-width: 800px; width:45%"
+        autocomplete="off" novalidate>
 
-{% endwith %}
-<h1>Login</h1>
-<form action="/login" method="post" >
+        <h1>Login to Your Account</h1>
+        <br>
+        <br>
+        <div class="mb-3">
+            <label for="identifier" class="form-label">Username or National ID</label>
 
-    <label for="identifier">Username or National ID</label>
-    <input type="text" name="identifier" id="identifier" required="true" placeholder="Username or National ID"><br>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" placeholder="Password"><br>
-    <input type="submit" value="Login">
-    
-</form>
+            <div class="input-group has-validation">
+                <span class="input-group-text">
+                    <i class="bx bxs-user"></i>
+                </span>
+                <input type="text" class="form-control" id="identifier" name="identifier"
+                    placeholder="Enter username or national ID" autocomplete="off" required>
+                <div class="invalid-feedback">
+                    Please enter your username or national ID.
+                </div>
+            </div>
+        </div>
 
-<small>Don't have an account? <a href="{{url_for('register')}}">Register</a></small> <br>
-<small><a href="{{url_for('reset_password')}}">Forgot Password?</a></small><br>
-<br>
-<a href="{{url_for('home')}}">Home page</a><br>
-<a href="{{url_for('register')}}">Register page</a>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+
+            <div class="input-group has-validation">
+                <span class="input-group-text">
+                    <i class="bx bxs-lock"></i>
+                </span>
+
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password"
+                    autocomplete="new-password" required>
+
+                <div class="invalid-feedback">
+                    Please enter your password.
+                </div>
+            </div>
+        </div>
+
+
+        <p><a href="{{url_for('reset_password')}}">Forgot Password?</a></small></p>
+
+        <br>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+        <br>
+        <p class="text-center">Don't have an account? <a href="{{url_for('register')}}">Register</a></p>
+        <br>
+
+    </form>
+
+</div>
+
 {% endblock %}

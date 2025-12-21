@@ -49,6 +49,7 @@ def handle_large_file(e):
 
 # Home page
 @app.route('/')
+@app.route("/home")
 def home():
     return render_template("home.html")
 
@@ -93,15 +94,15 @@ def login():
 
         return render_template("login.html")
     else:
-        identifier = request.form.get("identifier").strip().replace(" ", "")
-        password = request.form.get("password").strip().replace(" ", "")
+        identifier = request.form.get("identifier")
+        password = request.form.get("password")
 
         # Check if identifier or password weren't provided
         if not identifier:
-            flash("You must provide your username or national id", "error")
+            flash("You must provide your username or national id", "warning")
             return redirect("/login")
         elif not password:
-            flash("You must provide your password", "error")
+            flash("You must provide your password", "warning")
             return redirect("/login")
         else:
 
@@ -111,10 +112,11 @@ def login():
             if not user:
                 user = User.get_by_national_id(identifier)
             if not user:
-                flash("Invalid credentials", "error")
+                flash("Invalid credentials", "danger")
                 return redirect("/login")
             if user.verify_password(password):
                 login_user(user)
+                flash("You have successfully logged in!", "success")
                 if user.role == "admin":
                     return redirect("/admin_dashboard")
                 elif user.role == "reviewer":
@@ -122,13 +124,14 @@ def login():
                 else:
                     return redirect("user_dashboard")
             else:
-                flash("Invalid credentials", "error")
+                flash("Invalid credentials", "danger")
                 return redirect("/login")
 
 # log user out           
 @app.route("/logout")
 def logout():
     logout_user()
+    flash("You have been looged out", "success")
     return redirect("/login")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -157,22 +160,22 @@ def register():
         # Iterate over the required fields to make sure they are provide
         for key, value in required_fields.items():
             if not value:
-                flash(f"Please fill in your {key} field")
+                flash(f"Please fill in your {key} field", "warning")
                 return redirect("/register")
         
         # Check if there is a document uploaded
         if not document or document.filename == "":
-            flash("Please upload your ID document file")
+            flash("Please upload your ID document file", "warning")
             return redirect("/register")
 
         # Check if the document type supported
         if not allowed_extensions(document.filename):
-            flash("The Document formate you uploaded is not supported")
+            flash("The Document formate you uploaded is not supported", "warning")
             return redirect("/register")
             
         # Validate the national_id
         if not national_id.isdigit() or len(national_id) != 11:
-            flash ("National ID Number must be exactly 11 digits")
+            flash ("National ID Number must be exactly 11 digits", "warning")
             return redirect("/register")
 
         # Insert information in identities table and check if data is unique
@@ -189,7 +192,7 @@ def register():
         try:
             user.insert_to_identities()
         except Exception as e:
-            flash(handle_intergrity_error(e))
+            flash(handle_intergrity_error(e), "warning")
             return redirect("/register")
 
         # Secure and generate filename
@@ -206,7 +209,7 @@ def register():
         # Insert Object into pending_verifications table
         user.insert_to_pending()
 
-        flash("Registration submitted successfully. Await verification.")
+        flash("Registration submitted successfully. Await verification.", "success")
         return redirect("/register")
 
 
@@ -220,6 +223,7 @@ def user_dashboard():
 @login_required
 @roles_required("admin", "reviewer")
 def reviewer_dashboard():
+
     return render_template("reviewer_dashboard.html", user=current_user)
 
 @app.route("/admin_dashboard")

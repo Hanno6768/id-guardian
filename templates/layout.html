@@ -5,48 +5,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SudaGuardian: {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
     {% block head %}{% endblock %}
 </head>
 
 <body>
-    <header class="navbar" role="banner">
-        <input id="nav-toggle" class="nav-toggle" type="checkbox" aria-hidden="true">
-        <div class="nav-inner">
-            <a href="/" class="brand" aria-label="SudaGuardian home">
-                <span class="logo">SG</span>
-                <div>
-                    <div style="font-weight:700;letter-spacing:0.2px">SudaGuardian</div>
-                    <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:2px">Identity & Access</div>
+
+    <header>
+        <nav class="navbar bg-light" height>
+            <div class="container-fluid">
+                <span class="navbar-text">
+                    <img src="/static/flag.png" height="25px" width="40px" alt="icon sudanese flag">
+                    The non-official government identity website of the Government of Sudan
+                </span>
+            </div>
+        </nav>
+        <nav class="navbar navbar-expand-lg bg-light fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/home"><img src="/static/logo.png" height="60" width="194"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Pricing</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Dropdown link
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
-            </a>
-
-            <label for="nav-toggle" class="hamburger" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="color:white">
-                    <path d="M3 12h18M3 6h18M3 18h18" />
-                </svg>
-            </label>
-
-            <nav class="nav-links" role="navigation" aria-label="Main navigation">
-                <a href="/">Home</a>
-                <a href="/features">Features</a>
-                <a href="/docs">Docs</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/login" class="btn-ghost">Login</a>
-                <a href="/profile" class="profile">
-                    <span class="avatar">A</span>
-                    <span style="font-weight:600;color:inherit">Admin</span>
-                </a>
-            </nav>
+            </div>
+        </nav>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show pe-5" role="alert">
+            {{message}}
+            <button type="button" class="btn-close alert-btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
     </header>
 
     <main>
         {% block content %}
         {% endblock %}
     </main>
+
+    <footer class="bg-dark text-light py-4 ">
+        <div class="container text-start py-4">
+            <div class="row d-flex justify-content-between">
+
+                <div class="col-md-3">
+                    <h6 class="fw-bold">Overview</h6>
+                    <hr>
+                    <a class="text-light d-block mb-2" href="">About Sudan</a>
+                    <a class="text-light d-block mb-2" href="">National Profile</a>
+                    <a class="text-light d-block mb-2" href="">Events</a>
+                    <a class="text-light d-block mb-2" href="">Service Level Agreement</a>
+                </div>
+
+                <div class="col-md-3">
+                    <h6 class="fw-bold">Support</h6>
+                    <hr>
+                    <a class="text-light d-block mb-2" href="">How can I ...(FAQs)</a>
+                    <a class="text-light d-block mb-2" href="">Contact Us</a>
+                    <a class="text-light d-block mb-2" href="">Report Bugs</a>
+                </div>
+
+                <div class="col-md-3">
+                    <h6 class="fw-bold">Contact Us</h6>
+                    <hr>
+                    <a class="text-light mb-2" href="">Instagram icon</a>
+                    <a class="text-light mb-2" href="">X icon</a>
+                    <a class="text-light mb-2" href="">Facebook icon</a>
+
+                    <h6 class="fw-bold mt-5">Get Our Apps</h6>
+                    <hr>
+                    <div class="d-flex gap-2">
+                        <img src="/static/playstore.svg" height="40px" width="120px" alt="play store">
+                        <img src="/static/appstore.svg" height="40px" width="120px" alt="app store">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="text-start mt-5">
+
+                <div class="d-flex gap-5">
+                    <a class="text-light d-block mb-2" href="">Privacy Policy</a>
+                    <a class="text-light d-block mb-2" href="">Terms & Conditions</a>
+                </div>
+
+                <div class="d-flex text-light gap-1 mt-3">
+                    <span><i class='bx  bx-copyright'></i></span>
+                    <small>All rights reserved to GOV.SD & (SudaGuardian)</small>
+                </div>
+
+                <div class=" text-light gap-1">
+                    <small class="text-light d-block mb-1">Developed and operated by Muhaned</small>
+                    <small class="text-light d-block mb-1">Current Version v0.0.0</small>
+                </div>
+                
+            </div>
+
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='js/validation.js')}}"></script>
 
     {% block scripts %}{% endblock %}
 

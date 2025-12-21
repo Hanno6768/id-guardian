@@ -1,5 +1,10 @@
-{}
+{% extends "layout.html" %}
+
+{% block title %}Homepage {% endblock %}
+
+{% block content %}
 <h1>Home Page !</h1>
 <a href="{{url_for('login')}}">Login page</a><br>
 <a href="{{url_for('register')}}">Register page</a><br>
-<a href="{{url_for('logout')}}">Logout</a>  
+<a href="{{url_for('logout')}}">Logout</a>
+{%endblock%}
