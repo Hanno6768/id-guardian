@@ -1,7 +1,123 @@
 .navbar {
     height: 80px;
     margin-bottom: 0px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff !important;
+    box-shadow: 0 5px 4px rgba(0, 0, 0, 0.2);
+    color: #0F1F2E !important;
 
+}
+
+.navbar-text,
+.nav-link {
+    font-size: 14px;
+    color: #0F1F2E !important;
+}
+
+
+body {
+    background-color: #F5F5F5;
+}
+
+h1,
+h2,
+h3 {
+    color: #0F1F2E;
+}
+
+.h-form {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+p {
+    color: #6C757D;
+}
+
+footer {
+    background-color: #0F1F2E !important;
+    color: #F5F5F5 !important;
+    box-shadow: 0 -5px 4px rgba(0, 0, 0, 0.2);
+    padding: 40px 0;
+    margin-top: 50px;
+    width: 100%;
+}
+
+a:hover {
+    text-decoration: underline;
+    color:#0F1F2E;
+}
+
+a{
+    text-decoration: none;
+    color: #2E5984; 
+    font-weight: 500;
+}
+
+.ftr-link {
+    text-decoration: none;
+}
+
+.ftr-link:hover, .ftr-icon:hover{
+    text-decoration: underline;
+    color:#89CFF0 !important;
+    padding-left: 2px;
+}
+
+.ftr-icon {
+    font-size: 30px;
+    margin-right: 15px;
+    margin-left: 0px;
+}
+
+.ftr-header {
+    margin-left: 5px;
+}
+
+.ftr-line {
+    border-top: 2px solid #F5F5F5;
+    margin-bottom: 15px;
+}
+
+.ftr-header,
+.ftr-link,
+.ftr-icon {
+    color: #F5F5F5 !important;
+}
+
+.form-control {
+    color:#0F1F2E !important;
+    border: 1px solid #D1D9E0 !important;
+}
+
+.form-control::placeholder {
+    color: #9bA5B1 !important;
+}
+
+.form-control:focus {
+    border: 2px solid #0F1F2E !important;
+    box-shadow: 10 10px 8px rgba(15, 31, 46, 0.7) !important;
+}
+
+.input-group-text {
+    background-color: #0F1F2E;
+    color:#F5F5F5;
+    border:1px solid #0F1F2E;
+}
+
+.btn-form {
+    background-color: #0F1F2E !important;
+    color: #F5F5F5 !important;
+    border: 2px solid #0F1F2E !important;
+    transition: all 0.2s ease-in-out !important;
+    font-weight: 600;
+}
+
+.btn-form:hover {
+    background:#1c3a56 !important;
+    color:#F5F5F5 !important;
+}
+
+.btn-form:active {
+    background-color: #1c3a90 !important;
+    transform: translateY(2px) scale(0.98);
 }

@@ -5,10 +5,10 @@
 
 <!-- used the validation form from bootstrap and asked chatgpt to redesign it -->
 <div class="container mt-5 d-flex justify-content-start">
-    <form action="/login" method="post" class=" needs-validation p-4" style="max-width: 800px; width:45%"
+    <form action="/login" method="post" class="needs-validation p-4" style="width: 500px;"
         autocomplete="off" novalidate>
 
-        <h1>Login to Your Account</h1>
+        <h1 class="h-form">Login to Your Account</h1>
         <br>
         <br>
         <div class="mb-3">
@@ -48,7 +48,7 @@
 
         <br>
         <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn-form btn btn-primary">Login</button>
         </div>
         <br>
         <p class="text-center">Don't have an account? <a href="{{url_for('register')}}">Register</a></p>

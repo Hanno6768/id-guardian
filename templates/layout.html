@@ -9,6 +9,7 @@
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://kit.fontawesome.com/c918542b69.js" crossorigin="anonymous"></script>
 
     {% block head %}{% endblock %}
 </head>
@@ -16,7 +17,7 @@
 <body>
 
     <header>
-        <nav class="navbar bg-light" height>
+        <nav class="navbar bg-light navbar-top" height>
             <div class="container-fluid">
                 <span class="navbar-text">
                     <img src="/static/flag.png" height="25px" width="40px" alt="icon sudanese flag">
@@ -24,7 +25,7 @@
                 </span>
             </div>
         </nav>
-        <nav class="navbar navbar-expand-lg bg-light fixed-top">
+        <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/home"><img src="/static/logo.png" height="60" width="194"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -75,36 +76,38 @@
         {% endblock %}
     </main>
 
-    <footer class="bg-dark text-light py-4 ">
+    <footer class="text-light py-4 ">
         <div class="container text-start py-4">
             <div class="row d-flex justify-content-between">
 
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Overview</h6>
-                    <hr>
-                    <a class="text-light d-block mb-2" href="">About Sudan</a>
-                    <a class="text-light d-block mb-2" href="">National Profile</a>
-                    <a class="text-light d-block mb-2" href="">Events</a>
-                    <a class="text-light d-block mb-2" href="">Service Level Agreement</a>
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Overview</h6>
+                    <hr class="ftr-line">
+                    <a class="ftr-link text-light d-block mb-2" href="">About Sudan</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">National Profile</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Events</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Service Level Agreement</a>
                 </div>
 
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Support</h6>
-                    <hr>
-                    <a class="text-light d-block mb-2" href="">How can I ...(FAQs)</a>
-                    <a class="text-light d-block mb-2" href="">Contact Us</a>
-                    <a class="text-light d-block mb-2" href="">Report Bugs</a>
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Support</h6>
+                    <hr class="ftr-line">
+                    <a class="ftr-link text-light d-block mb-2" href="">How can I ...(FAQs)</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Contact Us</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Report Bugs</a>
                 </div>
 
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Contact Us</h6>
-                    <hr>
-                    <a class="text-light mb-2" href="">Instagram icon</a>
-                    <a class="text-light mb-2" href="">X icon</a>
-                    <a class="text-light mb-2" href="">Facebook icon</a>
-
-                    <h6 class="fw-bold mt-5">Get Our Apps</h6>
-                    <hr>
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Contact Us</h6>
+                    <hr class="ftr-line">
+                    <div class="d-flex justify-content-start">
+                        <a class="ftr-icon text-light mb-2" href=""><i class="fa-brands fa-instagram"></i></a>
+                        <a class="ftr-icon text-light mb-2" href=""><i class="fa-brands fa-x-twitter"></i></a>
+                        <a class="ftr-icon text-light mb-2" href=""><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                    
+                    <h6 class="ftr-header fw-bold mt-5 mb-4">Get Our Apps</h6>
+                    <hr class="ftr-line">
                     <div class="d-flex gap-2">
                         <img src="/static/playstore.svg" height="40px" width="120px" alt="play store">
                         <img src="/static/appstore.svg" height="40px" width="120px" alt="app store">
@@ -116,20 +119,20 @@
             <div class="text-start mt-5">
 
                 <div class="d-flex gap-5">
-                    <a class="text-light d-block mb-2" href="">Privacy Policy</a>
-                    <a class="text-light d-block mb-2" href="">Terms & Conditions</a>
+                    <a class="ftr-link-decorated text-light" href="">Privacy Policy</a>
+                    <a class="ftr-link-decorated text-light" href="">Terms & Conditions</a>
                 </div>
 
                 <div class="d-flex text-light gap-1 mt-3">
                     <span><i class='bx  bx-copyright'></i></span>
-                    <small>All rights reserved to GOV.SD & (SudaGuardian)</small>
+                    <small>Copyright 2025. All rights reserved to GOV.SD & (SudaGuardian)</small>
                 </div>
 
-                <div class=" text-light gap-1">
+                <div class="text-light gap-1">
                     <small class="text-light d-block mb-1">Developed and operated by Muhaned</small>
                     <small class="text-light d-block mb-1">Current Version v0.0.0</small>
                 </div>
-                
+
             </div>
 
     </footer>
