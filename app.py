@@ -1,22 +1,25 @@
 import os
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, current_app
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
-# to be deleted
-from werkzeug.security import generate_password_hash, check_password_hash
-import hashlib
+from flask_mail import Mail, Message
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-app.config["SECRET_KEY"] = "secretkey"
-app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH"))
 
 # Ensure that the upload folder exists
-app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
+app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, os.getenv("UPLOAD_FOLDER"))
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Enable debug mode
@@ -25,6 +28,16 @@ app.config["DEBUG"] = True
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+
+# configuring the mail
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT"))
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS") == "True"
+app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL") == "True"
+
+mail = Mail(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///idguardian.db")
@@ -42,10 +55,10 @@ def load_user(user_id):
 
 @app.errorhandler(RequestEntityTooLarge)
 def handle_large_file(e):
-    flash("File too large. Maximum allowed size is 5 MB.")
+    flash("File too large. Maximum allowed size is 5 MB.", "danger")
     return redirect("/register")
 
-# ------- Routes ----------------------------------------------------
+# ------- Routes ----------------------------------------------------x
 
 # Home page
 @app.route('/')
@@ -59,39 +72,6 @@ def login():
 
     if request.method == "GET":
         logout_user()
-    #     password1 = generate_password_hash("test")
-    #     national_id1 = str(11111111111)
-    #     national_id1 = hashlib.sha256(national_id1.encode("utf-8")).hexdigest()
-    #     national_id1_fast = national_id1[-10:]
-    #     db.execute(
-    #     """
-    #     INSERT INTO users (
-    #         username,
-    #         password_hash,
-    #         national_id_hash,
-    #         full_name,
-    #         birthdate,
-    #         contact_email,
-    #         contact_phone,
-    #         verification_status,
-    #         verified_at,
-    #         national_id_fast,
-    #         role
-    #     )
-    #     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
-    #     """,
-    #     "admin1",
-    #     password1,
-    #     national_id1,
-    #     "Admin1",
-    #     "2004-05-12",
-    #     "admin1@example.com",
-    #     "+201234567891",
-    #     "verified",
-    #     national_id1_fast,
-    #     "admin"
-    # )
-
         return render_template("login.html")
     else:
         identifier = request.form.get("identifier")
@@ -136,10 +116,15 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
+    # if user is already logged in they can't register
+    if current_user.is_authenticated:
+        return redirect(url_for("user_dashboard"))
+    
     if request.method == "GET":
         return render_template("register.html")
     else:
-        full_name = request.form.get("name", "").strip()
+        full_name = request.form.get("name", "").strip().upper()
         birthdate = request.form.get("birthdate")
         email = request.form.get("email", "").strip().lower()
         phone = request.form.get("phone", "").strip().replace(" ", "")
@@ -209,10 +194,98 @@ def register():
         # Insert Object into pending_verifications table
         user.insert_to_pending()
 
-        flash("Registration submitted successfully. Await verification.", "success")
-        return redirect("/register")
+        # create token
+        token = generate_email_verification_token(user.contact_email)
+        verify_url = url_for("verify_email", token=token, _external=True)
 
+        # send email to verify user's email
+        msg = Message(
+            subject = "SudaGuardian: Verify your email to complete the registeration process",
+            sender = "noreply@sudaguardian.com",
+            recipients = [user.contact_email],
+            body = f"""
+            SudaGuardian Identity Portal
 
+            Hello {user.full_name}, 
+
+            Verify your email to complete the registeration process by clicking on te link below:
+            {verify_url}
+
+            This link expires in 30 minutes
+
+            If you think this is a mistake, ignore this email
+            """
+        )
+
+        msg.html =  render_template("verify.html", verify_url=verify_url, full_name=user.full_name)
+
+        try:
+            mail.send(msg)
+        except Exception as e:
+            current_app.logger.error(
+                "Email verification failed for : %s: %s",
+                user.contact_email,
+                str(e),
+                exc_info = True
+            )
+            flash("We couldn't send the verification email. Please try again later")
+            return redirect(url_for("register"))
+
+        # set the registeration started session to true so user can only open the 
+        # /check_inbox after submitting the register form
+        session["registration_started"] = True
+
+        # redirect user to /check_inbox route
+        flash("A message was sent to your inbox", "info")
+        return redirect(url_for("check_inbox"))
+
+@app.route("/check_inbox")
+def check_inbox():
+
+    if not session.get("registration_started"):
+        return redirect(url_for("register"))
+    return render_template("check_inbox.html")
+
+@app.route("/verify_email/<token>")
+def verify_email(token):
+
+    # redirect logged in users
+    if current_user.is_authenticated:
+        return redirect(url_for("user_dashboard"))
+    
+    # make sure registration in progress
+    elif not session.get("registration_started"):
+        return redirect(url_for("register"))
+    
+    # validate the token
+    else:
+        s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+        try :
+            email = s.loads(
+                token,
+                salt = "email-verification",
+                max_age = 1800
+            )
+        except SignatureExpired:
+            flash("Verification link has expired", "danger")
+            return redirect(url_for("register"))
+        except BadSignature:
+            flash("Invalid verification link", "danger")
+            return redirect(url_for("register"))
+        
+        # see if user's email exist in the database
+        user = PendingUser.get_by_email(email)
+
+        if not user:
+            flash("Invalid verification request", "error")
+            return redirect(url_for("register"))
+        else: 
+            user.update_email_status(email)
+            session.pop("registeration_started", None)
+            flash("Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
+            return redirect(url_for("home"))
+                
 @app.route("/user_dashboard")
 @login_required
 @roles_required("user", "admin")
@@ -223,7 +296,6 @@ def user_dashboard():
 @login_required
 @roles_required("admin", "reviewer")
 def reviewer_dashboard():
-
     return render_template("reviewer_dashboard.html", user=current_user)
 
 @app.route("/admin_dashboard")

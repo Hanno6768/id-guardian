@@ -138,21 +138,19 @@ class User(UserMixin):
         )
 
 class PendingUser():
-    def __init__(self, id=None, full_name=None, national_id=None, birthdate=None, contact_email=None, contact_phone=None, username=None, document_type=None, file_path=None, submitted_at=None, status=None, reviewer=None, review_notes=None, national_id_fast=None    ):
+    def __init__(self, id=None, full_name=None, national_id=None, birthdate=None, contact_email=None, contact_phone=None, username=None, file_path=None, submitted_at=None, status=None, national_id_fast=None, email_verified=None):
         self.id = id
         self.full_name = full_name
         self.national_id = national_id
         self.birthdate = birthdate
         self.contact_email = contact_email
         self.contact_phone = contact_phone
-        self.document_type = document_type
         self.file_path = file_path
         self.submitted_at = submitted_at
         self.status = status
-        self.reviewer = reviewer
-        self.review_notes = review_notes
         self.username = username
         self.national_id_fast = national_id_fast
+        email_verified = email_verified
 
     @staticmethod
     def get_by_username(username):
@@ -167,13 +165,11 @@ class PendingUser():
                 contact_email = row["contact_email"],
                 contact_phone = row["contact_phone"],
                 username = row["username"],
-                document_type = row["document_type"],
                 file_path = row["file_path"],
                 submitted_at = row["submitted_at"],
                 status = row["status"],
-                reviewer = row["reviewer"],
-                review_notes = row["review_notes"],
-                national_id_fast = row["national_id_fast"]
+                national_id_fast = row["national_id_fast"],
+                email_verified = row["email_verified"]
             )
         else:
             return None
@@ -190,7 +186,39 @@ class PendingUser():
             return row["email"]
         else:
             return None
-        
+
+    @staticmethod    
+    def get_by_email(email):
+        """Returns user by their email"""
+
+        email = email.lower()
+
+        result = db.execute(
+            "SELECT * FROM pending_verifications WHERE contact_email = ?",
+            email
+        )
+
+        if result:
+            row  = result[0]
+            return PendingUser(
+                id = row["id"],
+                full_name = row["full_name"],
+                national_id = row["national_id_hash"],
+                birthdate = row["birthdate"],
+                contact_email = row["contact_email"],
+                contact_phone = row["contact_phone"],
+                username = row["username"],
+                file_path = row["file_path"],
+                submitted_at = row["submitted_at"],
+                status = row["status"],
+                national_id_fast = row["national_id_fast"],
+                email_verified = row["email_verified"]
+            )
+    @staticmethod
+    def update_email_status(email):
+        """Update the email_verified from true to false"""
+        db.execute("UPDATE pending_verifications SET email_verified = ? WHERE contact_email = ?", 1, email) 
+
     def insert_to_pending(self):
         """Insert new user into the pending verifications table"""
         hashed_national_id = hashlib.sha256(self.national_id.encode("utf-8")).hexdigest()

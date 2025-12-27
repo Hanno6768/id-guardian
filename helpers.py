@@ -1,8 +1,9 @@
 import uuid
 
-from flask import abort
+from flask import abort, current_app
 from flask_login import current_user
 from functools import wraps
+from itsdangerous import URLSafeTimedSerializer
 
 ALLOWED_EXTENSIONS = {"png", "jpg","jpeg", "pdf"}
 
@@ -31,7 +32,6 @@ def generate_new_filename(original_filename):
     return f"{unique_name}.{extension}"
 
 # Abort if user accessed a forbidden page
-
 def roles_required(*roles):
     def decorator(f):
         @wraps(f)
@@ -43,7 +43,14 @@ def roles_required(*roles):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-        
+
+# Generate email verification token
+def generate_email_verification_token(email):
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return s.dumps(
+        email,
+        salt = "email-verification"
+    )    
 
 
     
