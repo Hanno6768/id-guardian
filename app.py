@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, url_for, current_app
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
-from models import User, PendingUser
+from models import User, PendingUser, EncryptedNationalID
 from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -16,6 +16,7 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["NATIONAL_ID_ENCRYPTION_KEY"] = os.getenv("NATIONAL_ID_ENCRYPTION_KEY")
 app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH"))
 
 # Ensure that the upload folder exists
@@ -111,7 +112,7 @@ def login():
 @app.route("/logout")
 def logout():
     logout_user()
-    flash("You have been looged out", "success")
+    flash("You have been logged out", "success")
     return redirect("/login")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -192,8 +193,14 @@ def register():
         user.file_path = file_path
 
         # Insert Object into pending_verifications table
-        user.insert_to_pending()
+        pending_id = user.insert_to_pending()
+        
+        # Encrypt national id and insert into national_id_encrypted
+        encrypted = EncryptedNationalID(pending_id=pending_id, user_id=None, national_id_plain=national_id)
+        encrypted.encrypt()
+        encrypted.insert()
 
+        # Email verification
         # create token
         token = generate_email_verification_token(user.contact_email)
         verify_url = url_for("verify_email", token=token, _external=True)
@@ -296,7 +303,10 @@ def user_dashboard():
 @login_required
 @roles_required("admin", "reviewer")
 def reviewer_dashboard():
-    return render_template("reviewer_dashboard.html", user=current_user)
+    
+    # Get all the pending users
+    pending_users = PendingUser.get_verified_pending_users()
+    return render_template("reviewer_dashboard.html", user=current_user, pending_users=pending_users)
 
 @app.route("/admin_dashboard")
 @login_required

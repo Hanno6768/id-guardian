@@ -4,6 +4,7 @@ from flask import abort, current_app
 from flask_login import current_user
 from functools import wraps
 from itsdangerous import URLSafeTimedSerializer
+from cryptography.fernet import Fernet
 
 ALLOWED_EXTENSIONS = {"png", "jpg","jpeg", "pdf"}
 
@@ -51,6 +52,24 @@ def generate_email_verification_token(email):
         email,
         salt = "email-verification"
     )    
+
+# Get the encrytion key
+def get_fernet():
+    return Fernet(current_app.config["NATIONAL_ID_ENCRYPTION_KEY"])
+
+# Encrypt the national id
+def encrypt_national_id(national_id):
+    f = get_fernet()
+
+    # Encrypt
+    return f.encrypt(national_id.encode()).decode()
+
+# Decrypt the national id
+def decrypt_national_id(encrypted_national_id):
+    f = get_fernet
+
+    # Decrypt
+    return f.encrypt(encrypted_national_id.encode()).decode()
 
 
     

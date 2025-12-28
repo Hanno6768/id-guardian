@@ -5,4 +5,39 @@
 <h1>Reviewer Dashboard</h1>
 <h1>Welcome {{ user.full_name }}</h1>
 
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Full Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Birthdate</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Submission Time</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pending_user in pending_users %}
+            <tr>
+                <th scope="row">{{ pending_user.full_name }}</th>
+                <td>{{ pending_user.username }}</td>
+                <td>{{ pending_user.birthdate }}</td>
+                <td>{{ pending_user.contact_email }}</td>
+                <td>{{ pending_user.contact_phone }}</td>
+                <td>{{ pending_user.submitted_at }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#userModal{{ pending_user.id }}">
+                        View Details
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
 {% endblock %}
