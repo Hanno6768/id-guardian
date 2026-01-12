@@ -1,0 +1,82 @@
+/* generated styling for review table using gemini */
+:root {
+    --gov-blue: #003366;
+    --gov-accent: #0F1F2E;
+    --success-green: #198754;
+    --danger-red: #dc3545;
+}
+
+.table-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.table thead th {
+    background-color: var(--gov-blue);
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 15px;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9ff !important;
+    transform: scale(1.002);
+}
+
+.btn-action {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+}
+
+.badge-status {
+    padding: 8px;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 10px;
+    width:fit-content;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background: var(--gov-blue);
+    color: white;
+}
+
+.profile-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+
+.profile-value {
+    font-size: 1rem;
+    color: #212529;
+    font-weight: 500;
+    margin-bottom: 15px;
+}

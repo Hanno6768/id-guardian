@@ -66,10 +66,10 @@ def encrypt_national_id(national_id):
 
 # Decrypt the national id
 def decrypt_national_id(encrypted_national_id):
-    f = get_fernet
+    f = get_fernet()
 
     # Decrypt
-    return f.encrypt(encrypted_national_id.encode()).decode()
+    return f.decrypt(encrypted_national_id.encode()).decode()
 
 
     

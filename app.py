@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token, decrypt_national_id
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from flask_mail import Mail, Message
@@ -12,7 +12,6 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
@@ -59,7 +58,7 @@ def handle_large_file(e):
     flash("File too large. Maximum allowed size is 5 MB.", "danger")
     return redirect("/register")
 
-# ------- Routes ----------------------------------------------------x
+# ------- Routes ----------------------------------------------------
 
 # Home page
 @app.route('/')
@@ -189,8 +188,8 @@ def register():
         # Save the uploaded file
         document.save(file_path)
 
-        # Insert the path of the file in the user object
-        user.file_path = file_path
+        # Insert the relative path of the file in the user object
+        user.file_path = f"uploads/{new_filename}"
 
         # Insert Object into pending_verifications table
         pending_id = user.insert_to_pending()
@@ -306,18 +305,62 @@ def reviewer_dashboard():
     
     # Get all the pending users
     pending_users = PendingUser.get_verified_pending_users()
-    return render_template("reviewer_dashboard.html", user=current_user, pending_users=pending_users)
+
+    # Decrypt the national ID number
+    for user in pending_users:
+        user["national_id"] = decrypt_national_id(user["national_id_ciphertext"])
+
+    return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users)
 
 @app.route("/admin_dashboard")
 @login_required
 @roles_required("admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", user=current_user)
-        
+    return render_template("admin_dashboard.html", user=current_user)       
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     return render_template("reset-password.html")
+
+@app.route("/review_user/<int:user_id>", methods=["POST"])
+@login_required
+@roles_required("admin", "reviewer")
+def reject_user(user_id):
+
+    # Get action
+    action = request.form.get("action")
+
+    # Check which action was comitted
+    if action == "request_correction":
+        # Update database and switch the user to the users table
+        
+        # Send email to user
+
+        flash("An email was sent to resubmit data", "success")
+    elif action == "reject":
+        # Get message from form
+
+        # Make sure there is a message
+
+        # Update database 
+
+        # Send email to user
+
+        flash("a rejection email was sent", "success")
+    else:
+        # Get message from form
+
+        # Make sure there is a message
+
+        # Update database 
+
+        # Send email to user
+
+        flash("user approved", "success")
+
+    return redirect(url_for("reviewer_dashboard"))
+
+    
 
 
 if __name__ == "__main__":

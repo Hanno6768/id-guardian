@@ -258,12 +258,16 @@ class PendingUser():
         )
     
     def get_verified_pending_users():
-        """Gets all users from the pending_verifications table and  returns them as a list of dictioanries in ascending order"""
+        """Gets all users from the pending_verifications table and the encrypted national_id number from 
+        the national_id_encrypted table then returns them as a list of dictioanries in ascending order"""
+        
         result = db.execute("""
-                            SELECT id, full_name, birthdate, contact_email, contact_phone, file_path, submitted_at, status, username
-                            FROM pending_verifications
-                            WHERE email_verified = 1
-                            ORDER BY submitted_at ASC
+                            SELECT p.id, p.full_name, p.birthdate, p.contact_email, p.contact_phone, p.file_path, p.submitted_at, p.status, p.username, n.national_id_ciphertext
+                            FROM pending_verifications AS p
+                            JOIN national_id_encrypted AS n
+                            ON p.id = n.pending_id
+                            WHERE p.email_verified = 1
+                            ORDER BY p.submitted_at ASC
                             """)
         if result:
             return result
