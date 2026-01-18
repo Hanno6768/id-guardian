@@ -1,0 +1,80 @@
+<!-- designed using gemini -->
+{% extends "layout.html" %}
+
+{% block title %}Link Expired - SudaGuardian{% endblock %}
+
+{% block content %}
+<style>
+    .expired-card {
+        max-width: 500px;
+        width: 100%;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background: white;
+    }
+
+    .expired-header {
+        background-color: #f8d7da;
+        color: #842029;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .expired-icon {
+        font-size: 60px;
+        margin-bottom: 10px;
+    }
+
+    .btn-gov {
+        background-color: #0F1F2E;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+    }
+
+    .btn-gov:hover {
+        background-color: #1a3a54;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="expired-card">
+
+        <div class="expired-header">
+            <div class="expired-icon">⏳</div>
+            <h2 class="fw-bold mb-0">Link Expired</h2>
+        </div>
+
+        <div class="p-5 text-center">
+            <p class="text-secondary mb-4" style="font-size: 1.1rem; line-height: 1.6;">
+                For your security, our identity portal links are temporary.
+                The link you followed has <strong>timed out</strong> or has already been used to finalize an action.
+            </p>
+
+            <div class="d-grid gap-3">
+                <a href="{{ url_for('register') }}" class="btn-gov">
+                    Restart Registration
+                </a>
+
+                <a href="{{ url_for('home') }}" class="text-decoration-none" style="color: #6c757d; font-size: 0.9rem;">
+                    Go back to Homepage
+                </a>
+            </div>
+        </div>
+
+        <div class="py-3 text-center" style="background-color: #f8f9fa; border-top: 1px solid #eee;">
+            <small class="text-muted">
+                <i class="bi bi-shield-lock"></i> SudaGuardian Security Protocol
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}

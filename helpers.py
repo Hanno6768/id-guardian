@@ -1,10 +1,13 @@
 import uuid
-
-from flask import abort, current_app
+import os
+from flask import abort, current_app, flash, render_template
 from flask_login import current_user
 from functools import wraps
 from itsdangerous import URLSafeTimedSerializer
 from cryptography.fernet import Fernet
+from flask_mail import Message
+from extensions import mail
+from premailer import transform
 
 ALLOWED_EXTENSIONS = {"png", "jpg","jpeg", "pdf"}
 
@@ -51,6 +54,14 @@ def generate_email_verification_token(email):
     return s.dumps(
         email,
         salt = "email-verification"
+    )  
+
+# Generate password token
+def generate_password_token(user_id):
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return s.dumps(
+        user_id,
+        salt = "password-set-salt"
     )    
 
 # Get the encrytion key
@@ -70,6 +81,29 @@ def decrypt_national_id(encrypted_national_id):
 
     # Decrypt
     return f.decrypt(encrypted_national_id.encode()).decode()
+
+# Send email
+def send_mail(subject, sender, recipients, template, **kwargs):
+    try:
+        from datetime import datetime
+        html_body = render_template(template, year=datetime.now().year, **kwargs)
+
+        inlined_html = transform(html_body)
+
+        msg = Message(
+            subject=subject,
+            recipients=recipients,
+            sender=sender,
+            html=inlined_html
+        ) 
+
+        mail.send(msg)
+        return True
+    
+    except Exception as e:
+        current_app.logger.error(f"Mail Error: {str(e)}", exc_info=True)
+        return False
+
 
 
     

@@ -1,13 +1,13 @@
 import os
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for, current_app
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token, decrypt_national_id
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token, generate_password_token, decrypt_national_id, send_mail
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
-from flask_mail import Mail, Message
+from extensions import mail
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from dotenv import load_dotenv
 
@@ -29,7 +29,9 @@ app.config["DEBUG"] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 
-# configuring the mail
+# Configure CS50 Library to use SQLite database
+db = SQL("sqlite:///idguardian.db")
+
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
 app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT"))
 app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
@@ -37,10 +39,7 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS") == "True"
 app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL") == "True"
 
-mail = Mail(app)
-
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///idguardian.db")
+mail.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -57,13 +56,30 @@ def load_user(user_id):
 def handle_large_file(e):
     flash("File too large. Maximum allowed size is 5 MB.", "danger")
     return redirect("/register")
-
 # ------- Routes ----------------------------------------------------
 
 # Home page
 @app.route('/')
 @app.route("/home")
 def home():
+    # username = "reviewer1"
+    # password_hash = generate_password_hash("test")
+    # national_id = "00000000011"
+    # national_id_hash = sha256(national_id.encode("utf-8")).hexdigest()
+    # full_name = "reviewer1"
+    # birthdate = "2000-07-08"
+    # contact_email = "reviewer1@gmail.com"
+    # contact_phone = "+249000000000"
+    # verified_at = datetime.now()
+    # national_id_fast = national_id_hash[-10:]
+    # role = "reviewer"
+    # db.execute("""
+    #                 INSERT INTO users (username, 
+    #            password_hash, national_id_hash, full_name, 
+    #            birthdate, contact_email, contact_phone, verified_at, 
+    #            national_id_fast, role) VALUES (?,?,?,?,?,?,?,?,?,?)
+    #            """, username, password_hash, national_id_hash, full_name, birthdate,
+    #            contact_email, contact_phone, verified_at, national_id_fast, role)
     return render_template("home.html")
 
 # log user in
@@ -93,6 +109,9 @@ def login():
                 user = User.get_by_national_id(identifier)
             if not user:
                 flash("Invalid credentials", "danger")
+                return redirect("/login")
+            if user.password is None:
+                flash("Please set your password before logging in", "warning")
                 return redirect("/login")
             if user.verify_password(password):
                 login_user(user)
@@ -155,7 +174,7 @@ def register():
 
         # Check if the document type supported
         if not allowed_extensions(document.filename):
-            flash("The Document formate you uploaded is not supported", "warning")
+            flash("The Document format you uploaded is not supported", "warning")
             return redirect("/register")
             
         # Validate the national_id
@@ -175,7 +194,7 @@ def register():
         user.status = "pending"
 
         try:
-            user.insert_to_identities()
+            identities_id = user.insert_to_identities()
         except Exception as e:
             flash(handle_intergrity_error(e), "warning")
             return redirect("/register")
@@ -191,6 +210,9 @@ def register():
         # Insert the relative path of the file in the user object
         user.file_path = f"uploads/{new_filename}"
 
+        # Assign the identities_id to the user object
+        user.identities_id = identities_id
+
         # Insert Object into pending_verifications table
         pending_id = user.insert_to_pending()
         
@@ -205,44 +227,31 @@ def register():
         verify_url = url_for("verify_email", token=token, _external=True)
 
         # send email to verify user's email
-        msg = Message(
-            subject = "SudaGuardian: Verify your email to complete the registeration process",
-            sender = "noreply@sudaguardian.com",
-            recipients = [user.contact_email],
-            body = f"""
-            SudaGuardian Identity Portal
+        subject = "SudaGuardian: Verify your email to complete the registeration process"
+        sender = ("SudaGuardian","noreply@sudaguardian.com")
+        recipients = [user.contact_email]
+        
+        template = "verify_email.html"
 
-            Hello {user.full_name}, 
-
-            Verify your email to complete the registeration process by clicking on te link below:
-            {verify_url}
-
-            This link expires in 30 minutes
-
-            If you think this is a mistake, ignore this email
-            """
+        email_success = send_mail(
+            subject=subject, 
+            sender=sender, 
+            recipients=recipients, 
+            template=template,
+            name=user.full_name,
+            verify_url=verify_url
         )
 
-        msg.html =  render_template("verify.html", verify_url=verify_url, full_name=user.full_name)
-
-        try:
-            mail.send(msg)
-        except Exception as e:
-            current_app.logger.error(
-                "Email verification failed for : %s: %s",
-                user.contact_email,
-                str(e),
-                exc_info = True
-            )
-            flash("We couldn't send the verification email. Please try again later")
+        if email_success:
+            # set the registeration started session to true so user can only open the 
+            # /check_inbox after submitting the register form
+            session["registration_started"] = True
+            flash("A message was sent to your inbox", "info")
+        else:
+            flash("Something went wrong. Try again later", "error")
             return redirect(url_for("register"))
 
-        # set the registeration started session to true so user can only open the 
-        # /check_inbox after submitting the register form
-        session["registration_started"] = True
-
         # redirect user to /check_inbox route
-        flash("A message was sent to your inbox", "info")
         return redirect(url_for("check_inbox"))
 
 @app.route("/check_inbox")
@@ -273,12 +282,8 @@ def verify_email(token):
                 salt = "email-verification",
                 max_age = 1800
             )
-        except SignatureExpired:
-            flash("Verification link has expired", "danger")
-            return redirect(url_for("register"))
-        except BadSignature:
-            flash("Invalid verification link", "danger")
-            return redirect(url_for("register"))
+        except (SignatureExpired, BadSignature):
+            return redirect(url_for("link_expired", source ="verify_email"))
         
         # see if user's email exist in the database
         user = PendingUser.get_by_email(email)
@@ -288,7 +293,7 @@ def verify_email(token):
             return redirect(url_for("register"))
         else: 
             user.update_email_status(email)
-            session.pop("registeration_started", None)
+            session.pop("registration_started", None)
             flash("Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
                 
@@ -325,43 +330,221 @@ def reset_password():
 @app.route("/review_user/<int:user_id>", methods=["POST"])
 @login_required
 @roles_required("admin", "reviewer")
-def reject_user(user_id):
+def review_user(user_id):
 
     # Get action
     action = request.form.get("action")
 
     # Check which action was comitted
-    if action == "request_correction":
-        # Update database and switch the user to the users table
+    if action == "approve":
         
-        # Send email to user
+        # Update database
+        user = PendingUser()
+        user = user.verify_user(user_id)
 
-        flash("An email was sent to resubmit data", "success")
-    elif action == "reject":
-        # Get message from form
+        # Generate password token & the url
+        token = generate_password_token(user.id)
+        set_password_url = url_for("set_password", token=token, _external=True)
 
-        # Make sure there is a message
+        # Send email to user to set their password
+        subject = "Final Step: Set your account password for SudaGuardian"
+        sender =  ("SudaGuardian", "noreply@sudaguardian.com")
+        recepients = [user.contact_email]
+        template = "set_password_email.html"
 
-        # Update database 
+        email_success = send_mail(
+            subject=subject, 
+            sender=sender, 
+            recipients=recepients, 
+            template=template,
+            set_password_url=set_password_url,
+            name=user.full_name
+        )
 
-        # Send email to user
+        if email_success:
+            # Delete the user from the pending_verifications & identities tables
+            user.delete_user()
 
-        flash("a rejection email was sent", "success")
-    else:
-        # Get message from form
+            flash("user approved", "success")
+        else:
+            flash("We couldn't notify the user. Please try again later", "warning")
+            return redirect(url_for("reviewer_dashboard"))
 
-        # Make sure there is a message
-
-        # Update database 
-
-        # Send email to user
-
-        flash("user approved", "success")
-
-    return redirect(url_for("reviewer_dashboard"))
-
+        return redirect(url_for("reviewer_dashboard"))
     
+    elif action == "reject":
 
+        # Get message from form
+        message = request.form.get("message").strip()
+
+        # Make sure there is a message
+        if not message:
+            flash("Please provide a reason for rejection", "warning")
+            return redirect(url_for("reviewer_dashboard"))
+        
+        # Get user data before deletion
+        pending_user = PendingUser.get_by_id(user_id)
+        
+        if not pending_user:
+            flash("User not found", "danger")
+            return redirect(url_for("reviewer_dashboard"))
+        
+        # Log the rejection reason in the registeration_reviews table
+        PendingUser.log_rejection(
+            user_id=user_id,
+            reviewer_name=current_user.full_name,
+            rejection_reason=message,
+            file_path=pending_user.file_path
+        )
+        
+        # Send rejection email to user
+        subject = "Your SudaGuardian Application Status"
+        sender = ("SudaGuardian", "noreply@sudaguardian.com")
+        recipients = [pending_user.contact_email]
+        template = "rejection_email.html"
+        
+        email_success = send_mail(
+            subject=subject,
+            sender=sender,
+            recipients=recipients,
+            template=template,
+            name=pending_user.full_name,
+            reviewer_message=message
+        )
+        
+        if email_success:
+            # Delete the user from the pending_verifications table
+            pending_user.delete_from_identities()
+            flash("User rejected and notification email sent", "success")
+        else:
+            flash("We couldn't send the notification email, Please try again", "warning")
+        
+        return redirect(url_for("reviewer_dashboard"))
+    
+    elif action == "request_correction":
+
+        # Get message from form
+        message = request.form.get("message", "").strip()
+
+        # Make sure there is a message
+        if not message:
+            flash("Please provide a reason for correction request", "warning")
+            return redirect(url_for("reviewer_dashboard"))
+        
+        pending_user = PendingUser.get_by_id(user_id)
+        
+        if not pending_user:
+            flash("User not found", "danger")
+            return redirect(url_for("reviewer_dashboard"))
+        
+        # Log the correction request in the registeration_reviews table
+        PendingUser.log_correction_request(
+            user_id=user_id,
+            reviewer_name=current_user.full_name,
+            correction_reason=message,
+            file_path=pending_user.file_path
+        )
+        
+        # Send correction request email to user
+        subject = "Action Required: Resubmit Information for SudaGuardian Application"
+        sender = ("SudaGuardian", "noreply@sudaguardian.com")
+        recipients = [pending_user.contact_email]
+        template = "correction_request_email.html"
+        
+        email_success = send_mail(
+            subject=subject,
+            sender=sender,
+            recipients=recipients,
+            template=template,
+            name=pending_user.full_name,
+            reviewer_message=message
+        )
+        
+        if email_success:
+            # TODO : get the data that needs correction from the pending_user object and prefill the registeration form with it
+            pending_user.delete_from_identities()
+            flash("Correction request sent to user", "success")
+        else:
+            flash("Correction request logged but we couldn't send the notification email", "warning")
+        
+        return redirect(url_for("reviewer_dashboard"))
+
+    else:
+        return redirect(url_for("reviewer_dashboard"))
+
+@app.route("/set_password/<token>", methods=["GET", "POST"])
+def set_password(token):
+    # complete logic for setting the password
+    if current_user.is_authenticated:
+        return redirect(url_for("user_dashboard"))
+    
+    s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+    try:
+        # detokenize the token
+        id = s.loads(
+            token,
+            salt = "password-set-salt",
+            max_age = 86400
+        )
+    except (SignatureExpired, BadSignature):
+        return redirect(url_for("link_expired", source ="set_password"))
+    
+    user = User.get_by_id(id)
+    print(id)
+    
+    # When user submits form
+    if request.method == "POST":
+        password = request.form.get("password")
+        confirmation = request.form.get("confirm_password")
+
+        if not password or not confirmation:
+            flash("Please fill in both fields.", "warning")
+            return redirect(url_for("set_password", token=token))
+        
+        if password != confirmation:
+            flash("Passwords does not match.", "danger")
+            return redirect(url_for("set_password", token=token))
+        
+        # hash the password and update the user record
+        password_success = User.update_password(id, password)
+        if password_success:
+            user_to_login = User.get_by_id(id)
+
+            if user_to_login:
+                flash("Welcome! Your password has been set successfully.", "success")
+                login_user(user_to_login)
+                return redirect(url_for("user_dashboard"))
+            else:
+                flash("Something went wrong. Please try logging in.", "warning")
+                return redirect(url_for("login"))
+        else:
+            flash("Something went wrong. Please try again later.","warning")
+            return redirect(url_for("set_password", token=token))
+    else:    
+        # add a landing page for the user where the user submits a form
+        return render_template("set_password.html", token=token)
+
+# UNCOMPLETE !!!!!!!!!!!!!!!!!!!  
+@app.route("/link_expired")
+def link_expired():
+    
+    source = request.args.get("source")
+
+    if source == "verify_email":
+        message = "For your security, our identity portal links are temporary. The link you followed has <strong>timed out</strong> or has already been used to finalize an action."
+        button_text = "Resend Verification Link"
+
+
+    elif source == "set_password":
+        message = "For your security, our identity portal links are temporary. The link you followed has <strong>timed out</strong> or has already been used to finalize an action."
+        button_text = "Resend Link"
+
+    # else:
+    #     # Someone types URL manually
+    #     return redirect(url_for("home"))
+
+    return render_template("link_expired.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

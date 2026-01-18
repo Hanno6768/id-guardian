@@ -137,9 +137,26 @@ class User(UserMixin):
             self.verified_at,
             self.role
         )
+    
+    # update user password
+    @staticmethod
+    def update_password(user_id, password):
+        """Update user password by their id returns true if successfull, false otherwise"""
+        hashed_password = generate_password_hash(password)
+        try:
+            db.execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                hashed_password,
+                user_id
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating password: {e}")
+            return False
+
 
 class PendingUser():
-    def __init__(self, id=None, full_name=None, national_id=None, birthdate=None, contact_email=None, contact_phone=None, username=None, file_path=None, submitted_at=None, status=None, national_id_fast=None, email_verified=None):
+    def __init__(self, id=None, full_name=None, national_id=None, birthdate=None, contact_email=None, contact_phone=None, username=None, file_path=None, submitted_at=None, status=None, national_id_fast=None, email_verified=None, identities_id=None):
         self.id = id
         self.full_name = full_name
         self.national_id = national_id
@@ -151,8 +168,126 @@ class PendingUser():
         self.status = status
         self.username = username
         self.national_id_fast = national_id_fast
-        email_verified = email_verified
+        self.email_verified = email_verified
+        self.identities_id = identities_id
 
+    @staticmethod
+    def get_by_id(user_id):
+        """Returns user by their pending_verifications id"""
+
+        result = db.execute(
+            "SELECT * FROM pending_verifications WHERE id = ?",
+            user_id
+        )
+
+        if result:
+            row  = result[0]
+            return PendingUser(
+                id = row["id"],
+                full_name = row["full_name"],
+                national_id = row["national_id_hash"],
+                birthdate = row["birthdate"],
+                contact_email = row["contact_email"],
+                contact_phone = row["contact_phone"],
+                username = row["username"],
+                file_path = row["file_path"],
+                submitted_at = row["submitted_at"],
+                status = row["status"],
+                national_id_fast = row["national_id_fast"],
+                email_verified = row["email_verified"],
+                identities_id = row["identities_id"]
+            )
+        else:
+            return None
+
+    @staticmethod
+    def verify_user(user_id):
+        """Verify user by moving the user from the pending_verifications table to the users table, 
+        using the pending id. User will NOT be deleted from the pending_verifications table and returned 
+        as a pendinguser object, the returned id is the id given to the user in the users table."""
+
+        result = db.execute(
+            """SELECT full_name, national_id_hash, birthdate, contact_email, contact_phone, 
+            national_id_fast, username, identities_id FROM pending_verifications WHERE id = ?""", user_id
+            )
+        
+        if result:
+            row = result[0]
+            full_name = row["full_name"]
+            national_id = row["national_id_hash"]
+            birthdate = row["birthdate"]
+            contact_email = row["contact_email"]
+            contact_phone = row["contact_phone"]
+            username = row["username"]
+            national_id_fast=row["national_id_fast"]
+            identities_id = row["identities_id"]
+
+            verified_at = datetime.now()
+            role = "user"
+
+            # Transfer user to the users table
+            id = db.execute("""
+                        INSERT INTO users (full_name, national_id_hash, birthdate, contact_email, contact_phone, 
+                        national_id_fast, username, verified_at, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """, 
+                        full_name, national_id, birthdate, contact_email, contact_phone, national_id_fast, username, verified_at, role
+            )
+            return PendingUser(
+                id = id,
+                full_name = row["full_name"],
+                national_id = row["national_id_hash"],
+                birthdate = row["birthdate"],
+                contact_email = row["contact_email"],
+                contact_phone = row["contact_phone"],
+                username = row["username"],
+                national_id_fast = row["national_id_fast"],
+                identities_id = identities_id,
+            )
+
+        else:
+            return None
+
+    def delete_user(self):
+        """Deletes user from the pending_verifications using their identities id"""
+
+        db.execute("""
+                    DELETE FROM pending_verifications WHERE identities_id = ?
+        """, self.identities_id)
+
+    @staticmethod                               
+    def log_rejection(user_id, reviewer_name, rejection_reason, file_path):
+        """Log a rejection in the registeration_reviews table"""
+        reviewed_at = datetime.now()
+        db.execute("""
+                    INSERT INTO registeration_reviews 
+                    (document_type, document_number, reviewer_name, reviewed_at, reviewer_notes, file_path)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """, 
+                    "rejection",
+                    user_id,
+                    reviewer_name,
+                    reviewed_at,
+                    rejection_reason,
+                    file_path
+        )
+    
+    @staticmethod
+    def log_correction_request(user_id, reviewer_name, correction_reason, file_path):
+        """Log a correction request in the registeration_reviews table"""
+        reviewed_at = datetime.now()
+        db.execute("""
+                    INSERT INTO registeration_reviews 
+                    (document_type, document_number, reviewer_name, reviewed_at, reviewer_notes, file_path)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """, 
+                    "correction_request",
+                    user_id,
+                    reviewer_name,
+                    reviewed_at,
+                    correction_reason,
+                    file_path
+        )
+        
     @staticmethod
     def get_by_username(username):
         result = db.execute("SELECT * FROM pending_verifications WHERE username = ?", username)
@@ -170,7 +305,8 @@ class PendingUser():
                 submitted_at = row["submitted_at"],
                 status = row["status"],
                 national_id_fast = row["national_id_fast"],
-                email_verified = row["email_verified"]
+                email_verified = row["email_verified"],
+                identities_id = row["identities_id"]
             )
         else:
             return None
@@ -213,8 +349,10 @@ class PendingUser():
                 submitted_at = row["submitted_at"],
                 status = row["status"],
                 national_id_fast = row["national_id_fast"],
-                email_verified = row["email_verified"]
+                email_verified = row["email_verified"],
+                identities_id = row["identities_id"]
             )
+    
     @staticmethod
     def update_email_status(email):
         """Update the email_verified from true to false"""
@@ -226,7 +364,7 @@ class PendingUser():
         national_id_fast = hashed_national_id[-10:]
         submitted_at = datetime.now()
         return db.execute(
-            "INSERT INTO pending_verifications (full_name, national_id_hash, birthdate, contact_email, contact_phone, username, file_path, submitted_at, status, national_id_fast) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO pending_verifications (full_name, national_id_hash, birthdate, contact_email, contact_phone, username, file_path, submitted_at, status, national_id_fast, identities_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.full_name,
             hashed_national_id,
             self.birthdate,
@@ -236,7 +374,8 @@ class PendingUser():
             self.file_path,
             submitted_at,
             self.status,
-            national_id_fast
+            national_id_fast,
+            self.identities_id
         )
     
     def insert_to_identities(self):
@@ -244,7 +383,7 @@ class PendingUser():
         national_id_hash = hashlib.sha256(self.national_id.encode("utf-8")).hexdigest()
         national_id_fast = national_id_hash[-10:]
         created_at = datetime.now()
-        db.execute(
+        id = db.execute(
             "INSERT INTO identities (full_name, national_id_hash, national_id_fast, birthdate, contact_email, contact_phone, username, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.full_name,
             national_id_hash,
@@ -256,13 +395,23 @@ class PendingUser():
             self.status,
             created_at
         )
+        return id
     
+    def delete_from_identities(self):
+        """Deletes user from the identities & pending_verifications tables (beacuse they are linked by foreign key identities_id) 
+        using there identities id"""
+
+        db.execute("""
+                    DELETE FROM identities WHERE id = ?
+        """, self.identities_id)
+
+    @staticmethod
     def get_verified_pending_users():
         """Gets all users from the pending_verifications table and the encrypted national_id number from 
         the national_id_encrypted table then returns them as a list of dictioanries in ascending order"""
         
         result = db.execute("""
-                            SELECT p.id, p.full_name, p.birthdate, p.contact_email, p.contact_phone, p.file_path, p.submitted_at, p.status, p.username, n.national_id_ciphertext
+                            SELECT p.id, p.full_name, p.birthdate, p.contact_email, p.contact_phone, p.file_path, p.submitted_at, p.status, p.username, p.identities_id, n.national_id_ciphertext
                             FROM pending_verifications AS p
                             JOIN national_id_encrypted AS n
                             ON p.id = n.pending_id
@@ -330,5 +479,6 @@ class EncryptedNationalID():
             )
         else:
             return None
+        
 
 

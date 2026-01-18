@@ -1,0 +1,14 @@
+{% extends "email_layout.html" %}
+{% block title %}Verify Email{% endblock %}
+{% block content %}
+<p>Dear <strong>{{ name }}</strong>,</p>
+<p>Thank you for starting your registration with the SudaGuardian Identity Portal. Please verify your email address to
+    complete the process.</p>
+<p>This verification link is valid for <strong>30 minutes</strong>.</p>
+<div style="text-align: center;">
+    <a href="{{ verify_url }}" class="btn-primary">Verify Email Address</a>
+</div>
+<p style="margin-top: 30px; font-size: 12px; color: #718096;">
+    If you did not create an account, please ignore this email.
+</p>
+{% endblock %}

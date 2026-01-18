@@ -1,0 +1,22 @@
+{% extends "email_layout.html" %}
+
+{% block title %}Application Update{% endblock %}
+
+{% block content %}
+    <p>Dear <strong>{{ name }}</strong>,</p>
+    
+    <p>Thank you for your patience while we reviewed your application. We regret to inform you that your application could not be approved at this time.</p>
+    
+    <p>Specific feedback from our verification team:</p>
+
+    <div class="alert-box alert-danger">
+        <em>"{{ reviewer_message }}"</em>
+    </div>
+
+    <p>If you believe this decision was made in error or if you have corrected the issues mentioned above, you are welcome to submit a new application.</p>
+    
+    <p style="margin-top: 30px;">
+        Sincerely,<br>
+        <strong>The SudaGuardian Verification Team</strong>
+    </p>
+{% endblock %}

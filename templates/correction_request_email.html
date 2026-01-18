@@ -1,0 +1,26 @@
+{% extends "email_layout.html" %}
+
+{% block title %}Action Required: Correction Needed{% endblock %}
+
+{% block content %}
+    <p>Dear <strong>{{ name }}</strong>,</p>
+    
+    <p>We have reviewed your application. While it is largely complete, we noticed a discrepancy that requires your attention before we can proceed.</p>
+    
+    <p><strong>Correction Required:</strong></p>
+    
+    <div class="alert-box alert-warning">
+        <em>"{{ reviewer_message }}"</em>
+    </div>
+
+    <p>Please update your information or re-upload the necessary documents. You do not need to start from scratch.</p>
+    
+    <div style="text-align: center;">
+        <a href="{{ edit_link }}" class="btn-primary">Update My Application</a>
+    </div>
+    
+    <p style="margin-top: 30px;">
+        Thank you for your cooperation,<br>
+        <strong>The SudaGuardian Verification Team</strong>
+    </p>
+{% endblock %}

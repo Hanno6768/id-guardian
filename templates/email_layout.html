@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SudaGuardian{% endblock %}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
+        .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background-color: #0F1F2E; padding: 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .header-subtitle { color: #A0AEC0; font-size: 11px; text-transform: uppercase; display: block; margin-top: 5px; letter-spacing: 1px; }
+        .content { padding: 40px 30px; color: #333333; line-height: 1.6; }
+        .btn-primary { 
+            display: inline-block; 
+            background-color: #0F1F2E; 
+            color: #ffffff !important; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            margin: 20px 0;
+            text-align: center;
+        }
+        .alert-box { padding: 20px; margin: 20px 0; border-radius: 4px; border-left: 4px solid #ccc; font-style: italic; }
+        .alert-warning { background-color: #fffbf0; border-left-color: #ffc107; color: #856404; }
+        .alert-danger { background-color: #fff5f5; border-left-color: #dc3545; color: #842029; }
+        .alert-info { background-color: #f7fafc; border-left-color: #0F1F2E; color: #2d3748; }
+        .footer { background-color: #f8f9fa; padding: 25px; text-align: center; font-size: 11px; color: #718096; border-top: 1px solid #e0e0e0; }
+        .footer a { color: #0F1F2E; text-decoration: none; font-weight: bold; margin: 0 5px; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>SudaGuardian</h1>
+            <span class="header-subtitle">Unofficial Identity Portal</span>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="footer">
+            <p>&copy; {{ year }} SudaGuardian. All rights reserved.</p>
+            <p>
+                <a href="#">Visit Portal</a> | <a href="#">Contact Support</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
