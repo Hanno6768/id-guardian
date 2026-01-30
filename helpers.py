@@ -1,6 +1,6 @@
 import uuid
 import os
-from flask import abort, current_app, flash, render_template
+from flask import abort, current_app, flash, render_template, url_for
 from flask_login import current_user
 from functools import wraps
 from itsdangerous import URLSafeTimedSerializer
@@ -49,10 +49,10 @@ def roles_required(*roles):
     return decorator
 
 # Generate email verification token
-def generate_email_verification_token(email):
+def generate_email_verification_token(user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return s.dumps(
-        email,
+        user_id,
         salt = "email-verification"
     )  
 
@@ -83,10 +83,11 @@ def decrypt_national_id(encrypted_national_id):
     return f.decrypt(encrypted_national_id.encode()).decode()
 
 # Send email
-def send_mail(subject, sender, recipients, template, **kwargs):
+def send_mail(subject, recipients, template, **kwargs):
     try:
         from datetime import datetime
         html_body = render_template(template, year=datetime.now().year, **kwargs)
+        sender = ("SudaGuardian","noreply@sudaguardian.com")
 
         inlined_html = transform(html_body)
 
@@ -103,6 +104,55 @@ def send_mail(subject, sender, recipients, template, **kwargs):
     except Exception as e:
         current_app.logger.error(f"Mail Error: {str(e)}", exc_info=True)
         return False
+    
+# send set password email
+def send_set_password_email(user):
+        
+    # Generate password token & the url
+        token = generate_password_token(user.id)
+        set_password_url = url_for("set_password", token=token, _external=True)
+
+        # Send email to user to set their password
+        subject = "Final Step: Set your account password for SudaGuardian"
+        recepients = [user.contact_email]
+        template = "set_password_email.html"
+
+        email_success = send_mail(
+            subject=subject,
+            recipients=recepients, 
+            template=template,
+            set_password_url=set_password_url,
+            name=user.full_name
+        )
+        if email_success:
+            return True
+        else: 
+            return False
+        
+def send_email_verification_email(user):
+        
+    # create token
+        token = generate_email_verification_token(user.id)
+        verify_url = url_for("verify_email", token=token, _external=True)
+
+        # send email to verify user's email
+        subject = "SudaGuardian: Verify your email to complete the registeration process"
+        recipients = [user.contact_email]
+        
+        template = "verify_email.html"
+
+        email_success = send_mail(
+            subject=subject, 
+            recipients=recipients, 
+            template=template,
+            name=user.full_name,
+            verify_url=verify_url
+        )
+
+        if email_success:
+            return True
+        else:
+            return False
 
 
 

@@ -58,16 +58,17 @@
                 For your security, our identity portal links are temporary.
                 The link you followed has <strong>timed out</strong> or has already been used to finalize an action.
             </p>
-
+            <form action="{{ url_for('link_expired') }}" method="post">
             <div class="d-grid gap-3">
-                <a href="{{ url_for('register') }}" class="btn-gov">
-                    Restart Registration
-                </a>
+                <button type="submit">
+                    {{ button_text }}
+                </button>
 
                 <a href="{{ url_for('home') }}" class="text-decoration-none" style="color: #6c757d; font-size: 0.9rem;">
                     Go back to Homepage
                 </a>
             </div>
+            </form>
         </div>
 
         <div class="py-3 text-center" style="background-color: #f8f9fa; border-top: 1px solid #eee;">

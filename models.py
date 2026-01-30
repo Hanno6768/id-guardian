@@ -9,15 +9,15 @@ db = SQL("sqlite:///idguardian.db")
 
 # created a user object using copilot to understand the structure 
 class User(UserMixin):
-    def __init__(self, id, username, password, national_id, full_name, birthdate, email, phone, verification_status, verified_at, national_id_fast, role):
+    def __init__(self, id=None, username=None, password=None, national_id=None, full_name=None, birthdate=None, contact_email=None, contact_phone=None, verification_status=None, verified_at=None, national_id_fast=None, role=None):
         self.id = id
         self.username = username
         self.password = password
         self.national_id = national_id
         self.full_name = full_name
         self.birthdate = birthdate
-        self.email = email
-        self.phone = phone
+        self.contact_email = contact_email
+        self.contact_phone = contact_phone
         self.verification_status = verification_status
         self.verified_at = verified_at
         self.role = role
@@ -41,8 +41,8 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["contact_email"],
-                phone=row["contact_phone"],
+                contact_email=row["contact_email"],
+                contact_phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
@@ -64,8 +64,8 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["contact_email"],
-                phone=row["contact_phone"],
+                contact_email=row["contact_email"],
+                contact_phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
@@ -86,8 +86,8 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["contact_email"],
-                phone=row["contact_phone"],
+                contact_email=row["contact_email"],
+                contact_phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
@@ -111,8 +111,8 @@ class User(UserMixin):
                 national_id=row["national_id_hash"],
                 full_name=row["full_name"],
                 birthdate=row["birthdate"],
-                email=row["contact_email"],
-                phone=row["contact_phone"],
+                contact_email=row["contact_email"],
+                contact_phone=row["contact_phone"],
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
@@ -132,7 +132,7 @@ class User(UserMixin):
             hashed_national_id,
             self.full_name,
             self.birthdate,
-            self.email,
+            self.contact_email,
             self.verification_status,
             self.verified_at,
             self.role

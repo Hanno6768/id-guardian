@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, generate_email_verification_token, generate_password_token, decrypt_national_id, send_mail
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from extensions import mail
@@ -215,6 +215,7 @@ def register():
 
         # Insert Object into pending_verifications table
         pending_id = user.insert_to_pending()
+        user.id = pending_id
         
         # Encrypt national id and insert into national_id_encrypted
         encrypted = EncryptedNationalID(pending_id=pending_id, user_id=None, national_id_plain=national_id)
@@ -222,25 +223,7 @@ def register():
         encrypted.insert()
 
         # Email verification
-        # create token
-        token = generate_email_verification_token(user.contact_email)
-        verify_url = url_for("verify_email", token=token, _external=True)
-
-        # send email to verify user's email
-        subject = "SudaGuardian: Verify your email to complete the registeration process"
-        sender = ("SudaGuardian","noreply@sudaguardian.com")
-        recipients = [user.contact_email]
-        
-        template = "verify_email.html"
-
-        email_success = send_mail(
-            subject=subject, 
-            sender=sender, 
-            recipients=recipients, 
-            template=template,
-            name=user.full_name,
-            verify_url=verify_url
-        )
+        email_success = send_email_verification_email(user)
 
         if email_success:
             # set the registeration started session to true so user can only open the 
@@ -277,22 +260,39 @@ def verify_email(token):
         s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
         try :
-            email = s.loads(
+            id = s.loads(
                 token,
                 salt = "email-verification",
                 max_age = 1800
             )
-        except (SignatureExpired, BadSignature):
-            return redirect(url_for("link_expired", source ="verify_email"))
+        except SignatureExpired:
+        # 1. Isolate the payload (the part before the first dot)
+            payload_part = token.split('.')[0] 
+        
+            try:
+                # 2. Decode ONLY that first part
+                # Use .encode('utf-8') to satisfy the bytes requirement we saw earlier
+                user_id = s.load_payload(payload_part.encode('utf-8'))
+            except Exception:
+                user_id = None
+
+            # store data in a seesion to avoid manual url tampering
+            session["expired_user_id"] = user_id
+            session["expired_source"] = "verify_email"
+
+            return redirect(url_for("link_expired"))
+        except BadSignature:
+            flash("Invalid verification request", "error")
+            return redirect(url_for("register"))
         
         # see if user's email exist in the database
-        user = PendingUser.get_by_email(email)
+        user = PendingUser.get_by_id(id)
 
         if not user:
             flash("Invalid verification request", "error")
             return redirect(url_for("register"))
         else: 
-            user.update_email_status(email)
+            user.update_email_status(user.contact_email)
             session.pop("registration_started", None)
             flash("Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
@@ -327,10 +327,10 @@ def admin_dashboard():
 def reset_password():
     return render_template("reset-password.html")
 
-@app.route("/review_user/<int:user_id>", methods=["POST"])
+@app.route("/review_user/<int:pending_id>", methods=["POST"])
 @login_required
 @roles_required("admin", "reviewer")
-def review_user(user_id):
+def review_user(pending_id):
 
     # Get action
     action = request.form.get("action")
@@ -339,31 +339,18 @@ def review_user(user_id):
     if action == "approve":
         
         # Update database
-        user = PendingUser()
-        user = user.verify_user(user_id)
+        pending_user = PendingUser()
+        pending_user = PendingUser.get_by_id(pending_id)
+        user = User()
+        user_id = pending_user.verify_user(pending_id).id
 
-        # Generate password token & the url
-        token = generate_password_token(user.id)
-        set_password_url = url_for("set_password", token=token, _external=True)
+        user = User.get_by_id(user_id)
 
-        # Send email to user to set their password
-        subject = "Final Step: Set your account password for SudaGuardian"
-        sender =  ("SudaGuardian", "noreply@sudaguardian.com")
-        recepients = [user.contact_email]
-        template = "set_password_email.html"
-
-        email_success = send_mail(
-            subject=subject, 
-            sender=sender, 
-            recipients=recepients, 
-            template=template,
-            set_password_url=set_password_url,
-            name=user.full_name
-        )
+        email_success = send_set_password_email(user)
 
         if email_success:
             # Delete the user from the pending_verifications & identities tables
-            user.delete_user()
+            pending_user.delete_user()
 
             flash("user approved", "success")
         else:
@@ -399,13 +386,11 @@ def review_user(user_id):
         
         # Send rejection email to user
         subject = "Your SudaGuardian Application Status"
-        sender = ("SudaGuardian", "noreply@sudaguardian.com")
         recipients = [pending_user.contact_email]
         template = "rejection_email.html"
         
         email_success = send_mail(
             subject=subject,
-            sender=sender,
             recipients=recipients,
             template=template,
             name=pending_user.full_name,
@@ -447,13 +432,11 @@ def review_user(user_id):
         
         # Send correction request email to user
         subject = "Action Required: Resubmit Information for SudaGuardian Application"
-        sender = ("SudaGuardian", "noreply@sudaguardian.com")
         recipients = [pending_user.contact_email]
         template = "correction_request_email.html"
         
         email_success = send_mail(
             subject=subject,
-            sender=sender,
             recipients=recipients,
             template=template,
             name=pending_user.full_name,
@@ -482,16 +465,36 @@ def set_password(token):
 
     try:
         # detokenize the token
-        id = s.loads(
+        user_id = s.loads(
             token,
             salt = "password-set-salt",
             max_age = 86400
         )
-    except (SignatureExpired, BadSignature):
-        return redirect(url_for("link_expired", source ="set_password"))
+    except SignatureExpired:
+        payload_part = token.split('.')[0] 
     
-    user = User.get_by_id(id)
-    print(id)
+        try:
+            # 3. Decode only that first part
+            user_id = s.load_payload(payload_part.encode('utf-8'))
+        except Exception as e:
+            print(f"Extraction Error: {e}")
+            user_id = None # Fallback if even that fails
+
+        if user_id:
+
+        # store data in a seesion to avoid manual url tampering
+            session["expired_user_id"] = user_id
+            session["expired_source"] = "set_password"
+
+            return redirect(url_for("link_expired"))
+
+        else:
+            flash("the link is expired and can not be recovered.", "error")
+            return redirect(url_for("login"))
+        
+    except BadSignature:
+            flash("Invalid password reset request", "error")
+            return redirect(url_for("login"))
     
     # When user submits form
     if request.method == "POST":
@@ -521,32 +524,68 @@ def set_password(token):
         else:
             flash("Something went wrong. Please try again later.","warning")
             return redirect(url_for("set_password", token=token))
-    else:    
+        
+    elif request.method == "GET":    
+
         # add a landing page for the user where the user submits a form
-        return render_template("set_password.html", token=token)
 
-# UNCOMPLETE !!!!!!!!!!!!!!!!!!!  
-@app.route("/link_expired")
+        user = User.get_by_id(user_id)
+        if not user:
+            flash("Invalid password reset request", "error")
+            return redirect(url_for("login"))
+        
+
+        return render_template("set_password.html", full_name=user.full_name)
+ 
+@app.route("/link_expired", methods=["GET", "POST"])
 def link_expired():
+    source = session.get("expired_source")
+    user_id = session.get("expired_user_id")
     
-    source = request.args.get("source")
+    # Security check: if no session data, kick to home
+    if not source or not user_id:
+        return redirect(url_for("home"))
 
+    if request.method == "GET":
+        if source == "verify_email":
+            button_text = "Resend Verification Link"
+        elif source == "set_password":
+            button_text = "Request New Link"
+        else:
+            return redirect(url_for("home"))
+        
+        return render_template("link_expired.html", button_text=button_text)
+
+    # --- POST Logic ---
+    email_success = False
+    
     if source == "verify_email":
-        message = "For your security, our identity portal links are temporary. The link you followed has <strong>timed out</strong> or has already been used to finalize an action."
-        button_text = "Resend Verification Link"
-
+        user = PendingUser.get_by_id(user_id)
+        if user:
+            email_success = send_email_verification_email(user)
+        else:
+            flash("Account not found. Please register again.", "danger")
+            return redirect(url_for("register"))
 
     elif source == "set_password":
-        message = "For your security, our identity portal links are temporary. The link you followed has <strong>timed out</strong> or has already been used to finalize an action."
-        button_text = "Resend Link"
+        user = User.get_by_id(user_id)
+        if user:
+            email_success = send_set_password_email(user)
+        else:
+            flash("User not found.", "danger")
+            return redirect(url_for("login"))
 
-    # else:
-    #     # Someone types URL manually
-    #     return redirect(url_for("home"))
+    # Final Outcome
+    if email_success:
+        session.pop("expired_source", None)
+        session.pop("expired_user_id", None)
+        flash("A new link has been sent to your inbox.", "info")
+        
+        return redirect(url_for("check_inbox")) 
+    else:
+        flash("We couldn't send the email. Please try again later.", "error")
+        return redirect(url_for("login"))
 
-    return render_template("link_expired.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-

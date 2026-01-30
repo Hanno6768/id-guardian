@@ -1,0 +1,126 @@
+<div class="top-bar" id="topBar">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+
+            <!-- left side: flag and text -->
+            <div class="col-md-6 d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='flag.png') }}" alt="Flag" class="flag-img">
+                <span class="top-bar-text">Unofficial Government Identity Portal</span>
+
+                <!-- how to verify dropdown -->
+                    <button class="btn btn-sm btn-verify" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#verifyAccordion">
+                        <i class='bx bx-shield-check me-1'></i>
+                        How to Verify
+                        <i class='bx bx-chevron-down ms-1'></i>
+                    </button>
+
+            </div>
+
+            <!--Date -->
+            <div class="col-md-6 d-flex justify-content-center align-items-center date-container">
+
+                <!-- current date -->
+                <i class='bx bx-calendar me-2'></i>   
+                <span class="current-date" id="currentDate">Friday, January 30, 2026</span>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- accordion triggered by button -->
+
+<div class="collapse" id="verifyAccordion">
+    <div class="container">
+        <div class="row g-4 py-4">
+
+            <div class="col-md-4">
+                <div class="verify-card">
+                    <div class="verify-icon">
+                        <i class='bx bx-link-alt'></i>
+                    </div>
+                    <h6>Official Domain</h6>
+                    <p>All official website links in the Republic of Sudan end in <strong>.sd</strong></p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="verify-card">
+                    <div class="verify-icon">
+                        <i class='bx bx-lock-alt'></i>
+                    </div>
+                    <h6>HTTPS Protocol</h6>
+                    <p>Secure websites use <strong>HTTPS</strong> encryption for your safety</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="verify-card">
+                    <div class="verify-icon">
+                        <i class='bx bx-certification'></i>
+                    </div>
+                    <h6>Registered Authority</h6>
+                    <p>Not registered with the Digital Government Authority with number <strong>DGA-SD-2023-0001</strong></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- main navbar -->
+<nav class="navbar navbar-expand-lg main-navbar" id="mainNav">
+    <div class="container-fluid">
+        <!-- logo and text -->
+
+        <a href="/" class="navbar-brand">
+            <div class="brand-container">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo" class="brand-logo">
+                <div class="brand-text-container">
+                    <span class="brand-name">SudaGuardian</span>
+                    <span class="brand-subtitle">GOV.SD</span>
+                </div>
+            </div>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <i class='bx  bx-menu'></i> 
+        </button>
+
+        <!-- links -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav align-items-lg-center">
+                
+                <li class="nav-item">
+                    <a href="/about-sudan" class="nav-link">
+                        <i class='bx bx-info-circle me-1'></i>
+                        About Sudan
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/services" class="nav-link">
+                        <i class='bx bx-briefcase me-1'></i>
+                        Services
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/agencies" class="nav-link">
+                        <i class='bx bx-buildings me-1'></i>
+                        Agencies
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a href="/login" class="nav-link">
+                        <i class='bx bx-log-in me-1'></i>
+                        Login
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
