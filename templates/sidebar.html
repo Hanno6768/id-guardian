@@ -1,46 +1,66 @@
-<!-- Mobile topbar only shows on phones -->
-<nav class="mobile-top-bar d-lg-none">
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+{% endblock %}
+
+<nav class="mobile-topbar d-lg-none">
+
     <div class="container-fluid">
 
-        <button class="sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-            <i class='bx bx-menu'></i>
-        </button>
+        <div class="d-flex justify-content-between align-items-center">
 
-        <div class="mobile-brand">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo" class="mobile-logo">
-            <span>SudaGuardian</span>
-        </div>
+            <button class="btn-mobile-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <i class='bx bx-menu'></i>
+            </button>
 
-        <div class="mobile-user">
-            <span class="user-badge">{{ current_user.full_name[:1] }}</span>
+            <!-- brand -->
+            <div class="mobile-brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="mobile-logo">
+                <span>SudaGuardian</span>
+            </div>
+
+            <!-- avatar -->
+            <div class="mobile-user-avatar">
+                {{ current_user.username[:1].upper() }}
+            </div>
+
         </div>
     </div>
 </nav>
 
 <!-- sidebar -->
-<aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebarMenu">
+<aside class="offcanvas-lg offcanvas-start sidebar collapsed" id="sidebar">
 
-    <!-- header -->
+    <!-- sidebar header -->
     <div class="sidebar-header">
+
+        <!-- brand -->
         <div class="sidebar-brand">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo" class="sidebar-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo"
+                class="sidebar-logo">
             <div class="sidebar-brand-text">
-                <span class="brand-name">SudaGuardian</span>
-                <span class="brand-subtitle">GOV.SD</span>
+                <span class="sidebar-name">SudaGuardian</span>
+                <span class="sidebar-subtitle">GOV.SD</span>
             </div>
         </div>
-        <button class="btn-close d-lg-none" type="button" data-bs-dismiss="offcanvas"></button>
+
+        <!-- close button -->
+        <button type="button" class="btn-close-sidebar d-lg-none" data-bs-dismiss="offcanvas">
+            <i class='bx bx-x'></i>
+        </button>
+
     </div>
 
-    <!-- user profile -->
+    <!-- sidebar body -->
     <div class="sidebar-user">
 
+        <!-- avatar -->
         <div class="user-avatar">
             <span>{{ current_user.username[:1].upper() }}</span>
         </div>
 
+        <!-- name and role -->
         <div class="user-info">
-            <h6 class="username">{{ current_user.username }}</h6>
+            <h6 class="user-name">{{ current_user.username }}</h6>
             <span class="user-role">
                 {% if current_user.role == 'admin' %}
                 <i class='bx bx-shield-check'></i> Administrator
@@ -53,35 +73,37 @@
         </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- navigation -->
     <div class="sidebar-menu">
         <div class="menu-section">
             <span class="menu-section-title">Main</span>
 
-            <a href="/user_dashboard" class="menu-item active">
+            <a href="/{{ current_user.role }}_dashboard" class="menu-item active">
                 <i class='bx bx-home-alt'></i>
-                <span>Dashboard</span>
+                <span class="menu-text">Dashboard</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-folder'></i>
-                <span>My Documents</span>
+                <span class="menu-text">My Documents</span>
+                {% if document_count %}
                 <span class="menu-badge">{{ document_count }}</span>
+                {% endif %}
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-upload'></i>
-                <span>Upload Document</span>
+                <span class="menu-text">Upload Document</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-qr'></i>
-                <span>QR Codes</span>
+                <span class="menu-text">QR Codes</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-history'></i>
-                <span>History</span>
+                <span class="menu-text">History</span>
             </a>
 
         </div>
@@ -94,13 +116,13 @@
 
             <a href="#" class="menu-item">
                 <i class='bx bx-task'></i>
-                <span>Review Queue</span>
-                <span class="menu-badge badge-warning">{{ pending_reviews_count }}</span>
+                <span class="menu-text">Review Queue</span>
+                <span class="menu-badge badge-warning">{{ pending_users|length }}</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-check-square'></i>
-                <span>Reviewed Documents</span>
+                <span class="menu-text">Reviewed Documents</span>
             </a>
 
         </div>
@@ -114,28 +136,28 @@
 
             <a href="#" class="menu-item">
                 <i class='bx bx-shield-alt-2'></i>
-                <span>Admin Dashboard</span>
+                <span class="menu-text">Admin Dashboard</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-group'></i>
-                <span>Manage Users</span>
+                <span class="menu-text">Manage Users</span>
                 <span class="menu-badge">{{ total_users }}</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-buildings'></i>
-                <span>Manage Agencies</span>
+                <span class="menu-text">Manage Agencies</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-list-ul'></i>
-                <span>System Logs</span>
+                <span class="menu-text">System Logs</span>
             </a>
 
             <a href="#" class="menu-item">
                 <i class='bx bx-cog'></i>
-                <span>System Settings</span>
+                <span class="menu-text">System Settings</span>
             </a>
         </div>
         {% endif %}
@@ -146,37 +168,42 @@
 
             <a href="/profile" class="menu-item">
                 <i class='bx bx-user-circle'></i>
-                <span>My Profile</span>
+                <span class="menu-text">My Profile</span>
             </a>
 
             <a href="/settings" class="menu-item">
                 <i class='bx bx-slider-alt'></i>
-                <span>Settings</span>
+                <span class="menu-text">Settings</span>
             </a>
 
             <a href="/notifications" class="menu-item">
                 <i class='bx bx-bell'></i>
-                <span>Notifications</span>
+                <span class="menu-text">Notifications</span>
+                {% if unread_notifications %}
                 <span class="menu-badge badge-danger">{{ unread_notifications }}</span>
+                {% endif %}
             </a>
 
             <a href="/help" class="menu-item">
                 <i class='bx bx-help-circle'></i>
-                <span>Help & Support</span>
+                <span class="menu-text">Help & Support</span>
             </a>
+
         </div>
     </div>
 
     <!-- sidebar footer -->
     <div class="sidebar-footer">
 
-        <a href="/logout" class="btn-logout">
-            <i class='bx bx-log-out'></i>
-            <span>Logout</span>
-        </a>
         <div class="sidebar-version">
             <small>Version v0.0.0</small>
         </div>
-    </div>
 
+    </div>
 </aside>
+
+<button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarToggle">
+    <i class="bx bx-chevron-right" id="toggleIcon"></i>
+</button>
+
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>

@@ -446,8 +446,8 @@ footer>small {
 }
 
 .flag-img {
-    height: 20px !important;
-    width: 35px !important;
+    height: 20px;
+    width: 35px;
 }
 
 .top-bar .col-md-6 {
@@ -492,6 +492,60 @@ footer>small {
 
 .btn-verify:hover {
     color: #6B7280;
+}
+
+/* verify accordion */
+#verifyAccordion {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-secondary);
+    box-shadow: var(--shadow-md);
+}
+
+.verify-card {
+    background: var(--bg-tertiary);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all var(--transition-base);
+    border: 1px solid var(--border-secondary);
+    height: 100%;
+}
+
+.verify-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-blue);
+}
+
+.verify-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-navy);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-3);
+    box-shadow: var(--shadow-glow);
+}
+
+.verify-icon i {
+    font-size: 28px;
+    color: var(--text-light);
+}
+
+.verify-card h6 {
+    font-weight: var(--weight-semibold);
+    color: var(--heading-primary);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-base)
+}
+
+.verify-card p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
 }
 
 /* MAIN NAVBAR */
@@ -636,3 +690,6 @@ footer>small {
 .navbar-nav.ms-auto .nav-link:hover {
     box-shadow: var(--shadow-md);
 }
+
+
+

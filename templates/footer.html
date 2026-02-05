@@ -1,0 +1,64 @@
+<footer class="text-light py-4 ">
+        <div class="container text-start py-4">
+            <div class="row d-flex justify-content-between">
+
+                {% if not current_user.is_authenticated %}
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Overview</h6>
+                    <hr class="ftr-line">
+                    <a class="ftr-link text-light d-block mb-2" href="">About Sudan</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">National Profile</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Events</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Service Level Agreement</a>
+                </div>
+                {% endif %}
+
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Support</h6>
+                    <hr class="ftr-line">
+                    <a class="ftr-link text-light d-block mb-2" href="">How can I ...(FAQs)</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Contact Us</a>
+                    <a class="ftr-link text-light d-block mb-2" href="">Report Bugs</a>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h6 class="ftr-header fw-bold">Contact Us</h6>
+                    <hr class="ftr-line">
+                    <div class="d-flex justify-content-start">
+                        <a class="ftr-icon" href=""><i class="fa-brands fa-instagram"></i></a>
+                        <a class="ftr-icon" href=""><i class="fa-brands fa-x-twitter"></i></a>
+                        <a class="ftr-icon" href=""><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+
+                    {% if not current_user.is_authenticated %}
+                    <h6 class="ftr-header fw-bold mt-5 mb-4">Get Our Apps</h6>
+                    <hr class="ftr-line">
+                    <div class="d-flex gap-2">
+                        <img src="/static/playstore.svg" height="40px" width="120px" alt="play store">
+                        <img src="/static/appstore.svg" height="40px" width="120px" alt="app store">
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="text-start mt-5">
+
+                <div class="d-flex gap-5">
+                    <a class="ftr-link-decorated text-light" href="">Privacy Policy</a>
+                    <a class="ftr-link-decorated text-light" href="">Terms & Conditions</a>
+                </div>
+
+                <div class="d-flex text-light gap-1 mt-3">
+                    <span><i class='bx bx-copyright'></i></span> 
+                    <small>Copyright 2025. All rights reserved to GOV.SD & (SudaGuardian)</small>
+                </div>
+
+                <div class="text-light gap-1">
+                    <small class="text-light d-block mb-1">Developed and operated by Muhaned</small>
+                    <small class="text-light d-block mb-1">Current Version v0.0.0</small>
+                </div>
+
+            </div>
+        </div>
+    </footer>
