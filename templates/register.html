@@ -4,79 +4,95 @@
 {% block content %}
 
 <!-- used the validation form from bootstrap and asked chatgpt to redesign it -->
-<div class="container mt-5 d-flex justify-content-start">
-    <form action="/register" method="post" enctype="multipart/form-data" class="needs-validation p-4"
-        style="width: 500px;" novalidate autocomplete="off">
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="register-card d-flex flex-column flex-md-row overflow-hidden">
 
-        <h1 class="h-form">Register</h1>
-
-        <!-- Full name -->
-        <div class="mb-3">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" name="name" placeholder="Enter your full name" required>
-            <div class="invalid-feedback">Full name is required.</div>
-        </div>
-
-        <!-- Birthdate + Phone -->
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" name="birthdate" required>
-                <div class="invalid-feedback">Birthdate is required.</div>
+            <div class="form-img register-card-image position-relative">
+                <span class="badge-gold">
+                    Protecting The Identity of the Nation
+                </span>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Phone Number</label>
-                <input type="text" class="form-control" name="phone" placeholder="+249 xxxxxxxxx" required>
-                <div class="invalid-feedback">Phone number is required.</div>
-            </div>
-        </div>
+            <div class="form-card">
+                <form action="/register" method="post" enctype="multipart/form-data" class="needs-validation p-4"
+                    style="width: 500px;" novalidate autocomplete="off">
 
-        <!-- Email + Username -->
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email" placeholder="example@email.com" required>
-                <div class="invalid-feedback">Valid email required.</div>
-            </div>
+                    <div class="form-header mb-5">
+                        <h1>Register</h1>
+                    </div>
+                    <div class="form-field-wrapper mb-3">
+                        <!-- Full name -->
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="Enter your full name" required>
+                            <div class="invalid-feedback">Full name is required.</div>
+                        </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
-                <div class="invalid-feedback">Username is required.</div>
-            </div>
-        </div>
+                        <!-- Birthdate + Phone -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" name="birthdate" required>
+                                <div class="invalid-feedback">Birthdate is required.</div>
+                            </div>
 
-        <!-- National ID -->
-        <div class="mb-3">
-            <label class="form-label">National ID Number</label>
-            <input type="text" class="form-control" name="id-num" placeholder="11-digit national ID" required>
-            <div class="invalid-feedback">National ID is required.</div>
-        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" name="phone" placeholder="+249 xxxxxxxxx" required>
+                                <div class="invalid-feedback">Phone number is required.</div>
+                            </div>
+                        </div>
 
-        <!-- Document upload -->
-        <div class="mb-4">
-            <label class="form-label">Upload ID Document</label>
-            <input type="file" class="form-control" name="document" accept=".jpg,.jpeg,.png,.pdf" required>
-            <div class="invalid-feedback">
-                Please upload a valid ID document (jpg, jpeg, png, pdf).
-            </div>
-        </div>
+                        <!-- Email + Username -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="example@email.com" required>
+                                <div class="invalid-feedback">Valid email required.</div>
+                            </div>
 
-        <!-- Submit -->
-        <div class="d-grid mb-3">
-            <button type="submit" class="btn-form btn btn-primary">
-                Send for Verification
-            </button>
-        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
+                                <div class="invalid-feedback">Username is required.</div>
+                            </div>
+                        </div>
 
-        <div class="text-center">
-            <small>
-                Already have an account?
-                <a href="{{ url_for('login') }}">Login</a>
-            </small>
-        </div>
+                        <!-- National ID -->
+                        <div class="mb-3">
+                            <label class="form-label">National ID Number</label>
+                            <input type="text" class="form-control" name="id-num" placeholder="11-digit national ID" required>
+                            <div class="invalid-feedback">National ID is required.</div>
+                        </div>
 
-    </form>
+                        <!-- Document upload -->
+                        <div class="mb-4">
+                            <label class="form-label">Upload ID Document</label>
+                            <input type="file" class="form-control" name="document" accept=".jpg,.jpeg,.png,.pdf" required>
+                            <div class="invalid-feedback">
+                                Please upload a valid ID document (jpg, jpeg, png, pdf).
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn-form btn btn-primary">
+                                Send for Verification
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <small>
+                                Already have an account?
+                                <a href="{{ url_for('login') }}">Login</a>
+                            </small>
+                        </div>
+                    </div>
+
+                </form>
+                </div>
+    </div>
+</div>
 </div>
 {% endblock %}

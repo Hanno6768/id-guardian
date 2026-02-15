@@ -1,15 +1,26 @@
-{%extends "layout.html"%}
+{% extends "layout.html" %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
-<!-- used the validation form from bootstrap and asked chatgpt to redesign it -->
-<div class="container mt-5 d-flex justify-content-start">
-    <form action="/login" method="post" class="needs-validation p-4" style="width:500px;"
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="login-card d-flex flex-column flex-md-row overflow-hidden">
+            <div class="form-img login-card-image position-relative">
+                <span class="badge-gold">
+                    Protecting The Identity of the Nation
+                </span>
+            </div>
+            <div class="form-card">
+                <form action="/login" method="post" class="needs-validation p-4"
         autocomplete="off" novalidate>
 
-        <h1 class="h-form">Login to Your Account</h1>
+        <div class="form-header mb-5">
+            <h1>Login to Your Account</h1>
+        </div>
+        
         <div class="mb-3">
+        <div class="form-field-wrapper mb-3">
             <label for="identifier" class="form-label">Username or National ID</label>
 
             <div class="input-group has-validation">
@@ -24,7 +35,7 @@
             </div>
         </div>
 
-        <div class="mb-3">
+        <div class="form-field-wrapper mb-3">
             <label for="password" class="form-label">Password</label>
 
             <div class="input-group has-validation">
@@ -32,7 +43,7 @@
                     <i class="bx bxs-lock"></i>
                 </span>
 
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password"
+                <input type="password" class="form-control" id="password" name="password" placeholder="••••••••"
                     autocomplete="new-password" required>
 
                 <div class="invalid-feedback">
@@ -40,7 +51,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
 
         <p><a href="{{url_for('reset_password')}}">Forgot Password?</a></small></p>
 
@@ -51,7 +62,9 @@
         
 
     </form>
-
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
