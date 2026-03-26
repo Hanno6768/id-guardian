@@ -4,8 +4,8 @@
     --primary-navy: #0F1F2E;
     --primary-blue: #2E5984;
     --primary-dark: #0A1419;
-    --sudan-green:#005b33;
-    --sudan-gold:#d4af37;
+    --sudan-green: #005b33;
+    --sudan-gold: #d4af37;
 
     /* BUTTON COLORS */
     --button-primary: #0F1F2E;
@@ -203,7 +203,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-heading );
+    font-family: var(--font-heading);
     font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
@@ -697,18 +697,22 @@ footer>small {
 }
 
 .hero-section {
-    position:relative;
+    position: relative;
     min-height: 80vh;
-    background: 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: var(--text-light);
+}
+
+.homepage-hero-section {
+    background:
         linear-gradient(135deg, rgba(11, 25, 37, 0.65) 0%, rgba(46, 89, 132, 0.6)100%),
         url('/static/pyramids2.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    display: flex;
-    align-items: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    color: var(--text-light);
 }
 
 .hero-icon-wrapper {
@@ -728,6 +732,7 @@ footer>small {
     font-size: var(--text-lg);
     font-weight: var(--weight-medium);
     max-width: 600px;
+    animation: slideUpFade 1.5s ease-out 0.8s both;
 }
 
 .hero-section h1 {
@@ -736,6 +741,7 @@ footer>small {
     font-weight: var(--weight-extrabold);
     letter-spacing: var(--tracking-tight);
     text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    animation: slideUpFade 0.9s ease-out 0.6s both;
 }
 
 .text-gold {
@@ -752,6 +758,20 @@ footer>small {
     font-weight: var(--weight-bold);
     text-transform: uppercase;
     box-shadow: var(--shadow-xl);
+    animation: slideUpFade 0.8s ease-out 0.5s both;
+    transition: all var(--transition-base);
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero-section a {
@@ -759,6 +779,7 @@ footer>small {
     border-radius: var(--radius-md);
     font-weight: var(--weight-semibold);
     transition: all var(--transition-base);
+    animation: slideUpFade 0.9s ease-out 1.5s both;
 }
 
 .hero-section a:hover {
@@ -783,12 +804,12 @@ footer>small {
     color: var(--text-light);
 }
 
-.trust-bar h3{
+.trust-bar h3 {
     font-weight: var(--weight-bold);
 }
 
 .trust-bar p {
-    letter-spacing: var(--tracking-wider); 
+    letter-spacing: var(--tracking-wider);
     opacity: var(--opacity-70);
 }
 
@@ -807,7 +828,7 @@ footer>small {
 
 .section-title {
     font-family: var(--font-heading);
-    color:var(--heading-primary);
+    color: var(--heading-primary);
     font-weight: var(--weight-bold);
     font-size: var(--heading-h2);
     margin-bottom: var(--space-6);
@@ -844,15 +865,15 @@ footer>small {
 
 .step-item {
     display: flex;
-    gap:var(--space-4);
+    gap: var(--space-4);
     align-items: flex-start;
 }
 
 .step-num {
-    font-size:var(--text-xl);
+    font-size: var(--text-xl);
     font-weight: var(--weight-bold);
-    color:var(--accent-gold);
-    background:var(--bg-secondary);
+    color: var(--accent-gold);
+    background: var(--bg-secondary);
     width: 50px;
     height: 50px;
     display: flex;
@@ -872,7 +893,8 @@ footer>small {
 .security-section {
     border-top: 5px solid var(--sudan-gold);
     border-bottom: 5px solid var(--sudan-gold);
-    background-image: radial-gradient(#e5e5e5 1px, transparent 1px); /* Subtle texture */
+    background-image: radial-gradient(#e5e5e5 1px, transparent 1px);
+    /* Subtle texture */
     background-size: 20px 20px;
 
 }
@@ -892,7 +914,7 @@ footer>small {
     font-family: 'Playfair Display', serif;
     font-weight: var(--weight-bold);
     font-size: var(--heading-h2);
-    color:var(--sudan-green);
+    color: var(--sudan-green);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     margin-bottom: var(--space-5);
@@ -907,10 +929,10 @@ footer>small {
 
 .bg-gold {
     background: var(--sudan-gold);
-    color:#000000;
+    color: #000000;
     border-radius: var(--radius-full);
     font-weight: var(--weight-bold);
-    display:inline-block;
+    display: inline-block;
     font-size: var(--text-sm);
     padding: 8px 20px;
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
@@ -920,25 +942,32 @@ footer>small {
     min-height: 100vh;
 }
 
-.login-card, .register-card{
+.login-card,
+.register-card {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     overflow: hidden;
-    max-width: 1000px;
-    margin:auto
+    max-width: 1200px;
+    margin: auto
 }
 
 .login-card-image {
-    background: 
-        linear-gradient(135deg, rgba(11, 25, 37, 0.65) 0%, rgba(46, 89, 132, 0.6)100%),
+    background:
+        linear-gradient(180deg,
+            rgba(15, 31, 46, 0) 0%,
+            rgba(15, 31, 46, 0.4) 50%,
+            rgba(15, 31, 46, 0.85) 100%),
         url('/static/pyramids.jpg');
 }
 
-.register-card-image {   
-    background: 
-        linear-gradient(135deg, rgba(33, 41, 49, 0.65) 0%, rgba(48, 64, 81, 0.6)100%),
-        url('/static/temple.jpg'); 
+.register-card-image {
+    background:
+        linear-gradient(180deg,
+            rgba(15, 31, 46, 0) 0%,
+            rgba(15, 31, 46, 0.4) 50%,
+            rgba(15, 31, 46, 0.85) 100%),
+        url('/static/mosque.jpg');
 }
 
 .form-card {
@@ -954,22 +983,23 @@ footer>small {
     position: relative;
     min-height: 250px;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-position: center 20%;
+    background-attachment: fixed;
     transform: scale(1);
     display: flex;
     align-items: end;
     padding: var(--space-6) var(--space-3);
+    overflow: hidden;
 }
 
 .form-header {
     text-align: center;
-    
+
 }
 
 .form-field-wrapper .input-group-text {
     background-color: var(--primary-navy);
-    color:var(--text-light)
+    color: var(--text-light)
 }
 
 .btn-form {
@@ -986,7 +1016,207 @@ footer>small {
     background: var(--gradient-blue);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-}   
+}
 
+.about-sudan-hero-section {
+    background: radial-gradient(ellipse at center,
+            rgba(15, 31, 46, 0.2) 0%,
+            rgba(15, 31, 46, 0.5) 100%), url('/static/temple.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    animation: zoomIn 1s ease-out;
+}
 
+@keyframes zoomIn {
+    from {
+        transform: scale(1.1);
+        opacity: 0;
+    }
 
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.hero-line {
+    width: 5px;
+    position: absolute;
+    height: 250px;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            var(--accent-gold) 50%,
+            transparent 100%);
+    animation: slideDown 1s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-left-line {
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hero-right-line {
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hero-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-card {
+    background: rgba(80, 121, 178, 0.15);
+    backdrop-filter: blur(15px);
+    border: 3px solid var(--accent-gold);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glow-gold);
+    padding: var(--space-16) var(--space-20);
+    max-width: 650px;
+    text-align: center;
+    animation: scaleIn 0.8s ease-out 0.2s backwards;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.about-sudan-wrapper .hero-title {
+    font-weight: var(--weight-extrabold);
+    letter-spacing: var(--tracking-wide);
+    color: var(--accent-gold);
+    font-size: 100px;
+    margin-bottom: var(--space-4);
+    animation: fadeInScale 1s ease-out 0.3s backwards;
+}
+
+.about-sudan-wrapper .hero-subtitle {
+    font-size: 28px;
+    font-weight: var(--weight-semibold);
+    margin-bottom: 24px;
+    color: var(--text-light);
+    line-height: 1.6;
+    animation: fadeInScale 1s ease-out 0.4s backwards;
+}
+
+.about-sudan-wrapper .hero-text {
+    font-size: var(--text-base);
+    margin-bottom: 24px;
+    line-height: var(--tracking-tight);
+    animation: fadeInScale 1s ease-out 0.5s backwards;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-line {
+        display: none;
+    }
+
+    .hero-card {
+        padding: var(--space-10) var(--space-5);
+        max-width: 90%;
+    }
+
+    .about-sudan-wrapper .hero-title {
+        font-size: 56px;
+    }
+
+    .about-sudan-wrapper .hero-subtitle {
+        font: 22px;
+    }
+}
+
+.fact-card {
+    padding: var(--space-8) var(--space-6);
+    background: var(--bg-secondary);
+    border: 1px solid #f1f5f9;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    height: 100%;
+    transition: var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+}
+
+.fact-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-blue);
+}
+
+.fact-card h3 {
+    justify-self: center;
+}
+
+.fact-card p {
+    margin-top: auto;
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    padding-top: 1rem;
+}
+
+.fact-card small {
+    padding-top: 40px;
+    color: var(--text-muted);
+}
+
+.fact-card .card-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 1rem;
+    line-height: var(--tracking-tight);
+}
+
+.facts-section .icon-container {
+    width: 70px;
+    height:70px;
+    font-size: 32px;
+    background-color: var(--bg-tertiary);
+    color: var(--primary-dark);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: var(--transition-base);
+}

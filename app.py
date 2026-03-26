@@ -585,6 +585,11 @@ def link_expired():
     else:
         flash("We couldn't send the email. Please try again later.", "error")
         return redirect(url_for("login"))
+    
+
+@app.route("/about-sudan")
+def about_sudan():
+    return render_template("about_sudan.html")
 
 
 if __name__ == "__main__":
