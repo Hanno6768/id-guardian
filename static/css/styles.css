@@ -1220,3 +1220,63 @@ footer>small {
     margin-bottom: 1.5rem;
     transition: var(--transition-base);
 }
+
+.fact-card:hover .icon-container {
+    transform: scale(1.1);
+    background-color: var(--primary-dark);
+    color: white;
+}
+
+.info-heading {
+    font-size: var(--heading-h2);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-5);
+    position: relative;
+}
+
+.info-text {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--text-secondary);
+    text-align: justify;
+}
+
+.col-img {
+    display: flex;
+    justify-content: center;
+}
+
+.col-img img {
+    width: 100%;
+    max-width: 550px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    transition: var(--transition-fast);
+}
+
+.col-img img:hover {
+    transform: scale(1.03) translateY(-10px)
+}
+
+@media (max-width: 991px) {
+    .info-section .row {
+        margin-bottom:var(--space-16);
+        text-align:center;
+    }
+
+    .info-text {
+        text-align: center;
+        margin-bottom: var(--space-8);
+    }
+
+    .col-img img {
+        height: 300px;
+    }
+
+    .row + .row {
+        margin-top: var(--space-8)
+    }
+}
