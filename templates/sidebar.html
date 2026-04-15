@@ -83,7 +83,7 @@
                 <span class="menu-text">Dashboard</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('my_documents') }}" class="menu-item">
                 <i class='bx bx-folder'></i>
                 <span class="menu-text">My Documents</span>
                 {% if document_count %}
@@ -91,17 +91,7 @@
                 {% endif %}
             </a>
 
-            <a href="#" class="menu-item">
-                <i class='bx bx-upload'></i>
-                <span class="menu-text">Upload Document</span>
-            </a>
-
-            <a href="#" class="menu-item">
-                <i class='bx bx-qr'></i>
-                <span class="menu-text">QR Codes</span>
-            </a>
-
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('history') }}" class="menu-item">
                 <i class='bx bx-history'></i>
                 <span class="menu-text">History</span>
             </a>
@@ -114,13 +104,13 @@
         <div class="menu-section">
             <span class="menu-section-title">Reviewer Tools</span>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('review_queue') }}" class="menu-item">
                 <i class='bx bx-task'></i>
                 <span class="menu-text">Review Queue</span>
                 <span class="menu-badge badge-warning">{{ pending_users|length }}</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('reviewed_documents') }}" class="menu-item">
                 <i class='bx bx-check-square'></i>
                 <span class="menu-text">Reviewed Documents</span>
             </a>
@@ -134,28 +124,28 @@
         <div class="menu-section">
             <span class="menu-section-title">Administration</span>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('admin_dashboards') }}" class="menu-item">
                 <i class='bx bx-shield-alt-2'></i>
                 <span class="menu-text">Admin Dashboard</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('manage_users') }}" class="menu-item">
                 <i class='bx bx-group'></i>
                 <span class="menu-text">Manage Users</span>
                 <span class="menu-badge">{{ total_users }}</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('manage_agencies') }}" class="menu-item">
                 <i class='bx bx-buildings'></i>
                 <span class="menu-text">Manage Agencies</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('system_logs') }}" class="menu-item">
                 <i class='bx bx-list-ul'></i>
                 <span class="menu-text">System Logs</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('system_settings') }}" class="menu-item">
                 <i class='bx bx-cog'></i>
                 <span class="menu-text">System Settings</span>
             </a>
@@ -166,17 +156,17 @@
         <div class="menu-section">
             <span class="menu-section-title">Account</span>
 
-            <a href="/profile" class="menu-item">
+            <a href="{{ url_for('my_profile') }}" class="menu-item">
                 <i class='bx bx-user-circle'></i>
                 <span class="menu-text">My Profile</span>
             </a>
 
-            <a href="/settings" class="menu-item">
+            <a href="{{ url_for('settings') }}" class="menu-item">
                 <i class='bx bx-slider-alt'></i>
                 <span class="menu-text">Settings</span>
             </a>
 
-            <a href="/notifications" class="menu-item">
+            <a href="{{ url_for('notifications') }}" class="menu-item">
                 <i class='bx bx-bell'></i>
                 <span class="menu-text">Notifications</span>
                 {% if unread_notifications %}
@@ -184,7 +174,7 @@
                 {% endif %}
             </a>
 
-            <a href="/help" class="menu-item">
+            <a href="{{ url_for('help_and_support') }}" class="menu-item">
                 <i class='bx bx-help-circle'></i>
                 <span class="menu-text">Help & Support</span>
             </a>

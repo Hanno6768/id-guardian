@@ -591,6 +591,54 @@ def link_expired():
 def about_sudan():
     return render_template("about_sudan.html")
 
+@app.route("/my-documents")
+@login_required
+def my_documents():
+    docs = [
+        { "id": 1, "name": "Passport",             "type": "passport",             "status": "verified", "issued": "12 Jan 2021", "hasFile": True  },
+        { "id": 2, "name": "National ID",          "type": "national_id",          "status": "verified", "issued": "5 Mar 2022",  "hasFile": True  },
+        { "id": 3, "name": "Driving licence",      "type": "driving_license",      "status": "pending",  "issued": "—",           "hasFile": True  },
+        { "id": 4, "name": "Birth certificate",    "type": "birth_certificate",    "status": "rejected", "issued": "—",           "hasFile": True  },
+        { "id": 5, "name": "Marriage certificate", "type": "marriage_certificate", "status": "pending",  "issued": "—",           "hasFile": False },
+        { "id": 6, "name": "Nationality card",     "type": "nationality_card",     "status": "verified", "issued": "9 Aug 2020",  "hasFile": True  },
+    ]
+    return render_template("my_documents.html", docs=docs)
+
+@app.route("/history")
+@login_required
+def history():
+    return render_template("history.html")
+
+@app.route("/my-profile")
+@login_required
+def my_profile():
+    return render_template("my_profile.html")
+
+@app.route("/settings")
+@login_required
+def settings():
+    return render_template("settings.html")
+
+@app.route("/notifications")
+@login_required
+def notifications():
+    return render_template("notifications.html")
+
+@app.route("/help-and-support")
+def help_and_support():
+    return render_template("help_and_support.html")
+
+@app.route("/review-queue")
+@login_required
+@roles_required("admin", "reviewer")
+def review_queue():
+    return render_template("review_queue.html")
+
+@app.route("/reviewed_documents")
+@login_required
+@roles_required("admin", "reviewer")
+def reviewed_documents():
+    return render_template("reviewed_documents.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

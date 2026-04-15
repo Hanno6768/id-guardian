@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block title %} My Documents {% endblock %}
+
+{% block content %}
+
+<div class="my-documents-wrapper">
+
+    <div class="my-documents-container conatiner py-4">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+            <div>
+
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h1 class="fs-4 mb-0">My Documents</h1>
+                    <span class="my-documents-count-badge" id="countBadge">6</span>
+                </div>
+
+                <p class="mb-0 my-documents-secondary-text">Manage you verified identity documents</p>
+
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+
+                <div class="search-wrap">
+                    <i class='bx bx-search'></i>
+                    <input type="text" id="searchInput" placeholder="Search documents..." autocomplete="off">
+                </div>
+
+                <div class="filter-group btn-group">
+                    <button class="btn active" data-filter="all">All</button>
+                    <button class="btn" data-filter="verified">Verified</button>
+                    <button class="btn" data-filter="pending">Pending</button>
+                    <button class="btn" data-filter="rejected">Rejected</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row g-3" id="docGrid">
+
+            {% for doc in docs %}
+            <div class="col-6 col-md-4 col-lg-3" data-status="{{ doc.status }}" data-name="{{ doc.name | lower }}">
+                <div class="doc-card h-100">
+
+                    <!-- thumbnail -->
+                    <div class="card-thumb {% if not doc.hasFile %}empty{% endif %} ">
+                        {% if doc.hasFile %}
+
+                        <span class="type-lbl">{{ doc.name }}</span>
+                        {% else %}
+                        <i class='bx bx-file-blank'></i>
+                        <span class="type-lbl">No file uploaded yet</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="p-3 d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center justify-content-between gap-1">
+                                <span class="doc-name">{{ doc.name }}</span>
+                                <span
+                                    class="badge badge-{{ doc.status }} d-inline-flex align-items-center gap-1 rounded-pill px-2 py-1">
+                                    <span class="status-dot dot-{{ doc.status }} me-1">
+                                        {% if doc.status == 'verified' %}
+                                        <i class='bx bxs-check-circle'></i>
+                                        {% endif %}
+                                    </span>
+                                    {{ doc.status | capitalize }}
+                                </span>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-doc-outline flex-fill rounded-2"
+                                    data-bs-toggle="modal" data-bs-target="#docModal" data-id="{{ doc.id }}">View Details</button>
+
+                                {% if not doc.hasFile %}
+                                <button class="btn-btn-doc-upload flex-fill rounded-2">Upload</button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5 text-secondary">
+                <i class='bx bx-folder-open d-block mb-2'></i>
+                No documents found
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="docModal" tabindex="-1">
+        <div class="my-documents-modal-dialog modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="my-documents-modal-title" id="modalTitle"></h5>
+                    <button type="button" calss="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-3">
+
+                    <div class="toggle-wrap d-flex gap-1 mb-3">
+                        <button class="btn flex-fill active" id="btnQR"><i class='bx bx-qr me-1'></i>QR code</button>
+                    </div>
+
+                    <div class="modal-preview-area" id="modalPreview"></div>
+                    <div class="d-flex justify-content-between mt-3" style="font-size:12px;color:#5C5880"></div>
+                    <span id="modalStatusLabel"></span>
+                    <span id="modalIssuedLabel"></span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

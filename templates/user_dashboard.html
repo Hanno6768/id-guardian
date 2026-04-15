@@ -4,4 +4,70 @@
 
 {% block content %}
 
+<div class="dashboard-wrapper">
+    <div class="greeting-section">
+        <div class="row d-flex align-items-center justify-content-center">
+            <div class="col-md-8">
+
+                <h1 class="greeting text-center">
+                    Welcome back, {{ user.full_name}}
+                    <span class="badge-verified" title="Identity Verfied">
+                        <i class="bx bxs-check-circle"></i>
+                    </span>
+                </h1>
+
+
+                {% if current_user.role == "user" %}
+                <p class="text-muted text-center">
+                    <i class="bx bx-check-shield me-1"></i>
+                    Your Identity is currently secured and verified.
+                </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 d-flex justify-content-around">
+
+        <div class="col-xl-4 col-md-6">
+            <div class="dash-card">
+                <div class="dash-card-body">
+                    <div class="icon-container">
+                        <i class='bx bx-folder-open'></i>  
+                    </div>   
+                    <div class="ms-3">
+                        <h2 class="document-count mb-0">12</h2>
+                        <p class="text-muted mb-0">Total Uploaded Documents</p>
+                    </div>
+                    <a href="{{url_for('my_documents')}}" class="btn-primary btn-form text-light mt-5">View Documents</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="dash-card">
+                <div class="dash-card-body">
+
+                    <div class="icon-container cloud-sync-wrapper">
+                        <i class='bx bx-cloud main-cloud'></i>
+                        <i class='bx bx-sync sync-overlay spinning'></i>  
+                    </div>  
+
+                    <div class="ms-3 status-text-wrapper">
+                        <h2 class="mb-0 status-text">Sync Active</h2>
+                        <div class="status-indicator">
+                            <span class="status-dot dot-active"></span>
+                        </div> 
+                        <p class="text-muted small mb-0">Cloud-Sovereign Bridge Connected</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}
