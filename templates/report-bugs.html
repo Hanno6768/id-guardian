@@ -1,0 +1,324 @@
+<!-- done with claude ai -->
+{% extends "layout.html" %}
+{% block title %}Report a Bug{% endblock %}
+ 
+{% block content %}
+<div class="bugs-wrapper">
+ 
+    <!-- Hero -->
+    <div class="bugs-hero">
+        <div class="container">
+            <div class="bugs-hero-badge">
+                <i class='bx bx-bug'></i>
+                Platform Quality Programme
+            </div>
+            <h1>Report a Bug</h1>
+            <p>Help us protect the integrity of Sudan's national identity infrastructure. Your reports are reviewed by the platform engineering team and acted upon according to severity.</p>
+        </div>
+    </div>
+ 
+    <!-- Process bar -->
+    <div class="bugs-process">
+        <div class="container">
+            <div class="row g-0">
+                <div class="col-6 col-md-3">
+                    <div class="process-step">
+                        <div class="process-num">1</div>
+                        <div class="process-text">
+                            <strong>Describe the Bug</strong>
+                            What happened and where
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="process-step">
+                        <div class="process-num">2</div>
+                        <div class="process-text">
+                            <strong>Classify Severity</strong>
+                            How seriously it affects you
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="process-step">
+                        <div class="process-num">3</div>
+                        <div class="process-text">
+                            <strong>Attach Evidence</strong>
+                            Screenshot or recording
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="process-step">
+                        <div class="process-num">4</div>
+                        <div class="process-text">
+                            <strong>Track Resolution</strong>
+                            Receive updates by email
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Main layout -->
+    <div class="bugs-layout">
+ 
+        <!-- Form -->
+        <div class="bugs-form-card">
+ 
+            <!-- Success state (hidden until submit) -->
+            <div class="success-state" id="successState">
+                <div class="success-icon">
+                    <i class='bx bx-check'></i>
+                </div>
+                <h3>Report Submitted</h3>
+                <p>Thank you. Your bug report has been received and assigned to our engineering team. You will receive an email confirmation shortly.</p>
+                <div class="success-ref" id="refCode">BUG-000000</div>
+                <br>
+                <button class="btn-report-another" id="reportAnother">
+                    <i class='bx bx-plus me-1'></i>Report Another Bug
+                </button>
+            </div>
+ 
+            <!-- Form body -->
+            <div class="bugs-form-inner" id="formInner">
+                <h2>Submit a Bug Report</h2>
+                <p>Provide as much detail as possible. Reports with clear reproduction steps are resolved significantly faster.</p>
+ 
+                <form id="bugReportForm" novalidate>
+ 
+                    <!-- Category -->
+                    <span class="form-section-label">Bug Category</span>
+                    <div class="category-grid" id="categoryGrid">
+ 
+                        <label class="category-btn" data-value="authentication">
+                            <input type="radio" name="category" value="authentication">
+                            <i class='bx bx-lock-alt'></i>
+                            <span>Login / Auth</span>
+                        </label>
+ 
+                        <label class="category-btn" data-value="registration">
+                            <input type="radio" name="category" value="registration">
+                            <i class='bx bx-user-plus'></i>
+                            <span>Registration</span>
+                        </label>
+ 
+                        <label class="category-btn" data-value="documents">
+                            <input type="radio" name="category" value="documents">
+                            <i class='bx bx-folder'></i>
+                            <span>Documents</span>
+                        </label>
+ 
+                        <label class="category-btn" data-value="email">
+                            <input type="radio" name="category" value="email">
+                            <i class='bx bx-envelope'></i>
+                            <span>Emails</span>
+                        </label>
+ 
+                        <label class="category-btn" data-value="ui">
+                            <input type="radio" name="category" value="ui">
+                            <i class='bx bx-layout'></i>
+                            <span>UI / Display</span>
+                        </label>
+ 
+                        <label class="category-btn" data-value="security">
+                            <input type="radio" name="category" value="security">
+                            <i class='bx bx-shield-alt-2'></i>
+                            <span>Security</span>
+                        </label>
+ 
+                    </div>
+                    <div class="invalid-feedback d-block mb-3" id="categoryError" style="display:none !important; font-size:var(--text-xs); color:var(--error);"></div>
+ 
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label class="form-label" for="bugTitle">Bug Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="bugTitle" name="title"
+                            placeholder="e.g. Verification email not received after registration" maxlength="120" required>
+                        <div class="char-counter" id="titleCounter">0 / 120</div>
+                    </div>
+ 
+                    <!-- Page / Location -->
+                    <div class="mb-4">
+                        <label class="form-label" for="bugPage">Page or Feature Affected <span class="text-danger">*</span></label>
+                        <select class="form-select" id="bugPage" name="page" required>
+                            <option value="" disabled selected>Select a page or feature…</option>
+                            <option value="homepage">Homepage</option>
+                            <option value="register">Registration Form</option>
+                            <option value="login">Login Page</option>
+                            <option value="email_verification">Email Verification</option>
+                            <option value="set_password">Set Password</option>
+                            <option value="user_dashboard">User Dashboard</option>
+                            <option value="my_documents">My Documents</option>
+                            <option value="reviewer_dashboard">Reviewer Dashboard</option>
+                            <option value="admin_dashboard">Admin Dashboard</option>
+                            <option value="notifications">Notifications</option>
+                            <option value="settings">Settings</option>
+                            <option value="help_support">Help & Support</option>
+                            <option value="other">Other / Unknown</option>
+                        </select>
+                    </div>
+ 
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label class="form-label" for="bugDescription">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="bugDescription" name="description"
+                            placeholder="Describe what you expected to happen and what actually happened instead. Include any error messages you saw." maxlength="2000" required></textarea>
+                        <div class="char-counter" id="descCounter">0 / 2000</div>
+                    </div>
+ 
+                    <!-- Steps to reproduce -->
+                    <div class="mb-4">
+                        <label class="form-label" for="bugSteps">Steps to Reproduce</label>
+                        <textarea class="form-control" id="bugSteps" name="steps"
+                            placeholder="1. Go to /register&#10;2. Fill in all fields&#10;3. Click 'Send for Verification'&#10;4. Check inbox — no email received" style="min-height:110px;" maxlength="1000"></textarea>
+                        <div class="char-counter" id="stepsCounter">0 / 1000</div>
+                    </div>
+ 
+                    <!-- Severity -->
+                    <div class="mb-4">
+                        <label class="form-label d-block">Severity <span class="text-danger">*</span></label>
+                        <div class="severity-row">
+                            <div class="severity-option low">
+                                <input type="radio" name="severity" id="sevLow" value="low">
+                                <label for="sevLow"><span class="severity-dot"></span> Low</label>
+                            </div>
+                            <div class="severity-option medium">
+                                <input type="radio" name="severity" id="sevMedium" value="medium" checked>
+                                <label for="sevMedium"><span class="severity-dot"></span> Medium</label>
+                            </div>
+                            <div class="severity-option high">
+                                <input type="radio" name="severity" id="sevHigh" value="high">
+                                <label for="sevHigh"><span class="severity-dot"></span> High</label>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- Browser / Device -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="bugBrowser">Browser</label>
+                            <select class="form-select" id="bugBrowser" name="browser">
+                                <option value="" disabled selected>Select browser…</option>
+                                <option value="chrome">Google Chrome</option>
+                                <option value="firefox">Mozilla Firefox</option>
+                                <option value="safari">Safari</option>
+                                <option value="edge">Microsoft Edge</option>
+                                <option value="opera">Opera</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label class="form-label" for="bugDevice">Device Type</label>
+                            <select class="form-select" id="bugDevice" name="device">
+                                <option value="" disabled selected>Select device…</option>
+                                <option value="desktop">Desktop / Laptop</option>
+                                <option value="tablet">Tablet</option>
+                                <option value="mobile">Mobile Phone</option>
+                            </select>
+                        </div>
+                    </div>
+ 
+                    <!-- Screenshot upload -->
+                    <div class="mb-4">
+                        <label class="form-label">Screenshot or Recording (optional)</label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="bugAttachment" name="attachment"
+                                accept="image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm">
+                            <i class='bx bx-cloud-upload'></i>
+                            <p>Drag & drop a file here, or <strong>click to browse</strong></p>
+                            <span>PNG, JPG, GIF, WEBP, MP4, WEBM · Max 10 MB</span>
+                        </div>
+                        <div class="upload-preview" id="uploadPreview">
+                            <i class='bx bx-image'></i>
+                            <span class="upload-preview-name" id="uploadName"></span>
+                            <button type="button" class="upload-remove" id="uploadRemove" title="Remove">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </div>
+                    </div>
+ 
+                    <!-- Contact email -->
+                    <div class="mb-4">
+                        <label class="form-label" for="bugEmail">Your Email <span class="text-muted fw-normal">(for follow-up, optional)</span></label>
+                        <input type="email" class="form-control" id="bugEmail" name="email"
+                            placeholder="your@email.com">
+                    </div>
+ 
+                    <button type="submit" class="btn-submit-bug">
+                        <i class='bx bx-send'></i>
+                        Submit Bug Report
+                    </button>
+ 
+                </form>
+            </div>
+        </div>
+ 
+        <!-- Sidebar -->
+        <aside class="bugs-sidebar">
+ 
+            <!-- Writing tips -->
+            <div class="sidebar-card">
+                <h4><i class='bx bx-bulb'></i> Tips for a Good Report</h4>
+                <div class="checklist-item">
+                    <i class='bx bx-check-circle'></i>
+                    <span>Describe exactly what you did, step by step.</span>
+                </div>
+                <div class="checklist-item">
+                    <i class='bx bx-check-circle'></i>
+                    <span>Include the exact error message you saw, if any.</span>
+                </div>
+                <div class="checklist-item">
+                    <i class='bx bx-check-circle'></i>
+                    <span>A screenshot is worth a thousand words — attach one if possible.</span>
+                </div>
+                <div class="checklist-item">
+                    <i class='bx bx-check-circle'></i>
+                    <span>Tell us whether you can reproduce the bug consistently or if it happened once.</span>
+                </div>
+                <div class="checklist-item">
+                    <i class='bx bx-check-circle'></i>
+                    <span>For security vulnerabilities, mark severity as <strong>High</strong> and describe the impact without exploiting it.</span>
+                </div>
+            </div>
+ 
+            <!-- System status -->
+            <div class="sidebar-card">
+                <h4><i class='bx bx-server'></i> System Status</h4>
+                <div class="status-row">
+                    <span>Web Portal</span>
+                    <span class="status-dot-inline"><span class="dot green"></span> Operational</span>
+                </div>
+                <div class="status-row">
+                    <span>Email System</span>
+                    <span class="status-dot-inline"><span class="dot green"></span> Operational</span>
+                </div>
+                <div class="status-row">
+                    <span>Document Storage</span>
+                    <span class="status-dot-inline"><span class="dot green"></span> Operational</span>
+                </div>
+                <div class="status-row">
+                    <span>Reviewer Dashboard</span>
+                    <span class="status-dot-inline"><span class="dot green"></span> Operational</span>
+                </div>
+            </div>
+ 
+            <!-- SLA note -->
+            <div class="sidebar-card">
+                <h4><i class='bx bx-time-five'></i> Response Times</h4>
+                <div class="sla-note">
+                    <strong>High severity</strong> bugs are acknowledged within <strong>4 business hours</strong> and resolved within <strong>1 business day</strong>.<br><br>
+                    <strong>Medium severity</strong> within <strong>1 business day</strong> acknowledgement, <strong>3 days</strong> resolution.<br><br>
+                    <strong>Low severity</strong> addressed in the next scheduled release cycle.
+                </div>
+            </div>
+ 
+        </aside>
+    </div>
+</div>
+{% endblock %}
+ 
+{% block scripts %}
+<script src="/static/js/report_bugs.js"></script>
+{% endblock %}

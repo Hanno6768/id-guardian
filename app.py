@@ -599,7 +599,7 @@ def my_documents():
         { "id": 2, "name": "National ID",          "type": "national_id",          "status": "verified", "issued": "5 Mar 2022",  "hasFile": True  },
         { "id": 3, "name": "Driving licence",      "type": "driving_license",      "status": "pending",  "issued": "—",           "hasFile": True  },
         { "id": 4, "name": "Birth certificate",    "type": "birth_certificate",    "status": "rejected", "issued": "—",           "hasFile": True  },
-        { "id": 5, "name": "Marriage certificate", "type": "marriage_certificate", "status": "pending",  "issued": "—",           "hasFile": False },
+        { "id": 5, "name": "Marriage certificate", "type": "marriage_certificate", "status": "verified",  "issued": "—",           "hasFile": True },
         { "id": 6, "name": "Nationality card",     "type": "nationality_card",     "status": "verified", "issued": "9 Aug 2020",  "hasFile": True  },
     ]
     return render_template("my_documents.html", docs=docs)
@@ -639,6 +639,18 @@ def review_queue():
 @roles_required("admin", "reviewer")
 def reviewed_documents():
     return render_template("reviewed_documents.html")
+
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template("privacy_policy.html")
+
+@app.route("/terms-and-conditions")
+def terms_and_conditions():
+    return render_template("terms_and_conditions.html")
+
+@app.route("/report-bugs")
+def report_bugs():
+    return render_template("report-bugs.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

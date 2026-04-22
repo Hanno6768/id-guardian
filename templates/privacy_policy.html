@@ -1,0 +1,188 @@
+<!-- done with claude ai -->
+{% extends "layout.html" %}
+{% block title %}Privacy Policy{% endblock %}
+ 
+{% block content %}
+<div class="policy-wrapper">
+ 
+    <!-- Hero -->
+    <div class="policy-hero">
+        <div class="container">
+            <div class="policy-hero-badge">
+                <i class='bx bx-shield-check'></i>
+                Official Legal Document
+            </div>
+            <h1>Privacy Policy</h1>
+            <p>How SudaGuardian collects, uses, and protects your personal and identity data in full compliance with the national data sovereignty framework.</p>
+            <div class="policy-meta">
+                <i class='bx bx-calendar'></i>
+                Effective Date: 1 January 2025 &nbsp;|&nbsp;
+                <i class='bx bx-revision'></i>
+                Version 1.0
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Body -->
+    <div class="policy-layout">
+ 
+        <!-- TOC -->
+        <aside class="policy-toc">
+            <h6>Contents</h6>
+            <a class="toc-link active" href="#overview">1. Overview</a>
+            <a class="toc-link" href="#data-collected">2. Data We Collect</a>
+            <a class="toc-link" href="#how-used">3. How We Use Your Data</a>
+            <a class="toc-link" href="#storage">4. Storage & Security</a>
+            <a class="toc-link" href="#sharing">5. Data Sharing</a>
+            <a class="toc-link" href="#retention">6. Data Retention</a>
+            <a class="toc-link" href="#rights">7. Your Rights</a>
+            <a class="toc-link" href="#cookies">8. Cookies</a>
+            <a class="toc-link" href="#children">9. Minors</a>
+            <a class="toc-link" href="#changes">10. Policy Changes</a>
+            <a class="toc-link" href="#contact">11. Contact</a>
+        </aside>
+ 
+        <!-- Content -->
+        <main class="policy-content">
+ 
+            <section id="overview">
+                <span class="section-badge"><i class='bx bx-info-circle'></i> Overview</span>
+                <h2>1. Overview</h2>
+                <p>SudaGuardian ("the Platform," "we," "us") is an unofficial digital identity portal serving citizens of the Republic of Sudan. This Privacy Policy governs the collection, storage, processing, and disclosure of all personal data submitted to or processed by the Platform.</p>
+                <p>By registering for or using SudaGuardian, you acknowledge that you have read and understood this Policy in full. If you do not agree, you must discontinue use of the Platform immediately.</p>
+                <div class="policy-highlight">
+                    <p><i class='bx bx-lock-alt me-2'></i> SudaGuardian operates on a <strong>national data sovereignty</strong> principle. All data is stored and processed exclusively on infrastructure within the territorial jurisdiction of the Republic of Sudan.</p>
+                </div>
+            </section>
+ 
+            <section id="data-collected">
+                <span class="section-badge"><i class='bx bx-data'></i> Data Collection</span>
+                <h2>2. Data We Collect</h2>
+                <p>We collect the following categories of personal data during the registration and ongoing use of the Platform:</p>
+                <ul>
+                    <li><strong>Identity Data:</strong> Full legal name, date of birth, National ID number (stored encrypted), nationality.</li>
+                    <li><strong>Contact Data:</strong> Email address, phone number.</li>
+                    <li><strong>Account Data:</strong> Username, hashed password, account role, registration date.</li>
+                    <li><strong>Document Data:</strong> Uploaded copies of identity documents (passports, national IDs, driving licences, birth certificates, etc.).</li>
+                    <li><strong>Verification Data:</strong> Review outcomes, reviewer notes, correction requests, rejection reasons.</li>
+                    <li><strong>Technical Data:</strong> IP address, browser type, session identifiers, access timestamps.</li>
+                </ul>
+                <div class="policy-warning">
+                    <p><i class='bx bx-error me-2'></i> Your National ID number is <strong>encrypted at rest</strong> using AES-256 encryption. It is never stored in plain text in any database table.</p>
+                </div>
+            </section>
+ 
+            <section id="how-used">
+                <span class="section-badge"><i class='bx bx-cog'></i> Usage</span>
+                <h2>3. How We Use Your Data</h2>
+                <p>Your data is used exclusively for the following purposes:</p>
+                <ul>
+                    <li>Verifying your national identity and creating a verified citizen profile.</li>
+                    <li>Processing document review workflows by authorised reviewers.</li>
+                    <li>Sending transactional emails (verification links, approval/rejection notifications, password setup).</li>
+                    <li>Maintaining a secure audit trail of all identity verification actions.</li>
+                    <li>Detecting and preventing fraudulent registration attempts.</li>
+                    <li>Improving platform performance and reliability through anonymised analytics.</li>
+                </ul>
+                <p>We do <strong>not</strong> use your data for advertising, profiling, or sale to any third party under any circumstances.</p>
+            </section>
+ 
+            <section id="storage">
+                <span class="section-badge"><i class='bx bx-server'></i> Storage & Security</span>
+                <h2>4. Storage & Security</h2>
+                <p>All data submitted to SudaGuardian is protected by the following technical and organisational measures:</p>
+                <ul>
+                    <li>National ID numbers are encrypted using AES-256 before database insertion.</li>
+                    <li>Passwords are hashed using a modern adaptive hashing algorithm and are never stored or transmitted in plain text.</li>
+                    <li>All communication between your browser and the Platform is encrypted via HTTPS (TLS 1.2+).</li>
+                    <li>Access to personal data is role-restricted: ordinary users cannot access other users' records; reviewers may only access records in their review queue.</li>
+                    <li>Uploaded identity documents are stored in an access-controlled upload directory, not publicly accessible by URL.</li>
+                    <li>All infrastructure operates within the Republic of Sudan, with no reliance on foreign cloud providers.</li>
+                </ul>
+            </section>
+ 
+            <section id="sharing">
+                <span class="section-badge"><i class='bx bx-share-alt'></i> Sharing</span>
+                <h2>5. Data Sharing</h2>
+                <p>SudaGuardian does not sell, rent, or trade your personal data. Data may be disclosed in the following limited circumstances:</p>
+                <ul>
+                    <li><strong>Government Authorities:</strong> Where legally required by a court order, national security directive, or a lawful request by a competent Sudanese authority.</li>
+                    <li><strong>Internal Platform Staff:</strong> Authorised administrators and reviewers, on a strict need-to-know basis, solely for the purpose of identity verification.</li>
+                    <li><strong>Service Continuity:</strong> In the event of a platform transfer to an official governmental entity, data may be transferred under equivalent or stronger protections.</li>
+                </ul>
+                <div class="policy-highlight">
+                    <p><i class='bx bx-shield me-2'></i> No data is shared with foreign governments, international corporations, or any advertising network.</p>
+                </div>
+            </section>
+ 
+            <section id="retention">
+                <span class="section-badge"><i class='bx bx-time'></i> Retention</span>
+                <h2>6. Data Retention</h2>
+                <ul>
+                    <li><strong>Pending registrations</strong> that are not verified within 30 days are automatically purged.</li>
+                    <li><strong>Rejected applications</strong> retain reviewer notes and the submitted file for a mandatory audit period of 12 months, after which they are deleted.</li>
+                    <li><strong>Verified citizen profiles</strong> are retained for the lifetime of the account and a statutory 7-year period following account closure.</li>
+                    <li><strong>Session data</strong> is cleared upon logout or session expiry.</li>
+                </ul>
+            </section>
+ 
+            <section id="rights">
+                <span class="section-badge"><i class='bx bx-user-check'></i> Your Rights</span>
+                <h2>7. Your Rights</h2>
+                <p>As a registered user, you hold the following rights over your personal data:</p>
+                <ul>
+                    <li><strong>Right of Access:</strong> Request a copy of all personal data we hold about you.</li>
+                    <li><strong>Right to Rectification:</strong> Request correction of inaccurate personal data.</li>
+                    <li><strong>Right to Erasure:</strong> Request deletion of your account and associated data, subject to legal retention obligations.</li>
+                    <li><strong>Right to Portability:</strong> Request your data in a structured, machine-readable format.</li>
+                    <li><strong>Right to Object:</strong> Object to any processing of your data that is not strictly necessary for identity verification.</li>
+                </ul>
+                <p>To exercise any of the above rights, contact us at the address provided in Section 11.</p>
+            </section>
+ 
+            <section id="cookies">
+                <span class="section-badge"><i class='bx bx-cookie'></i> Cookies</span>
+                <h2>8. Cookies</h2>
+                <p>SudaGuardian uses only the following strictly necessary cookies:</p>
+                <ul>
+                    <li><strong>Session Cookie:</strong> Maintains your authenticated session. Deleted on browser close.</li>
+                    <li><strong>CSRF Token:</strong> Protects form submissions from cross-site request forgery attacks.</li>
+                    <li><strong>Flash Message Cookie:</strong> Stores one-time status messages between page loads.</li>
+                </ul>
+                <p>We do not use tracking cookies, analytics cookies, or any third-party advertising cookies.</p>
+            </section>
+ 
+            <section id="children">
+                <span class="section-badge"><i class='bx bx-child'></i> Minors</span>
+                <h2>9. Minors</h2>
+                <p>SudaGuardian is intended for Sudanese citizens aged 18 and above. We do not knowingly collect personal data from individuals under the age of 18. If you believe a minor has submitted data to the Platform, contact us immediately so we may delete the record.</p>
+            </section>
+ 
+            <section id="changes">
+                <span class="section-badge"><i class='bx bx-edit'></i> Changes</span>
+                <h2>10. Policy Changes</h2>
+                <p>We reserve the right to amend this Privacy Policy at any time. Registered users will be notified of material changes by email at least 14 days before the change takes effect. Continued use of the Platform after the effective date constitutes acceptance of the revised Policy.</p>
+            </section>
+ 
+            <section id="contact">
+                <span class="section-badge"><i class='bx bx-envelope'></i> Contact</span>
+                <h2>11. Contact</h2>
+                <p>For all privacy-related enquiries, data requests, or complaints, contact the SudaGuardian Data Protection Officer:</p>
+                <div class="policy-contact-card">
+                    <h3>Data Protection Office</h3>
+                    <p>SudaGuardian — GOV.SD Digital Identity Initiative<br>Khartoum, Republic of Sudan</p>
+                    <a href="/help-and-support" class="btn-policy">
+                        <i class='bx bx-envelope'></i>
+                        Contact Support
+                    </a>
+                </div>
+            </section>
+ 
+        </main>
+    </div>
+</div>
+{% endblock %}
+ 
+{% block scripts %}
+<script src="/static/js/privacy_policy.js"></script>
+{% endblock %}

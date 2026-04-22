@@ -4,6 +4,75 @@
 
 {% block content %}
 
+<!-- created svg icons using claud ai -->
+
+{% macro render_doc_icon(type) %}
+
+  {% if type == 'passport' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle cx="32" cy="26" r="10" fill="#AFA9EC"/>
+    <circle cx="32" cy="26" r="6.5" fill="#EEEDFE"/>
+    <ellipse cx="32" cy="46" rx="13" ry="6" fill="#AFA9EC"/>
+    <rect x="18" y="38" width="28" height="2" rx="1" fill="#7F77DD" opacity=".35"/>
+    <rect x="18" y="43" width="20" height="2" rx="1" fill="#7F77DD" opacity=".35"/>
+  </svg>
+
+  {% elif type == 'national_id' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+    <circle cx="20" cy="30" r="9" fill="#85B7EB"/>
+    <circle cx="20" cy="30" r="5.5" fill="#E6F1FB"/>
+    <rect x="34" y="22" width="18" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+    <rect x="34" y="29" width="13" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+    <rect x="34" y="36" width="15" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+  </svg>
+
+  {% elif type == 'driving_license' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
+    <rect x="4" y="12" width="56" height="13" rx="5" fill="#97C459" opacity=".4"/>
+    <circle cx="19" cy="34" r="9" fill="#C0DD97"/>
+    <path d="M14 34a5 5 0 1 1 10 0" stroke="#3B6D11" stroke-width="1.5" fill="none"/>
+    <rect x="17" y="36" width="4" height="7" rx="2" fill="#3B6D11" opacity=".5"/>
+    <rect x="33" y="27" width="20" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+    <rect x="33" y="34" width="14" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+    <rect x="33" y="41" width="17" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+  </svg>
+
+  {% elif type == 'birth_certificate' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#FBEAF0" stroke="#D4537E" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20" stroke="#D4537E" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+    <path d="M32 44c0-5.5 7-5.5 7 0s-7 10-7 10-7-4.5-7-10 7-5.5 7 0z" fill="#ED93B1"/>
+  </svg>
+
+  {% elif type == 'marriage_certificate' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#FAEEDA" stroke="#EF9F27" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20" stroke="#EF9F27" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+    <circle cx="32" cy="47" r="9" fill="none" stroke="#EF9F27" stroke-width="1.5"/>
+    <path d="M27 47l3.5 3.5L37 44" stroke="#BA7517" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  {% elif type == 'nationality_card' %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+    <rect x="8" y="16" width="18" height="32" rx="3" fill="#9FE1CB"/>
+    <rect x="31" y="22" width="22" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+    <rect x="31" y="29" width="16" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+    <rect x="31" y="36" width="19" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+  </svg>
+
+  {% else %}
+  <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#F1EFF9" stroke="#7F77DD" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20M18 38h12" stroke="#7F77DD" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+  </svg>
+  {% endif %}   
+
+{% endmacro %}
+
 <div class="my-documents-wrapper">
 
     <div class="my-documents-container conatiner py-4">
@@ -45,7 +114,7 @@
                     <!-- thumbnail -->
                     <div class="card-thumb {% if not doc.hasFile %}empty{% endif %} ">
                         {% if doc.hasFile %}
-
+                        {{ render_doc_icon(doc.type) }}
                         <span class="type-lbl">{{ doc.name }}</span>
                         {% else %}
                         <i class='bx bx-file-blank'></i>
@@ -55,26 +124,27 @@
 
                     <!-- Footer -->
                     <div class="p-3 d-flex flex-column gap-2">
+
                         <div class="d-flex align-items-center justify-content-between gap-1">
                                 <span class="doc-name">{{ doc.name }}</span>
                                 <span
-                                    class="badge badge-{{ doc.status }} d-inline-flex align-items-center gap-1 rounded-pill px-2 py-1">
-                                    <span class="status-dot dot-{{ doc.status }} me-1">
+                                    class="badge my-documents-badge-{{ doc.status }} d-inline-flex align-items-center gap-1 rounded-pill px-2 py-1">
+                                    <span class="my-documents-status-dot dot-{{ doc.status }}">
                                         {% if doc.status == 'verified' %}
                                         <i class='bx bxs-check-circle'></i>
                                         {% endif %}
                                     </span>
                                     {{ doc.status | capitalize }}
                                 </span>
+                        </div>
 
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-doc-outline flex-fill rounded-2"
-                                    data-bs-toggle="modal" data-bs-target="#docModal" data-id="{{ doc.id }}">View Details</button>
-
-                                {% if not doc.hasFile %}
-                                <button class="btn-btn-doc-upload flex-fill rounded-2">Upload</button>
-                                {% endif %}
-                            </div>
+                        <div class="d-flex gap-2">
+                            {% if doc.hasFile %}
+                            <button class="btn btn-doc-outline flex-fill rounded-2"
+                                data-bs-toggle="modal" data-bs-target="#docModal" data-id="{{ doc.id }}">View Details</button>
+                            {% else %}
+                            <button class="btn-doc-upload flex-fill rounded-2">Upload</button>
+                            {% endif %}
                         </div>
 
                     </div>
@@ -91,25 +161,44 @@
         </div>
     </div>
 
-    <div class="modal fade" id="docModal" tabindex="-1">
-        <div class="my-documents-modal-dialog modal-dialog modal-dialog-centered">
+    <div class="modal my-documents-modal fade" id="docModal" tabindex="-1">
+        <div class=" modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
                 <div class="modal-header">
                     <h5 class="my-documents-modal-title" id="modalTitle"></h5>
-                    <button type="button" calss="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body p-3">
 
                     <div class="toggle-wrap d-flex gap-1 mb-3">
-                        <button class="btn flex-fill active" id="btnQR"><i class='bx bx-qr me-1'></i>QR code</button>
+                        <button class="btn flex-fill active" id="btnDoc"><i class='bx bx-file me-1'></i>Document</button>
+                        <button class="btn flex-fill" id="btnQR"><i class='bx bx-qr me-1'></i>QR code</button>
                     </div>
 
-                    <div class="modal-preview-area" id="modalPreview"></div>
-                    <div class="d-flex justify-content-between mt-3" style="font-size:12px;color:#5C5880"></div>
-                    <span id="modalStatusLabel"></span>
-                    <span id="modalIssuedLabel"></span>
+                    <!-- Document panel -->
+                    <div id="panelDoc">
+                        <div class="modal-oreview-area" id="modalPreview"></div>
+                    </div>
+
+                    <!-- QR panel hidden by default -->
+                    <div id="panelQR" style="display:none;">
+                        <div class="modal-preview-area d-flex flex-column align-items-center justify-content-center gap-3 py-4">
+                            <!-- img tag with qr code will be injected here -->
+                             <img src="" alt="QR code" id="qrImage" style="width:180px; height:180px; border-radius:8px;">
+                             <p class="text-muted mb-0" style="font-size:12px; text-align:center; max-width:220px;">
+                                Scan this code to share your document securly
+
+                             </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer" style="font-size:12px;">
+                    <span class="me-3"><strong>Status:</strong> <span id="modalStatusLabel"></span></span>
+                    <span><strong>Issued:</strong> <span id="modalIssuedLabel"></span></span>
                 </div>
 
             </div>
@@ -118,5 +207,15 @@
     </div>
 
 </div>
+
+{% block scripts %}
+
+<script src="/static/js/my_documents.js"></script>
+
+<script id ="doc-data" type="application/json">
+    {{ docs | tojson }}
+</script>
+
+{% endblock %}
 
 {% endblock %}
