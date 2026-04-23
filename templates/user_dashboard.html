@@ -1,72 +1,297 @@
 {% extends "layout.html" %}
 
-{% block title %}User Dashboard{% endblock %}
+{% block title %}
+
+{% if current_user.role == 'admin' %}Admin Dashboard
+{% elif current_user.role == 'reviewer' %}Reviewer Dashboard
+{% else %}My Dashboard
+{% endif %}
+
+{% endblock %}
 
 {% block content %}
 
 <div class="dashboard-wrapper">
-    <div class="greeting-section">
-        <div class="row d-flex align-items-center justify-content-center">
-            <div class="col-md-8">
+    <div class="dashboard-header">
+        <div class="dashboard-header-inner">
+            <div class="dashboard-header-left">
+                
+                {% if current_user.role == 'admin' %}
 
-                <h1 class="greeting text-center">
-                    Welcome back, {{ user.full_name}}
-                    <span class="badge-verified" title="Identity Verfied">
-                        <i class="bx bxs-check-circle"></i>
-                    </span>
-                </h1>
+                    <div class="dashboard-role-badge admin">
+                       <i class='bx bx-shield-check'></i> Administrator 
+                    </div>
 
+                    <h1>Welcome, <span>{{ current_user.full_name.split()[0] }}</span></h1>
 
-                {% if current_user.role == "user" %}
-                <p class="text-muted text-center">
-                    <i class="bx bx-check-shield me-1"></i>
-                    Your Identity is currently secured and verified.
-                </p>
+                    <p class="dashboard-header-sub"><i class='bx bx-cog'></i> System administration panel</i></p>
+
+                {% elif current_user.role == 'reviewer' %}
+
+                    <div class="dashboard-role-badge reviewer">
+                      <i class='bx bx-check-circle'></i> Document Reviewer
+                    </div>
+
+                    <h1>Welcome, <span>{{ current_user.full_name.split()[0] }}</span></h1>
+
+                    <p class="dashboard-header-sub"><i class='bx bx-task'></i> 
+                        {% if pending_users %}
+                        You have <strong style="color:var(--accent-gold)">{{ pending-users|length }} application{{ 's' if pending_users|length != 1 }}</strong> awaiting review
+                        {% endif %}
+                    </p>
+
+                {% else %}
+
+                <div class="dashboard-role-badge user">
+                        <i class='bx bx-user-check'></i> Verified User 
+                </div>
+
+                    <h1>Welcome back, <span>{{ current_user.full_name.split()[0] }}</span></h1>
+
+                    <p class="dashboard-header-sub"><i class='bx bx-shield-check'></i> Your national Identity is secured and verified</p>
+                    
                 {% endif %}
 
             </div>
+
+            <div class="dashboard-header-right">
+                <div class="dashboard-header-date" id="dash-date">Loading...</div>
+                <div class="dashboard-header-time" id="dashClock">--:--</div>
+            </div>
+
         </div>
     </div>
 
-    <div class="row g-4 d-flex justify-content-around">
+    {% if current_user.role == 'user' %}
 
-        <div class="col-xl-4 col-md-6">
-            <div class="dash-card">
-                <div class="dash-card-body">
-                    <div class="icon-container">
-                        <i class='bx bx-folder-open'></i>  
-                    </div>   
-                    <div class="ms-3">
-                        <h2 class="document-count mb-0">12</h2>
-                        <p class="text-muted mb-0">Total Uploaded Documents</p>
+    <p class="dashboard-section-label"><i class='bx bx-bar-chart-alt-2'></i>
+        Overview
+    </p>
+
+    <div class="row g-4 mb-6">
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card accent-blue">
+
+                <div class="stat-card-top">
+                    <div class="stat-icon blue">
+                        <i class='bx bx-folder'></i>
                     </div>
-                    <a href="{{url_for('my_documents')}}" class="btn-primary btn-form text-light mt-5">View Documents</a>
+                    <span class="stat-trend flat">Total</span>
+                </div>
+
+                <div class="stat-value">6</div>
+                <div class="stat-label">Documents</div>
+
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card accent-green">
+                <div class="stat-card-top">
+
+                    <div class="stat-icon green"><i class='bx bx-check-shield'></i></div>
+
+                    <span class="stat-trend up">Active</span>
+
+                </div>
+
+                <div class="stat-value">3</div>
+                <div class="stat-label">Verified</div>
+
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-car accent-warn">
+                <div class="stat-card-top">
+
+                    <div class="stat-icon warn"><i class='bx bx-time'></i></div>
+
+                    <span class="stat-trend flat">Awaiting</span>
+
+                </div>
+
+                <div class="stat-value">2</div>
+                <div class="stat-label">Pending</div>
+
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card accent-red">
+                <div class="stat-card-top">
+
+                    <div class="stat-icon red"><i class='bx bx-x-circle'></i></div>
+
+                    <span class="stat-trend down">Action needed</span>
+
+                </div>
+
+                <div class="stat-value">1</div>
+                <div class="stat-label">Rejected</div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-4">
+
+            <p class="dashboard-section-label"><i class='bx bx-id-card'></i>
+                 Identity Profile
+            </p>
+
+            <div class="identity-panel">
+
+                <div class="identity-panel-header">
+
+                    <div class="user-avatar">
+                        <span>{{ current_user.username[:1].upper() }}</span>
+                    </div>
+
+                    <div>
+
+                        <p class="id-panel-name"> {{ current_user.full_name }} </p>
+                        <span class="id-panel-sub">
+                            <i class='bx bx-user'></i>
+                            @{{ current_user.username }}
+                        </span>
+
+                    </div>
+                </div>
+
+                <div class="identity-panel-body">
+
+                    <div class="id-row">
+
+                        <span class="id-row-label"><i class='bx bx-shield-check'></i> Identity Status</span>
+                        <span class="id-status-badge verified">
+                            <i class='bx bxs-check-circle'></i> Verified
+                        </span>
+
+                    </div>
+
+                    <div class="id-row">
+                        <span class="id-row-label">
+                            <i class='bx bx-phone'></i> Phone
+                        </span>
+                        <span class="id-row-value"> {{ current_user.contact_phone }} </span>
+                    </div>
+
+                    <div class="id-row">
+                        <span class="id-row-label">
+                            <i class='bx bx-envelope'></i> Email
+                        </span>
+                        <span class="id-row-value"> {{ current_user.contact_email }} </span>
+                    </div>
+
+                </div>
+
+
+            </div>   
+        </div>
+
+        <div class="col-lg-4">
+
+            <p class="dashboard-section-label">
+                <i class='bx bx-grid-alt'></i> Quick Actions
+            </p>
+
+            <div class="row g-3">
+
+                <div class="col-6">
+                    <a href="{{ url_for('my_documents') }}" class="action-card">
+                        <div class="action-card-icon">
+                          <i class='bx bx-folder-open'></i>  
+                        </div>
+                        <h5>My Documents</h5>
+                        <p>View and manage your identity documents.</p>
+                        <i class='bx bx-right-arrow-alt action-card-arrow'></i>
+                    </a>
+                </div>
+
+                <div class="col-6">
+                    <a href="{{ url_for('my_profile') }}" class="action-card">
+                        <div class="action-card-icon">
+                          <i class='bx bx-user-circle'></i>  
+                        </div>
+                        <h5>My Profile</h5>
+                        <p>View Your personal information.</p>
+                        <i class='bx bx-right-arrow-alt action-card-arrow'></i>
+                    </a>
+                </div>
+
+                <div class="col-6">
+                    <a href="{{ url_for('notifications') }}" class="action-card">
+                        <div class="action-card-icon">
+                          <i class='bx bx-bell'></i>  
+                        </div>
+                        <h5>Notifications</h5>
+                        <p>See your latest alerts.</p>
+                        <i class='bx bx-right-arrow-alt action-card-arrow'></i>
+                    </a>   
+                </div>
+
+                <div class="col-6">
+                    <a href="{{ url_for('help_and_support') }}" class="action-card">
+                        <div class="action-card-icon">
+                          <i class='bx bx-help-circle'></i> 
+                        </div>
+                        <h5>Support</h5>
+                        <p>Get help or report an issue.</p>
+                        <i class='bx bx-right-arrow-alt action-card-arrow'></i>
+                    </a> 
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6">
-            <div class="dash-card">
-                <div class="dash-card-body">
+        <div class="col-lg-4">
 
-                    <div class="icon-container cloud-sync-wrapper">
-                        <i class='bx bx-cloud main-cloud'></i>
-                        <i class='bx bx-sync sync-overlay spinning'></i>  
-                    </div>  
+            <p class="dashboard-section-label">
+                <i class='bx bx-history'></i> Recent Activity
+            </p>
 
-                    <div class="ms-3 status-text-wrapper">
-                        <h2 class="mb-0 status-text">Sync Active</h2>
-                        <div class="status-indicator">
-                            <span class="status-dot dot-active"></span>
-                        </div> 
-                        <p class="text-muted small mb-0">Cloud-Sovereign Bridge Connected</p>
-                    </div>
+            <div class="activity-list">
+                <div class="activity-list-header">
+                    <h4>Activity Log</h4>
+                    <a href="{{ url_for('history') }}">View all</a>
 
+                    {% if history %}
+                        {% for activity in history %}
+
+                        <div class="activity-item">
+                            {% if activity.type == 'document_upload' %}
+                                <span class="activity-dot blue"></span>
+                            {% elif activity.type == 'verification' %}
+                                <span class="activity-dot green"></span>
+                            {% elif activity.type == 'rejection' %}
+                                <span class="activity-dot red"></span>
+                            {% else %}
+                                <span class="activity-dot gold"></span>
+                            {% endif %}
+                            <span class="activity-dot-line"></span>
+                        </div>
+                        <div >
+                            <p class="activity-text"> {{ activity.description }} </p>
+                            <span class="activity-time"> {{ activity.time }} </span>
+                        </div>
+                        
+                        
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-activity">No recent activity to show.</p>
+                    {% endif %}
                 </div>
             </div>
+
         </div>
 
     </div>
+
+    {% endif %}
 
 </div>
 

@@ -10,6 +10,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from extensions import mail
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from dotenv import load_dotenv
+import qrcode
 
 load_dotenv()
 
