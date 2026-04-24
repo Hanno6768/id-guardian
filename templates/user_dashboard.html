@@ -103,7 +103,7 @@
         </div>
 
         <div class="col-6 col-md-3">
-            <div class="stat-car accent-warn">
+            <div class="stat-card accent-warn">
                 <div class="stat-card-top">
 
                     <div class="stat-icon warn"><i class='bx bx-time'></i></div>
@@ -148,7 +148,7 @@
 
                 <div class="identity-panel-header">
 
-                    <div class="user-avatar">
+                    <div class="id-avatar">
                         <span>{{ current_user.username[:1].upper() }}</span>
                     </div>
 
@@ -258,19 +258,27 @@
                 <div class="activity-list-header">
                     <h4>Activity Log</h4>
                     <a href="{{ url_for('history') }}">View all</a>
-
+                </div>
                     {% if history %}
                         {% for activity in history %}
 
                         <div class="activity-item">
                             {% if activity.type == 'document_upload' %}
+                            <div class="activity-dot-col">
                                 <span class="activity-dot blue"></span>
+                            </div>
                             {% elif activity.type == 'verification' %}
+                                <div class="activity-dot-col">
                                 <span class="activity-dot green"></span>
+                            </div>
                             {% elif activity.type == 'rejection' %}
+                                <div class="activity-dot-col">
                                 <span class="activity-dot red"></span>
+                            </div>
                             {% else %}
+                                <div class="activity-dot-col">
                                 <span class="activity-dot gold"></span>
+                            </div>
                             {% endif %}
                             <span class="activity-dot-line"></span>
                         </div>
@@ -282,9 +290,10 @@
                         
                         {% endfor %}
                     {% else %}
-                        <p class="no-activity">No recent activity to show.</p>
+                    
+                        <p class="activity-text no-activity">No recent activity to show.</p>
+        
                     {% endif %}
-                </div>
             </div>
 
         </div>
