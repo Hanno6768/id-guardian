@@ -2039,6 +2039,10 @@ footer>small {
     color: var(--text-muted);
 }
 
+#dashClock {
+    font-variant-numeric: tabular-nums; 
+}
+
 
 
 

@@ -14,10 +14,14 @@
             <div class="dashboard-header-left">
 
                 {% if current_user.role == 'reviewer' %}
-
                 <div class="dashboard-role-badge reviewer">
                     <i class='bx bx-check-circle'></i> Document Reviewer
                 </div>
+                {% elif current_user.role == 'admin' %}
+                <div class="dashboard-role-badge admin">
+                       <i class='bx bx-shield-check'></i> Administrator 
+                </div>
+                {% endif %}
 
                 <h1>Welcome, <span>{{ current_user.full_name.split()[0] }}</span></h1>
 
@@ -28,7 +32,6 @@
                     {% endif %}
                 </p>
 
-                {% endif %}
 
             </div>
 

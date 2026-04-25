@@ -7,6 +7,8 @@ from models import User, PendingUser, EncryptedNationalID
 from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.security import generate_password_hash
+import hashlib
 from extensions import mail
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from dotenv import load_dotenv
@@ -63,24 +65,24 @@ def handle_large_file(e):
 @app.route('/')
 @app.route("/home")
 def home():
-    # username = "reviewer1"
+    # username = "admin1"
     # password_hash = generate_password_hash("test")
-    # national_id = "00000000011"
-    # national_id_hash = sha256(national_id.encode("utf-8")).hexdigest()
-    # full_name = "reviewer1"
-    # birthdate = "2000-07-08"
-    # contact_email = "reviewer1@gmail.com"
-    # contact_phone = "+249000000000"
+    # national_id = "00000000012"
+    # national_id_hash = hashlib.sha256(national_id.encode("utf-8")).hexdigest()
+    # full_name = "Amin Sayed Altayeb"
+    # birthdate = "1990-04-22"
+    # contact_email = "admin1@gmail.com"
+    # contact_phone = "+249000000001"
     # verified_at = datetime.now()
     # national_id_fast = national_id_hash[-10:]
-    # role = "reviewer"
+    # role = "admin"
     # db.execute("""
-    #                 INSERT INTO users (username, 
-    #            password_hash, national_id_hash, full_name, 
-    #            birthdate, contact_email, contact_phone, verified_at, 
-    #            national_id_fast, role) VALUES (?,?,?,?,?,?,?,?,?,?)
-    #            """, username, password_hash, national_id_hash, full_name, birthdate,
-    #            contact_email, contact_phone, verified_at, national_id_fast, role)
+    #                  INSERT INTO users (username, 
+    #             password_hash, national_id_hash, full_name, 
+    #             birthdate, contact_email, contact_phone, verified_at, 
+    #             national_id_fast, role) VALUES (?,?,?,?,?,?,?,?,?,?)
+    #             """, username, password_hash, national_id_hash, full_name, birthdate,
+    #             contact_email, contact_phone, verified_at, national_id_fast, role)
     return render_template("home.html")
 
 # log user in
