@@ -16,32 +16,6 @@
         <div class="dashboard-header-inner">
             <div class="dashboard-header-left">
                 
-                {% if current_user.role == 'admin' %}
-
-                    <div class="dashboard-role-badge admin">
-                       <i class='bx bx-shield-check'></i> Administrator 
-                    </div>
-
-                    <h1>Welcome, <span>{{ current_user.full_name.split()[0] }}</span></h1>
-
-                    <p class="dashboard-header-sub"><i class='bx bx-cog'></i> System administration panel</i></p>
-
-                {% elif current_user.role == 'reviewer' %}
-
-                    <div class="dashboard-role-badge reviewer">
-                      <i class='bx bx-check-circle'></i> Document Reviewer
-                    </div>
-
-                    <h1>Welcome, <span>{{ current_user.full_name.split()[0] }}</span></h1>
-
-                    <p class="dashboard-header-sub"><i class='bx bx-task'></i> 
-                        {% if pending_users %}
-                        You have <strong style="color:var(--accent-gold)">{{ pending-users|length }} application{{ 's' if pending_users|length != 1 }}</strong> awaiting review
-                        {% endif %}
-                    </p>
-
-                {% else %}
-
                 <div class="dashboard-role-badge user">
                         <i class='bx bx-user-check'></i> Verified User 
                 </div>
@@ -49,8 +23,6 @@
                     <h1>Welcome back, <span>{{ current_user.full_name.split()[0] }}</span></h1>
 
                     <p class="dashboard-header-sub"><i class='bx bx-shield-check'></i> Your national Identity is secured and verified</p>
-                    
-                {% endif %}
 
             </div>
 
@@ -61,7 +33,6 @@
 
         </div>
     </div>
-
 
 
     <p class="dashboard-section-label"><i class='bx bx-bar-chart-alt-2'></i>
