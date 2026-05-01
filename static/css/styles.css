@@ -2079,8 +2079,8 @@ footer>small {
 
 
 
-/* used claude ai to generate the below code for privacy policy, 
-terms and conditions, and report bugs pages. */
+/* Iv'e let claude AI understand the structure and design of my project 
+as i'll use him to style the rest of pages */
 
 /* ── Page shell ─────────────────────────────────────────────────────────── */
 .policy-wrapper {
@@ -3138,5 +3138,7 @@ terms and conditions, and report bugs pages. */
     transform: translateY(-2px);
     box-shadow: var(--shadow-glow-gold);
 }
+
+
 
 /* End of AI-generated CSS for privacy policy, terms and conditions, and report bugs pages. */

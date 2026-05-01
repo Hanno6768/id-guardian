@@ -256,7 +256,144 @@
                         </p>
                     </div>
 
+                    <form action="/profile/change-password" id="formPassword" method="POST" novalidate style="display:none">
+                        <div class="profile-form-grid">
+
+                            <div class="profile-field profilefield-full">
+                                <label for="currentPassword" class="profile-field-label">
+                                    <i class='bx bx-lock-alt'></i> Current Password    
+                                </label>
+                                <div class="profile-input-wrap">
+                                    <input type="password" id="currentPassword" name="current_password" class="profile-input" placeholder="Enter current password" required>
+                                    <button type="button" data-target="currentPassword" class="btn-toggle-pw">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="profile-field">
+                                <label for="newPassword" class="profile-field-label">
+                                    <i class='bx bx-key'></i> New Password
+                                </label>
+                                <div class="profile-input-wrap">
+                                    <input type="password" name="new_password" placeholder="At least 8 characters" id="newPassword" class="profile-input">
+                                    <button type="button" data-target="newPassword" class="btn-toggle-pw">
+                                        <i class="bx bx-show"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="profile-field">
+                                <label for="confirmPassword" class="profile-field-label">
+                                    <i class='bx bx-check-double'></i> Confirm New Password
+                                </label>
+                                <div class="profile-input-wrap">
+                                    <input type="password" name="confirm_password" placeholder="Repeat new password" id="confirmPassword" class="profile-input" required>
+                                    <button type="button" data-target="confirmPassword" class="btn-toggle-pw">
+                                        <i class="bx bx-show"></i>
+                                    </button>
+                                </div>
+                                <div class="pw-match-hint" id="pwMatchHint"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="profile-form-actions">
+                            <button type="submit" class="btn-profile-save" id="btnSavePassword">
+                                <i class="bx bx-check"> Update Password</i>
+                            </button>
+                            <button type="button" class="btn-profile-cancel" id="btnCancelPassword">
+                                Cancel
+                            </button>
+                        </div>
+
+                    </form>
+
                 </section>
+
+                <section class="profile-section" id="sectionNotifications">
+                    <div class="profile-section-header">
+                        <div>
+                            <span class="profile-section-eyebrow">Preferences</span>
+                            <h3 class="profile-section-title">Notification Settings</h3>
+                        </div>
+                    </div>
+
+                    <div class="toggle-list">
+                        <div class="toggle-item">
+                            <div class="toggle-item-text">
+                                <span class="toggle-item-title">
+                                    <i class='bx bx-bell'></i>
+                                    SMS — Document Status Alerts
+                                </span>
+                                <span class="toggle-item-sub">
+                                    Get notified when a document you uploaded is reviewed or expires.    
+                                </span>
+                            </div>
+                            <label for="toggleVerification" class="profile-toggle">
+                                <input type="checkbox" id="toggleVerification" checked>
+                                <span class="profile-toggle-track">
+                                    <span class="profile-toggle-thumb">
+
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div class="toggle-item-text">
+                                <span class="toggle-item-title">
+                                    <i class='bx bx-message-square-dots'></i>
+                                    SMS — Identity Verification Updates
+                                </span>
+                                <span class="toggle-item-sub">
+                                    Recieve an SMS when your verification status changes (approved, rejected, or correction requested).
+                                </span>
+                            </div>
+                            <label for="toggleVerification" class="profile-toggle">
+                                <input type="checkbox" id="toggleVerification" checked>
+                                <span class="profile-toggle-track">
+                                    <span class="profile-toggle-thumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div class="toggle-item-text">
+                                <span class="toggle-item-title">
+                                    <i class='bx bx-shield-alt-2'></i>
+                                    SMS — Security Alerts     
+                                </span>
+                                <span class="toggle-item-sub">
+                                    Be notified of login attempts from new devices or suspicious activity on your account.
+                                </span>
+                            </div>
+                            <label for="toggleVerification" class="profile-toggle">
+                                <input type="checkbox" id="toggleVerification" checked>
+                                <span class="profile-toggle-track">
+                                    <span class="profile-toggle-thumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div class="toggle-item-text">
+                                <span class="toggle-item-title">
+                                    <i class='bx bx-news'></i>
+                                    SMS — Platform Announcements    
+                                </span>
+                                <span class="toggle-item-sub">
+                                    Receive occasional updates about new features, scheduled maintenance, and platform news.
+                                </span>
+                            </div>
+                            <label for="toggleVerification" class="profile-toggle">
+                                <input type="checkbox" id="toggleVerification" checked>
+                                <span class="profile-toggle-track">
+                                    <span class="profile-toggle-thumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                </section>
+
             </main>
 
         </div>
