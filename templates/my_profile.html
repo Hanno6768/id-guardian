@@ -10,7 +10,7 @@
         <div class="profile-page-header-inner">
             <div>
 
-                <p class="profile-page-eye-brow">
+                <p class="profile-page-eyebrow">
                     <i class='bx bx-user-circle'></i> Account
                 </p>
 
@@ -27,379 +27,462 @@
             <div class="profile-page-header-meta" id="Date"></div>
 
         </div>
+    </div>
 
-        <div class="profile-layout">
+    <div class="profile-layout">
 
-            <aside class="profile-aside">
+        <aside class="profile-aside">
 
-                <div class="profile-identity-card">
+            <div class="profile-identity-card">
 
-                    <div class="profile-avatar-wrap">
+                <div class="profile-avatar-wrap">
 
-                        <div class="profile-avatar" id="avatarPreview">
-                            <span id="avatarInitials">{{ current_user.full_name[0] | upper }}</span>
-                            <img src="" alt="Profile photo" id="avatarImg" style="display: none;">
-                        </div>
-
-                        <label for="avatarInput" class="avatar-upload-btn" title="Change photo">
-                            <i class='bx bx-camera'></i>
-                        </label>
-
-                        <input type="file" accept="image/png,image/jpeg,image/webp" style="display:none">
-
+                    <div class="profile-avatar" id="avatarPreview">
+                        <span id="avatarInitials">{{ current_user.full_name[0] | upper }}</span>
+                        <img src="" alt="Profile photo" id="avatarImg" style="display: none;">
                     </div>
 
-                    <div class="profile-identity-info">
+                    <label for="avatarInput" class="avatar-upload-btn" title="Change photo">
+                        <i class='bx bx-camera'></i>
+                    </label>
 
-                        <h2 class="profile-full-name"> {{ current_user.full_name }} </h2>
-                        <span class="profile-username"> @{{ current_user.username }} </span>
+                    <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/webp" style="display:none">
 
-                        <div
-                            class="profile-role-badge {% if current_user.role == 'admin' %}role-admin {% elif current_user.role == 'reviewer' %}role reviewer {% else %}role-user{% endif %}">
+                </div>
 
-                            {% if current_user.role == 'admin' %}
-                            <i class='bx bx-shield-check'></i> Adminstrator
-                            {% elif current_user.role == 'reviewer' %}
-                            <i class='bx bx-check-circle'></i> Document reviewer
-                            {% else %}
-                            <i class='bx bx-user-check'></i> Citizen
-                            {% endif %}
+                <div class="profile-identity-info">
 
-                        </div>
+                    <h2 class="profile-full-name"> {{ current_user.full_name }} </h2>
+                    <span class="profile-username"> @{{ current_user.username }} </span>
 
-                    </div>
+                    <div
+                        class="profile-role-badge {% if current_user.role == 'admin' %}role-admin {% elif current_user.role == 'reviewer' %}role-reviewer {% else %}role-user{% endif %}">
 
-                    <!-- read only identity fields -->
-                    <div class="profile-id-rows">
+                        {% if current_user.role == 'admin' %}
+                        <i class='bx bx-shield-check'></i> Adminstrator
+                        {% elif current_user.role == 'reviewer' %}
+                        <i class='bx bx-check-circle'></i> Document reviewer
+                        {% else %}
+                        <i class='bx bx-user-check'></i> Citizen
+                        {% endif %}
 
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-id-card'></i> Full Name
-                            </span>
-                            <span class="profile-id-value">
-                                {{ current_user.full_name }}
-                            </span>
-                        </div>
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-user'></i> Username
-                            </span>
-                            <span class="profile-id-value">
-                                {{ current_user.username }}
-                            </span>
-                        </div>
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-calendar'></i> Date of Birth
-                            </span>
-                            <span class="profile-id-value">
-                                {{ current_user.birthdate if current_user.birthdate else '-'}}
-                            </span>
-                        </div>
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-time-five'></i> Age
-                            </span>
-                            <span class="profile-id-value" id="computedAge">-</span>
-                        </div>
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-male-female'></i> Gender
-                            </span>
-                            <span class="profile-id-value">
-                                {{ current_user.gender if current_user.gender else '-' }}
-                            </span>
-                        </div>
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-check-shield'></i> Identity
-                            </span>
-                            <span class="profile-id-value">
-                                <span class="id-verified-badge">
-                                    <i class='bx bxs-check-circle'></i> Verified
-                                </span>
-                            </span>
-                        </div>
-
-
-                        <div class="profile-id-row">
-                            <span class="profile-id-label">
-                                <i class='bx bx-calendar-check'></i> Member Since
-                            </span>
-                            <span class="profile-id-value" style="font-size: var(--text-xs);">
-                                {{ current_user.verified_at[:10] }}
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <div class="profile-lock-notice">
-                        <i class='bx bx-lock-alt'></i>
-                        <p>Name, username, National ID Number, birthdate, and gender are locked by verification
-                            authority and cannot be changed.</p>
                     </div>
 
                 </div>
 
-                <div class="warning-card">
-                    <div class="profile-warning-card-icon">
-                        <i class='bx bx-shield-alt-2'></i>
+                <!-- read only identity fields -->
+                <div class="profile-id-rows">
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-id-card'></i> Full Name
+                        </span>
+                        <span class="profile-id-value">
+                            {{ current_user.full_name }}
+                        </span>
                     </div>
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-user'></i> Username
+                        </span>
+                        <span class="profile-id-value">
+                            {{ current_user.username }}
+                        </span>
+                    </div>
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-calendar'></i> Date of Birth
+                        </span>
+                        <span class="profile-id-value" id="userBirthdate">
+                            {{ current_user.birthdate if current_user.birthdate else '-'}}
+                        </span>
+                    </div>
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-time-five'></i> Age
+                        </span>
+                        <span class="profile-id-value" id="computedAge">-</span>
+                    </div>
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-male-female'></i> Gender
+                        </span>
+                        <span class="profile-id-value">
+                            {{ current_user.gender if current_user.gender else '-' }}
+                        </span>
+                    </div>
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-check-shield'></i> Identity
+                        </span>
+                        <span class="profile-id-value">
+                            <span class="id-verified-badge">
+                                <i class='bx bxs-check-circle'></i> Verified
+                            </span>
+                        </span>
+                    </div>
+
+
+                    <div class="profile-id-row">
+                        <span class="profile-id-label">
+                            <i class='bx bx-calendar-check'></i> Member Since
+                        </span>
+                        <span class="profile-id-value" style="font-size: var(--text-xs);">
+                            {{ current_user.verified_at[:10] }}
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="profile-lock-notice">
+                    <i class='bx bx-lock-alt'></i>
+                    <p>Name, username, National ID Number, birthdate, and gender are locked by verification
+                        authority and cannot be changed.</p>
+                </div>
+
+            </div>
+
+            <div class="warning-card profile-warning-card">
+                <div class="profile-warning-card-icon">
+                    <i class='bx bx-shield-alt-2'></i>
+                </div>
+
+                <div>
+                    <h5>Account Deletion Disabled</h5>
+                    <p>Your account cannot be deleted. Your verified digital identity is a permanent national record
+                        protected under the SudaGuardian data sovereignity framework.</p>
+                </div>
+
+            </div>
+
+        </aside>
+
+        <!-- scrollable section -->
+
+        <main class="profile-main">
+            <section class="profile-section" id="sectionContect">
+                <div class="profile-section-header">
 
                     <div>
-                        <h5>Account Deletion Disabled</h5>
-                        <p>Your account cannot be deleted. Your verified digital identity is a permanent national record
-                            protected under the SudaGuardian data sovereignity framework.</p>
+                        <span class="profile-section-eyebrow">Editable</span>
+                        <h3 class="profile-section-title">Contact & Profile Details</h3>
                     </div>
+
+                    <button class="btn-edit-toggle" id="btnEditContact" type="button">
+                        <i class='bx bx-edit'></i> Edit
+                    </button>
 
                 </div>
 
-            </aside>
+                <form action="/my_profile/update-contact" id="formContact" method="POST" novalidate>
+                    <div class="profile-form-grid">
 
-            <!-- scrollable section -->
+                        <div class="profile-field">
 
-            <main class="profile-main">
-                <section class="profile-section" id="sectionContect">
-                    <div class="profile-section-header">
+                            <label for="email" class="profile-field-label">
+                                <i class='bx bx-envelope'></i> Email Address
+                            </label>
 
-                        <div>
-                            <span class="profile-section-eyebrow">Editable</span>
-                            <h3 class="profile-section-title">Contact & Profile Details</h3>
+                            <input type="email" class="profile-input" name="email" id="email"
+                                value=" {{ current_user.contact_email or '' }} " placeholder="your@email.com" disabled>
+                            <div class="profile-field-hint">Used for verification emails and notifications.</div>
+
                         </div>
 
-                        <button class="btn-edit-toggle" id="btnEditContact" type="button">
-                            <i class='bx bx-edit'></i> Edit
-                        </button>
+                        <div class="profile-field">
+
+                            <label for="phone" class="profile-field-label">
+                                <i class='bx bx-phone'></i> Phone Number
+                            </label>
+
+                            <input type="tel" class="profile-input" name="phone" id="phone"
+                                value=" {{ current_user.contact_phone or '' }} " placeholder="+249 XX XXX XXXX"
+                                disabled>
+                            <div class="profile-field-hint">Format: +249 followed by 9 digits.</div>
+
+                        </div>
+
+                        <div class="profile-field profile-field-full">
+
+                            <label for="address" class="profile-field-label">
+                                <i class='bx bx-map-pin'></i> Address
+                                <span class="profile-field-optional">Optional</span>
+                            </label>
+
+                            <input type="text" class="profile-input" name="address" id="address" value=""
+                                placeholder="Street, District, State, Sudan" disabled>
+                            <div class="profile-field-hint">Used only for profile completion - not shared with third
+                                parties.</div>
+
+                        </div>
+
 
                     </div>
 
-                    <form action="/my_profile/update-contact" id="formContact" method="POST" novalidate>
-                        <div class="profile-form-grid">
-
-                            <div class="profile-field">
-
-                                <label for="email" class="profile-field-label">
-                                    <i class='bx bx-envelope'></i> Email Address
-                                </label>
-
-                                <input type="email" class="profile-input" name="email" id="email"
-                                    value=" {{ current_user.contact_email or '' }} " placeholder="your@email.com"
-                                    disabled>
-                                <div class="profile-field-hint">Used for verification emails and notifications.</div>
-
-                            </div>
-
-                            <div class="profile-field">
-
-                                <label for="phone" class="profile-field-label">
-                                    <i class='bx bx-phone'></i> Phone Number
-                                </label>
-
-                                <input type="tel" class="profile-input" name="phone" id="phone"
-                                    value=" {{ current_user.contact_phone or '' }} " placeholder="+249 XX XXX XXXX"
-                                    disabled>
-                                <div class="profile-field-hint">Format: +249 followed by 9 digits.</div>
-
-                            </div>
-
-                            <div class="profile-field profile-field-full">
-
-                                <label for="address" class="profile-field-label">
-                                    <i class='bx bx-map-pin'></i> Address
-                                    <span class="profile-field-optional">Optional</span>
-                                </label>
-
-                                <input type="text" class="profile-input" name="address" id="address" value=""
-                                    placeholder="Street, District, State, Sudan" disabled>
-                                <div class="profile-field-hint">Used only for profile completion - not shared with third
-                                    parties.</div>
-
-                            </div>
-
-
-                        </div>
-
-                        <!-- form actions visible on edit mode -->
-                        <div class="profile-fom-actions" id="contactActions" style="display: none">
-                            <button class="btn-profile-save" type="submit">
-                                <i class='bx bx-check'></i> Save Changes
-                            </button>
-                            <button class="btn-profile-cancel" type="button" id="btnCancelContact">
-                                Cancel
-                            </button>
-                        </div>
-
-
-
-                    </form>
-                </section>
-                <section class="profile-section" id="sectionPassword">
-                    <div class="profile-section-header">
-                        <div>
-                            <span class="profile-section-eyebrow">Security</span>
-                            <h3 class="profile-section-title">Change Password</h3>
-                        </div>
-                        <button class="btn-edit-toggle" id="btnEitPassword" type="button">
-                            <i class='bx bx-lock-open-alt'></i> Change
+                    <!-- form actions visible on edit mode -->
+                    <div class="profile-form-actions" id="contactActions" style="display: none">
+                        <button class="btn-profile-save" type="submit">
+                            <i class='bx bx-check'></i> Save Changes
+                        </button>
+                        <button class="btn-profile-cancel" type="button" id="btnCancelContact">
+                            Cancel
                         </button>
                     </div>
 
-                    <div id="passwordCollapsed">
-                        <p class="profile-collapsed-hint">
-                            <i class='bx bx-lock-alt'></i>
-                            Your password was last changed on <strong>—</strong>.
-                        </p>
+
+
+                </form>
+            </section>
+            <section class="profile-section" id="sectionPassword">
+                <div class="profile-section-header">
+                    <div>
+                        <span class="profile-section-eyebrow">Security</span>
+                        <h3 class="profile-section-title">Change Password</h3>
+                    </div>
+                    <button class="btn-edit-toggle" id="btnEitPassword" type="button">
+                        <i class='bx bx-lock-open-alt'></i> Change
+                    </button>
+                </div>
+
+                <div id="passwordCollapsed">
+                    <p class="profile-collapsed-hint">
+                        <i class='bx bx-lock-alt'></i>
+                        Your password was last changed on <strong>—</strong>.
+                    </p>
+                </div>
+
+                <form action="/profile/change-password" id="formPassword" method="POST" novalidate style="display:none">
+                    <div class="profile-form-grid">
+
+                        <div class="profile-field profile-field-full">
+                            <label for="currentPassword" class="profile-field-label">
+                                <i class='bx bx-lock-alt'></i> Current Password
+                            </label>
+                            <div class="profile-input-wrap">
+                                <input type="password" id="currentPassword" name="current_password"
+                                    class="profile-input" placeholder="Enter current password" required>
+                                <button type="button" data-target="currentPassword" class="btn-toggle-pw">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="profile-field">
+                            <label for="newPassword" class="profile-field-label">
+                                <i class='bx bx-key'></i> New Password
+                            </label>
+                            <div class="profile-input-wrap">
+                                <input type="password" name="new_password" placeholder="At least 8 characters"
+                                    id="newPassword" class="profile-input">
+                                <button type="button" data-target="newPassword" class="btn-toggle-pw">
+                                    <i class="bx bx-show"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="profile-field">
+                            <label for="confirmPassword" class="profile-field-label">
+                                <i class='bx bx-check-double'></i> Confirm New Password
+                            </label>
+                            <div class="profile-input-wrap">
+                                <input type="password" name="confirm_password" placeholder="Repeat new password"
+                                    id="confirmPassword" class="profile-input" required>
+                                <button type="button" data-target="confirmPassword" class="btn-toggle-pw">
+                                    <i class="bx bx-show"></i>
+                                </button>
+                            </div>
+                            <div class="pw-match-hint" id="pwMatchHint"></div>
+                        </div>
+
                     </div>
 
-                    <form action="/profile/change-password" id="formPassword" method="POST" novalidate style="display:none">
-                        <div class="profile-form-grid">
-
-                            <div class="profile-field profilefield-full">
-                                <label for="currentPassword" class="profile-field-label">
-                                    <i class='bx bx-lock-alt'></i> Current Password    
-                                </label>
-                                <div class="profile-input-wrap">
-                                    <input type="password" id="currentPassword" name="current_password" class="profile-input" placeholder="Enter current password" required>
-                                    <button type="button" data-target="currentPassword" class="btn-toggle-pw">
-                                        <i class='bx bx-show'></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="profile-field">
-                                <label for="newPassword" class="profile-field-label">
-                                    <i class='bx bx-key'></i> New Password
-                                </label>
-                                <div class="profile-input-wrap">
-                                    <input type="password" name="new_password" placeholder="At least 8 characters" id="newPassword" class="profile-input">
-                                    <button type="button" data-target="newPassword" class="btn-toggle-pw">
-                                        <i class="bx bx-show"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="profile-field">
-                                <label for="confirmPassword" class="profile-field-label">
-                                    <i class='bx bx-check-double'></i> Confirm New Password
-                                </label>
-                                <div class="profile-input-wrap">
-                                    <input type="password" name="confirm_password" placeholder="Repeat new password" id="confirmPassword" class="profile-input" required>
-                                    <button type="button" data-target="confirmPassword" class="btn-toggle-pw">
-                                        <i class="bx bx-show"></i>
-                                    </button>
-                                </div>
-                                <div class="pw-match-hint" id="pwMatchHint"></div>
-                            </div>
-
-                        </div>
-
-                        <div class="profile-form-actions">
-                            <button type="submit" class="btn-profile-save" id="btnSavePassword">
-                                <i class="bx bx-check"> Update Password</i>
-                            </button>
-                            <button type="button" class="btn-profile-cancel" id="btnCancelPassword">
-                                Cancel
-                            </button>
-                        </div>
-
-                    </form>
-
-                </section>
-
-                <section class="profile-section" id="sectionNotifications">
-                    <div class="profile-section-header">
-                        <div>
-                            <span class="profile-section-eyebrow">Preferences</span>
-                            <h3 class="profile-section-title">Notification Settings</h3>
-                        </div>
+                    <div class="profile-form-actions">
+                        <button type="submit" class="btn-profile-save" id="btnSavePassword">
+                            <i class="bx bx-check"></i> Update Password
+                        </button>
+                        <button type="button" class="btn-profile-cancel" id="btnCancelPassword">
+                            Cancel
+                        </button>
                     </div>
 
-                    <div class="toggle-list">
-                        <div class="toggle-item">
-                            <div class="toggle-item-text">
-                                <span class="toggle-item-title">
-                                    <i class='bx bx-bell'></i>
-                                    SMS — Document Status Alerts
-                                </span>
-                                <span class="toggle-item-sub">
-                                    Get notified when a document you uploaded is reviewed or expires.    
-                                </span>
-                            </div>
-                            <label for="toggleVerification" class="profile-toggle">
-                                <input type="checkbox" id="toggleVerification" checked>
-                                <span class="profile-toggle-track">
-                                    <span class="profile-toggle-thumb">
+                </form>
 
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
-                        <div class="toggle-item">
-                            <div class="toggle-item-text">
-                                <span class="toggle-item-title">
-                                    <i class='bx bx-message-square-dots'></i>
-                                    SMS — Identity Verification Updates
-                                </span>
-                                <span class="toggle-item-sub">
-                                    Recieve an SMS when your verification status changes (approved, rejected, or correction requested).
-                                </span>
-                            </div>
-                            <label for="toggleVerification" class="profile-toggle">
-                                <input type="checkbox" id="toggleVerification" checked>
-                                <span class="profile-toggle-track">
-                                    <span class="profile-toggle-thumb"></span>
-                                </span>
-                            </label>
-                        </div>
-                        <div class="toggle-item">
-                            <div class="toggle-item-text">
-                                <span class="toggle-item-title">
-                                    <i class='bx bx-shield-alt-2'></i>
-                                    SMS — Security Alerts     
-                                </span>
-                                <span class="toggle-item-sub">
-                                    Be notified of login attempts from new devices or suspicious activity on your account.
-                                </span>
-                            </div>
-                            <label for="toggleVerification" class="profile-toggle">
-                                <input type="checkbox" id="toggleVerification" checked>
-                                <span class="profile-toggle-track">
-                                    <span class="profile-toggle-thumb"></span>
-                                </span>
-                            </label>
-                        </div>
-                        <div class="toggle-item">
-                            <div class="toggle-item-text">
-                                <span class="toggle-item-title">
-                                    <i class='bx bx-news'></i>
-                                    SMS — Platform Announcements    
-                                </span>
-                                <span class="toggle-item-sub">
-                                    Receive occasional updates about new features, scheduled maintenance, and platform news.
-                                </span>
-                            </div>
-                            <label for="toggleVerification" class="profile-toggle">
-                                <input type="checkbox" id="toggleVerification" checked>
-                                <span class="profile-toggle-track">
-                                    <span class="profile-toggle-thumb"></span>
-                                </span>
-                            </label>
-                        </div>
+            </section>
+
+            <section class="profile-section" id="sectionNotifications">
+                <div class="profile-section-header">
+                    <div>
+                        <span class="profile-section-eyebrow">Preferences</span>
+                        <h3 class="profile-section-title">Notification Settings</h3>
                     </div>
+                </div>
 
-                </section>
+                <div class="toggle-list">
+                    <div class="toggle-item">
+                        <div class="toggle-item-text">
+                            <span class="toggle-item-title">
+                                <i class='bx bx-bell'></i>
+                                SMS — Document Status Alerts
+                            </span>
+                            <span class="toggle-item-sub">
+                                Get notified when a document you uploaded is reviewed or expires.
+                            </span>
+                        </div>
+                        <label for="toggleDocAlerts" class="profile-toggle">
+                            <input type="checkbox" id="toggleDocAlerts" checked>
+                            <span class="profile-toggle-track">
+                                <span class="profile-toggle-thumb">
 
-            </main>
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <div class="toggle-item-text">
+                            <span class="toggle-item-title">
+                                <i class='bx bx-message-square-dots'></i>
+                                SMS — Identity Verification Updates
+                            </span>
+                            <span class="toggle-item-sub">
+                                Recieve an SMS when your verification status changes (approved, rejected, or correction
+                                requested).
+                            </span>
+                        </div>
+                        <label for="toggleVerification" class="profile-toggle">
+                            <input type="checkbox" id="toggleVerification" checked>
+                            <span class="profile-toggle-track">
+                                <span class="profile-toggle-thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <div class="toggle-item-text">
+                            <span class="toggle-item-title">
+                                <i class='bx bx-shield-alt-2'></i>
+                                SMS — Security Alerts
+                            </span>
+                            <span class="toggle-item-sub">
+                                Be notified of login attempts from new devices or suspicious activity on your account.
+                            </span>
+                        </div>
+                        <label for="toggleSecurity" class="profile-toggle">
+                            <input type="checkbox" id="toggleSecurity" checked>
+                            <span class="profile-toggle-track">
+                                <span class="profile-toggle-thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <div class="toggle-item-text">
+                            <span class="toggle-item-title">
+                                <i class='bx bx-news'></i>
+                                SMS — Platform Announcements
+                            </span>
+                            <span class="toggle-item-sub">
+                                Receive occasional updates about new features, scheduled maintenance, and platform news.
+                            </span>
+                        </div>
+                        <label for="toggleAnnounce" class="profile-toggle">
+                            <input type="checkbox" id="toggleAnnounce" checked>
+                            <span class="profile-toggle-track">
+                                <span class="profile-toggle-thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
 
-        </div>
+                <div class="profile-form-actions" style="margin-top:var(--space-5);">
+                    <button class="btn-profile-save" id="btnSaveNotifications">
+                        <i class="bx bx-check"> Save Preferences</i>
+                    </button>
+                </div>
+
+            </section>
+
+            <section class="profile-section" id="sectionSessions">
+                <div class="profile-section-header">
+                    <div>
+                        <span class="profile-section-eyebrow">Security</span>
+                        <h3 class="profile-section-title">Active Sessions</h3>
+                    </div>
+                </div>
+
+                <p class="profile-section-desc">The following sessions are currently active on your account. If you do
+                    not recognise a session, log out of all sessions immediately and change your password.</p>
+                <div class="session-list">
+                    <div class="session-item session-item-current">
+                        <div class="session-icon">
+                            <i class='bx bx-desktop'>
+
+                            </i>
+                        </div>
+                        <div class="session-info">
+                            <span class="session-device">This device</span>
+                            <span class="session-meta">Current session &nbsp; &nbsp; Sudan Standard Time</span>
+                        </div>
+
+                        <span class="session-current-badge">Current</span>
+
+                    </div>
+                </div>
+
+                <button class="btn-logout-all" id="btnLogoutAll" type="button">
+                    <i class='bx bx-log-out'></i>Log Out All Sessions
+                </button>
+
+            </section>
+
+        </main>
 
     </div>
 
 </div>
+
+<div class="modal fade" id="logoutAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content profile-modal-content">
+            <div class="profile-modal-header">
+                <div class="profile-modal-icon">
+                    <i class='bx bx-log-out'></i>
+                </div>
+                <div>
+                    <h5 class="profile-modal-title">Log Out All Sessions?</h5>
+                    <p class="profile-modal-sub">This action cannot be undone.</p>
+                </div>
+                <button class="btn-close btn-close-white ms-auto" type="button" data-bs-dismiss="modal"
+                    aria-label="close"></button>
+            </div>
+            <div class="profile-modal-body">
+                <p>You will be immediately signed out of <strong>all active sessions</strong> across all devices,
+                    including this one. You will need to log in again to access your account.</p>
+                <div class="profile-modal-warning">
+                    <i class='bx bx-info-circle'></i>
+                    <span>If you suspect unauthorised access, change your password immediately after logging back
+                        in.</span>
+                </div>
+            </div>
+            <div class="profile-modal-footer">
+                <button class="btn-modal-cancel" type="button" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <a href="" class="btn-modal-confirm">
+                    <i class='bx bx-log-out'></i>
+                    Yes, Log Me Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="/static/js/my_profile.js"></script>
 
 {% endblock %}
