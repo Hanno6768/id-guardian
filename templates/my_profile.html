@@ -244,7 +244,7 @@
                         <span class="profile-section-eyebrow">Security</span>
                         <h3 class="profile-section-title">Change Password</h3>
                     </div>
-                    <button class="btn-edit-toggle" id="btnEitPassword" type="button">
+                    <button class="btn-edit-toggle" id="btnEditPassword" type="button">
                         <i class='bx bx-lock-open-alt'></i> Change
                     </button>
                 </div>
@@ -431,7 +431,7 @@
                     </div>
                 </div>
 
-                <button class="btn-logout-all" id="btnLogoutAll" type="button">
+                <button class="btn-logout-all" id="btnLogoutAll" type="button" data-bs-toggle="modal" data-bs-target="#logoutAllModal">
                     <i class='bx bx-log-out'></i>Log Out All Sessions
                 </button>
 
@@ -470,7 +470,7 @@
                 <button class="btn-modal-cancel" type="button" data-bs-dismiss="modal">
                     Cancel
                 </button>
-                <a href="" class="btn-modal-confirm">
+                <a href=" {{ url_for('logout') }} " class="btn-modal-confirm">
                     <i class='bx bx-log-out'></i>
                     Yes, Log Me Out
                 </a>
