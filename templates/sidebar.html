@@ -110,11 +110,6 @@
                 <span class="menu-badge badge-warning">{{ pending_users|length }}</span>
             </a>
 
-            <a href="{{ url_for('reviewed_documents') }}" class="menu-item">
-                <i class='bx bx-check-square'></i>
-                <span class="menu-text">Reviewed Documents</span>
-            </a>
-
         </div>
 
         {% endif %}
@@ -133,11 +128,6 @@
                 <i class='bx bx-group'></i>
                 <span class="menu-text">Manage Users</span>
                 <span class="menu-badge">{{ total_users }}</span>
-            </a>
-
-            <a href="#" class="menu-item">
-                <i class='bx bx-buildings'></i>
-                <span class="menu-text">Manage Agencies</span>
             </a>
 
             <a href="" class="menu-item">
@@ -159,11 +149,6 @@
             <a href="{{ url_for('my_profile') }}" class="menu-item">
                 <i class='bx bx-user-circle'></i>
                 <span class="menu-text">My Profile</span>
-            </a>
-
-            <a href="{{ url_for('settings') }}" class="menu-item">
-                <i class='bx bx-slider-alt'></i>
-                <span class="menu-text">Settings</span>
             </a>
 
             <a href="{{ url_for('notifications') }}" class="menu-item">

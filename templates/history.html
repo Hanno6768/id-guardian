@@ -6,60 +6,85 @@
 
 <div class="history-wrapper">
 
-    <div class="history-conatiner container py-4">
-
+    <div class="profile-page-header">
+        <div class="profile-page-header-inner">
             <div>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                    <h1 class="fs-4 mb-0">History</h1>
-                </div>
+
+                <p class="profile-page-eyebrow">
+                    <i class='bx bx-history'></i> Account
+                </p>
+
+                <h1 class="profile-page-title">
+                    Activity History
+                </h1>
+
+                <p class="profile-page-sub">
+                    A complete log of all actions on your account
+                </p>
+
             </div>
 
-            <p class="mb-0 my-documents-secondary-text">View Your recent Activity</p>
+            <div class="profile-page-header-meta" id="Date"></div>
 
-            <div class="activity-list px-3">
-
-                <div class="activity-list-header">
-                    <h4>Activity Log</h4>
-                </div>
-
-                <div class="activity-item mb-1">
-                    <div class="activity-dot-col">
-                        <span class="activity-dot green"></span>
-                        <span class="activity-dot-line"></span>   
-                    </div>
-                    <div>
-                        <p class="activity-text">National ID verified</p>
-                        <span class="activity-time">5 Mar 2022</span>  
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-dot-col">
-                        <span class="activity-dot green"></span>
-                        <span class="activity-dot-line"></span>   
-                    </div>
-                    <div>
-                        <p class="activity-text">National ID verified</p>
-                        <span class="activity-time">5 Mar 2022</span>  
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-dot-col">
-                        <span class="activity-dot green"></span>
-                        <span class="activity-dot-line"></span>   
-                    </div>
-                    <div>
-                        <p class="activity-text">National ID verified</p>
-                        <span class="activity-time">5 Mar 2022</span>  
-                    </div>
-                </div>
-                
-                  
-            </div>
-
-       
+        </div>
     </div>
+
+    <main class="history-main">
+
+        {% if history %}
+            <!-- group history by month -->
+            {% for month, events in history | groupby('month') %}
+                <div class="history-month-group">
+                    <div class="history-month-label">
+                        <span>{{ month }}</span>
+                    </div>
+                    <div class="history-card">
+                        {% for event in events %}
+                            <div class="activity-item">
+                                <div class="activity-dot-col">
+                                    <span class="activity-dot {{ event.color }}"></span>
+                                    <span class="activity-dot-line"></span>
+                                </div>
+                                <div class="avtivity-body">
+                                    <p class="activity-text">{{ event.title }}</p>
+                                    {% if event.detail %}
+                                    <p class="activity-detail">{{ event.detail }}</p>
+                                    {% endif %}
+                                    <span class="activity-time">{{ event.timestamp }}</span>
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+
+                <div class="history-month-group">
+                    <div class="history-month-label">
+                        <span>{{ month }}</span>
+                    </div>
+                    <div class="history-card">
+                            <div class="activity-item">
+                                <div class="activity-dot-col">
+                                    <span class="activity-dot gold"></span>
+                                    <span class="activity-dot-line"></span>
+                                </div>
+                                <div class="avtivity-body">
+                                    <p class="activity-text">Account created</p>
+                                    <p class="activity-detail">Welcome to SudaGuardian. Your registration was received and your email was verified.</p>
+                                    <span class="activity-time">{{ current_user.joined_at }}</span>
+                                </div>
+                                <span class="activity-badge warn">
+                                <i class='bx bx-lock-alt'></i> Security
+                            </span>     
+                            </div> 
+                    </div>
+                </div>
+
+        {% endif %}
+        
+
+    </main>
 
 </div>
 
