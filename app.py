@@ -603,7 +603,7 @@ def my_documents():
         { "id": 3, "name": "Driving licence",      "type": "driving_license",      "status": "pending",  "issued": "—",           "hasFile": True  },
         { "id": 4, "name": "Birth certificate",    "type": "birth_certificate",    "status": "rejected", "issued": "—",           "hasFile": True  },
         { "id": 5, "name": "Marriage certificate", "type": "marriage_certificate", "status": "verified",  "issued": "—",           "hasFile": True },
-        { "id": 6, "name": "Nationality card",     "type": "nationality_card",     "status": "verified", "issued": "9 Aug 2020",  "hasFile": True  },
+        { "id": 6, "name": "Nationality card",     "type": "nationality_card",     "status": "pending", "issued": "-",  "hasFile": False  },
     ]
     return render_template("my_documents.html", docs=docs)
 

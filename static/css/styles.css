@@ -191,6 +191,29 @@ body {
 main {
     flex: 1 0 auto;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content-wrapper {
+    flex: 1;
+    min-height: 100%;
+}
+
+.main-content-wrapper > .page-content-body {
+    flex: 1 0 auto;
+    width: 100%;
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-6);
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+    min-height: 100vh;
+}
+
+.main-content-wrapper > footer {
+    margin-top: auto;
+    width: 100%;
+    margin: 0;
 }
 
 .row {
@@ -1209,7 +1232,7 @@ footer>small {
 
 .facts-section .icon-container {
     width: 70px;
-    height:70px;
+    height: 70px;
     font-size: 32px;
     background-color: var(--bg-tertiary);
     color: var(--primary-dark);
@@ -1263,8 +1286,8 @@ footer>small {
 
 @media (max-width: 991px) {
     .info-section .row {
-        margin-bottom:var(--space-16);
-        text-align:center;
+        margin-bottom: var(--space-16);
+        text-align: center;
     }
 
     .info-text {
@@ -1276,7 +1299,7 @@ footer>small {
         height: 300px;
     }
 
-    .row + .row {
+    .row+.row {
         margin-top: var(--space-8)
     }
 }
@@ -1290,7 +1313,7 @@ footer>small {
     background: var(--primary-navy);
     color: var(--text-light);
     font-size: 12px;
-    padding: 2px 10px; 
+    padding: 2px 10px;
     border-radius: 20px;
 }
 
@@ -1298,39 +1321,53 @@ footer>small {
     font-size: var(--text-sm)
 }
 
+.my-documents-controls-container {
+    width: 100%;
+}
+
 .search-wrap {
     position: relative;
+    flex-grow: 1;
+    max-width: 350px;
+    min-width: 250px;
 }
 
 .search-wrap i {
     position: absolute;
-    left: 10px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-secondary);
 }
 
 .search-wrap input {
-    font-size: 13px;
-    padding: 6px 30px;
-    border-color: var(--border-primary);
+    font-size: 14px;
+    padding: 8px 12px 8px 36px;
+    border-color: 1.5px solid var(--border-primary);
     border-radius: var(--radius-md);
     background: var(--bg-secondary);
     color: var(--text-muted);
-    width:220px;
-    outline:none;
+    width: 100%;
+    height: 40px;
 }
 
-.search-wrap input:focus {
+.search-wrap input:focus+i {
     border-color: var(--primary-navy);
     box-shadow: var(--shadow-md);
 }
 
+
 .filter-group .btn {
     font-size: 13px;
-    padding: 6px 14px;
+    font-weight: var(--weight-medium);
+    padding: 0px 16px;
+    border: 1.5px solid var(--border-primary);
     border-color: var(--border-primary);
-    color: var(--border-focus);
+    color: var(--text-secondary);
+    height: 40px;
+    display: flex;
+    align-items: center;
+
 }
 
 .filter-group .btn:hover {
@@ -1364,8 +1401,8 @@ footer>small {
     background: var(--bg-tertiary);
     display: flex;
     flex-direction: column;
-    align-items:center;
-    justify-content:center;
+    align-items: center;
+    justify-content: center;
     gap: var(--space-2);
     border-bottom: 1px solid var(--border-primary);
 }
@@ -1416,9 +1453,17 @@ footer>small {
     font-size: 18px;
 }
 
-.dot-verified { background: #ffffff;}
-.dot-pending{ background: #EF9F27;}
-.dot-rejected { background: #E24B4A;}
+.dot-verified {
+    background: #ffffff;
+}
+
+.dot-pending {
+    background: #EF9F27;
+}
+
+.dot-rejected {
+    background: #E24B4A;
+}
 
 .btn-doc-outline {
     border: 1px solid var(--border-primary);
@@ -1444,7 +1489,7 @@ footer>small {
     border: 1px solid var(--border-focus);
 }
 
-.my-documents-modal .modal-content{
+.my-documents-modal .modal-content {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-primary);
 }
@@ -1463,7 +1508,7 @@ footer>small {
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
     padding: 4px;
-} 
+}
 
 .my-documents-modal .toggle-wrap .btn {
     font-size: var(--text-sm);
@@ -1513,7 +1558,7 @@ footer>small {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(197,165,114,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(197, 165, 114, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
     pointer-events: none;
 }
@@ -1541,19 +1586,19 @@ footer>small {
 }
 
 .dashboard-role-badge.user {
-    background:rgba(4,120,87,0.15 );  
+    background: rgba(4, 120, 87, 0.15);
     color: #34d399;
     border: 1px solid #34d399;
 }
 
 .dashboard-role-badge.reviewer {
-    background:rgba(37,99,235,0.15);  
+    background: rgba(37, 99, 235, 0.15);
     color: #60a5fa;
     border: 1px solid #60a5fa;
 }
 
 .dashboard-role-badge.admin {
-    background:rgba(197,165,114,0.15);  
+    background: rgba(197, 165, 114, 0.15);
     color: var(--accent-gold);
     border: 1px solid var(--accent-gold);
 }
@@ -1610,9 +1655,11 @@ footer>small {
     .dashboard-header {
         padding: var(--space-6)
     }
+
     .dashboard-header h1 {
         font-size: var(--heading-h3);
     }
+
     .dashboard-header-right {
         display: none;
     }
@@ -1654,7 +1701,7 @@ footer>small {
     position: absolute;
     top: 0;
     left: 0;
-    right:0;
+    right: 0;
     height: 3px;
     background: var(--gradient-navy);
     opacity: 0;
@@ -1700,7 +1747,7 @@ footer>small {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom:  var(--space-4);
+    margin-bottom: var(--space-4);
 }
 
 .stat-icon {
@@ -1720,7 +1767,7 @@ footer>small {
 }
 
 .stat-icon.gold {
-    background: rgba(197,165,114,0.15);
+    background: rgba(197, 165, 114, 0.15);
     color: var(--accent-gold);
 }
 
@@ -1759,7 +1806,7 @@ footer>small {
 
 .stat-trend.down {
     background: var(--error-light);
-    color: var(--error);  
+    color: var(--error);
 }
 
 .stat-trend.flat {
@@ -1860,7 +1907,7 @@ footer>small {
     background: var(--gradient-navy);
     padding: var(--space-6) var(--space-6) var(--space-5);
     display: flex;
-    align-items:center;
+    align-items: center;
     gap: var(--space-4);
 }
 
@@ -1868,8 +1915,8 @@ footer>small {
     width: 60px;
     height: 60px;
     border-radius: var(--radius-full);
-    background: rgba(255,255,255,0.12);
-    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2028,7 +2075,7 @@ footer>small {
 }
 
 .no-activity {
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
     min-height: 120px;
@@ -2040,7 +2087,7 @@ footer>small {
 }
 
 #dashClock {
-    font-variant-numeric: tabular-nums; 
+    font-variant-numeric: tabular-nums;
 }
 
 
@@ -2086,7 +2133,7 @@ as i'll use him to style the rest of pages */
 .policy-wrapper {
     background: var(--bg-primary);
 }
- 
+
 /* ── Hero banner ────────────────────────────────────────────────────────── */
 .policy-hero {
     background: var(--gradient-navy-subtle);
@@ -2095,21 +2142,21 @@ as i'll use him to style the rest of pages */
     overflow: hidden;
     border-bottom: 4px solid var(--sudan-gold);
 }
- 
+
 .policy-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(197,165,114,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(197, 165, 114, 0.06) 1px, transparent 1px);
     background-size: 24px 24px;
     pointer-events: none;
 }
- 
+
 .policy-hero-badge {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    background: rgba(197,165,114,0.12);
+    background: rgba(197, 165, 114, 0.12);
     color: var(--accent-gold);
     border: 1px solid var(--accent-gold);
     border-radius: var(--radius-full);
@@ -2120,34 +2167,34 @@ as i'll use him to style the rest of pages */
     text-transform: uppercase;
     margin-bottom: var(--space-5);
 }
- 
+
 .policy-hero h1 {
     color: var(--text-light);
     font-size: var(--heading-h1);
     font-weight: var(--weight-extrabold);
     margin-bottom: var(--space-4);
 }
- 
+
 .policy-hero p {
-    color: rgba(255,255,255,0.72);
+    color: rgba(255, 255, 255, 0.72);
     font-size: var(--text-lg);
     max-width: 580px;
     line-height: var(--leading-relaxed);
 }
- 
+
 .policy-meta {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-4);
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     font-size: var(--text-sm);
     margin-top: var(--space-6);
 }
- 
+
 /* ── Layout: sticky TOC + content ───────────────────────────────────────── */
 .policy-layout {
     max-width: 1100px;
@@ -2158,16 +2205,17 @@ as i'll use him to style the rest of pages */
     gap: var(--space-12);
     align-items: start;
 }
- 
+
 @media (max-width: 900px) {
     .policy-layout {
         grid-template-columns: 1fr;
     }
+
     .policy-toc {
         display: none;
     }
 }
- 
+
 /* ── Table of contents ───────────────────────────────────────────────────── */
 .policy-toc {
     position: sticky;
@@ -2178,7 +2226,7 @@ as i'll use him to style the rest of pages */
     padding: var(--space-5);
     box-shadow: var(--shadow-md);
 }
- 
+
 .policy-toc h6 {
     font-size: var(--text-xs);
     font-weight: var(--weight-bold);
@@ -2187,7 +2235,7 @@ as i'll use him to style the rest of pages */
     color: var(--text-muted);
     margin-bottom: var(--space-4);
 }
- 
+
 .toc-link {
     display: block;
     font-size: var(--text-sm);
@@ -2200,20 +2248,20 @@ as i'll use him to style the rest of pages */
     border-left: 2px solid transparent;
     margin-bottom: 2px;
 }
- 
+
 .toc-link:hover,
 .toc-link.active {
     color: var(--primary-blue);
     background: var(--bg-tertiary);
     border-left-color: var(--primary-blue);
 }
- 
+
 /* ── Content ─────────────────────────────────────────────────────────────── */
 .policy-content section {
     margin-bottom: var(--space-12);
     scroll-margin-top: 90px;
 }
- 
+
 .section-badge {
     display: inline-flex;
     align-items: center;
@@ -2228,7 +2276,7 @@ as i'll use him to style the rest of pages */
     letter-spacing: var(--tracking-wider);
     margin-bottom: var(--space-3);
 }
- 
+
 .policy-content h2 {
     font-size: var(--heading-h3);
     font-weight: var(--weight-bold);
@@ -2237,23 +2285,23 @@ as i'll use him to style the rest of pages */
     padding-bottom: var(--space-3);
     border-bottom: 2px solid var(--border-secondary);
 }
- 
+
 .policy-content p,
 .policy-content li {
     font-size: var(--text-base);
     color: var(--text-secondary);
     line-height: var(--leading-relaxed);
 }
- 
+
 .policy-content ul {
     padding-left: var(--space-5);
     margin-bottom: var(--space-4);
 }
- 
+
 .policy-content li {
     margin-bottom: var(--space-2);
 }
- 
+
 .policy-highlight {
     background: var(--bg-tertiary);
     border-left: 4px solid var(--primary-blue);
@@ -2261,13 +2309,13 @@ as i'll use him to style the rest of pages */
     padding: var(--space-4) var(--space-5);
     margin: var(--space-5) 0;
 }
- 
+
 .policy-highlight p {
     margin: 0;
     font-weight: var(--weight-medium);
     color: var(--text-primary) !important;
 }
- 
+
 .policy-warning {
     background: var(--warning-light);
     border-left: 4px solid var(--warning);
@@ -2275,34 +2323,34 @@ as i'll use him to style the rest of pages */
     padding: var(--space-4) var(--space-5);
     margin: var(--space-5) 0;
 }
- 
+
 .policy-warning p {
     margin: 0;
     color: #92400e !important;
     font-weight: var(--weight-medium);
 }
- 
+
 /* ── Contact card ────────────────────────────────────────────────────────── */
 .policy-contact-card {
     background: var(--gradient-navy-subtle);
     border-radius: var(--radius-xl);
     padding: var(--space-8);
     text-align: center;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     margin-top: var(--space-8);
 }
- 
+
 .policy-contact-card h3 {
     color: var(--text-light);
     font-size: var(--heading-h4);
     margin-bottom: var(--space-3);
 }
- 
+
 .policy-contact-card p {
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     margin-bottom: var(--space-5);
 }
- 
+
 .btn-policy {
     display: inline-flex;
     align-items: center;
@@ -2316,7 +2364,7 @@ as i'll use him to style the rest of pages */
     transition: all var(--transition-base);
     font-size: var(--text-sm);
 }
- 
+
 .btn-policy:hover {
     background: #b8941f;
     transform: translateY(-2px);
@@ -2325,8 +2373,10 @@ as i'll use him to style the rest of pages */
 
 /* report bugs */
 
-.bugs-wrapper { background: var(--bg-primary); }
- 
+.bugs-wrapper {
+    background: var(--bg-primary);
+}
+
 /* ── Hero ────────────────────────────────────────────────────────────────── */
 .bugs-hero {
     background: var(--gradient-navy-subtle);
@@ -2335,21 +2385,21 @@ as i'll use him to style the rest of pages */
     overflow: hidden;
     border-bottom: 4px solid var(--sudan-gold);
 }
- 
+
 .bugs-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(197,165,114,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(197, 165, 114, 0.06) 1px, transparent 1px);
     background-size: 24px 24px;
     pointer-events: none;
 }
- 
+
 .bugs-hero-badge {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    background: rgba(197,165,114,0.12);
+    background: rgba(197, 165, 114, 0.12);
     color: var(--accent-gold);
     border: 1px solid var(--accent-gold);
     border-radius: var(--radius-full);
@@ -2360,28 +2410,28 @@ as i'll use him to style the rest of pages */
     text-transform: uppercase;
     margin-bottom: var(--space-5);
 }
- 
+
 .bugs-hero h1 {
     color: var(--text-light);
     font-size: var(--heading-h1);
     font-weight: var(--weight-extrabold);
     margin-bottom: var(--space-4);
 }
- 
+
 .bugs-hero p {
-    color: rgba(255,255,255,0.72);
+    color: rgba(255, 255, 255, 0.72);
     font-size: var(--text-lg);
     max-width: 560px;
     line-height: var(--leading-relaxed);
     margin-bottom: 0;
 }
- 
+
 /* ── Process steps ───────────────────────────────────────────────────────── */
 .bugs-process {
     background: var(--primary-dark);
     padding: var(--space-8) 0;
 }
- 
+
 .process-step {
     display: flex;
     align-items: center;
@@ -2389,7 +2439,7 @@ as i'll use him to style the rest of pages */
     padding: var(--space-4);
     position: relative;
 }
- 
+
 .process-step::after {
     content: '';
     position: absolute;
@@ -2398,16 +2448,18 @@ as i'll use him to style the rest of pages */
     transform: translateY(-50%);
     width: 1px;
     height: 40px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
- 
-.process-step:last-child::after { display: none; }
- 
+
+.process-step:last-child::after {
+    display: none;
+}
+
 .process-num {
     width: 36px;
     height: 36px;
     border-radius: var(--radius-full);
-    background: rgba(197,165,114,0.15);
+    background: rgba(197, 165, 114, 0.15);
     border: 1px solid var(--accent-gold);
     color: var(--accent-gold);
     font-weight: var(--weight-bold);
@@ -2417,13 +2469,13 @@ as i'll use him to style the rest of pages */
     justify-content: center;
     flex-shrink: 0;
 }
- 
+
 .process-text {
     font-size: var(--text-sm);
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     line-height: var(--leading-normal);
 }
- 
+
 .process-text strong {
     display: block;
     color: var(--text-light);
@@ -2431,7 +2483,7 @@ as i'll use him to style the rest of pages */
     font-size: var(--text-base);
     margin-bottom: 2px;
 }
- 
+
 /* ── Main layout ─────────────────────────────────────────────────────────── */
 .bugs-layout {
     max-width: 1060px;
@@ -2442,14 +2494,17 @@ as i'll use him to style the rest of pages */
     gap: var(--space-10);
     align-items: start;
 }
- 
+
 @media (max-width: 900px) {
     .bugs-layout {
         grid-template-columns: 1fr;
     }
-    .bugs-sidebar { order: -1; }
+
+    .bugs-sidebar {
+        order: -1;
+    }
 }
- 
+
 /* ── Form card ───────────────────────────────────────────────────────────── */
 .bugs-form-card {
     background: var(--bg-secondary);
@@ -2458,22 +2513,22 @@ as i'll use him to style the rest of pages */
     padding: var(--space-8);
     box-shadow: var(--shadow-lg);
 }
- 
+
 .bugs-form-card h2 {
     font-size: var(--heading-h4);
     font-weight: var(--weight-bold);
     color: var(--heading-primary);
     margin-bottom: var(--space-2);
 }
- 
-.bugs-form-card > p {
+
+.bugs-form-card>p {
     font-size: var(--text-sm);
     color: var(--text-muted);
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-6);
     border-bottom: 1px solid var(--border-secondary);
 }
- 
+
 /* ── Category selector ───────────────────────────────────────────────────── */
 .category-grid {
     display: grid;
@@ -2481,11 +2536,13 @@ as i'll use him to style the rest of pages */
     gap: var(--space-3);
     margin-bottom: var(--space-6);
 }
- 
+
 @media (max-width: 500px) {
-    .category-grid { grid-template-columns: repeat(2, 1fr); }
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
- 
+
 .category-btn {
     background: var(--bg-primary);
     border: 2px solid var(--border-secondary);
@@ -2500,39 +2557,45 @@ as i'll use him to style the rest of pages */
     gap: var(--space-2);
     font-family: var(--font-primary);
 }
- 
+
 .category-btn i {
     font-size: 24px;
     color: var(--text-muted);
     transition: color var(--transition-fast);
 }
- 
+
 .category-btn span {
     font-size: var(--text-xs);
     font-weight: var(--weight-semibold);
     color: var(--text-secondary);
     transition: color var(--transition-fast);
 }
- 
+
 .category-btn:hover {
     border-color: var(--primary-blue);
     background: var(--bg-tertiary);
 }
- 
+
 .category-btn:hover i,
-.category-btn:hover span { color: var(--primary-blue); }
- 
+.category-btn:hover span {
+    color: var(--primary-blue);
+}
+
 .category-btn.selected {
     border-color: var(--primary-blue);
-    background: rgba(46,89,132,0.08);
+    background: rgba(46, 89, 132, 0.08);
 }
- 
+
 .category-btn.selected i,
-.category-btn.selected span { color: var(--primary-blue); }
- 
+.category-btn.selected span {
+    color: var(--primary-blue);
+}
+
 /* Hidden radio inputs backing the category buttons */
-.category-btn input[type="radio"] { display: none; }
- 
+.category-btn input[type="radio"] {
+    display: none;
+}
+
 /* ── Form fields ─────────────────────────────────────────────────────────── */
 .form-section-label {
     font-size: var(--text-xs);
@@ -2543,14 +2606,14 @@ as i'll use him to style the rest of pages */
     margin-bottom: var(--space-3);
     display: block;
 }
- 
+
 .bugs-form-card .form-label {
     font-size: var(--text-sm);
     font-weight: var(--weight-semibold);
     color: var(--text-primary);
     margin-bottom: var(--space-2);
 }
- 
+
 .bugs-form-card .form-control,
 .bugs-form-card .form-select {
     border: 1px solid var(--border-primary);
@@ -2561,36 +2624,46 @@ as i'll use him to style the rest of pages */
     background: var(--bg-primary);
     transition: all var(--transition-fast);
 }
- 
+
 .bugs-form-card .form-control:focus,
 .bugs-form-card .form-select:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px rgba(46,89,132,0.12);
+    box-shadow: 0 0 0 3px rgba(46, 89, 132, 0.12);
     outline: none;
     background: var(--bg-secondary);
 }
- 
-.bugs-form-card textarea.form-control { resize: vertical; min-height: 130px; }
- 
+
+.bugs-form-card textarea.form-control {
+    resize: vertical;
+    min-height: 130px;
+}
+
 .char-counter {
     font-size: var(--text-xs);
     color: var(--text-muted);
     text-align: right;
     margin-top: 4px;
 }
- 
-.char-counter.warn { color: var(--warning); }
-.char-counter.over { color: var(--error); }
- 
+
+.char-counter.warn {
+    color: var(--warning);
+}
+
+.char-counter.over {
+    color: var(--error);
+}
+
 /* ── Severity selector ───────────────────────────────────────────────────── */
 .severity-row {
     display: flex;
     gap: var(--space-3);
     flex-wrap: wrap;
 }
- 
-.severity-option input[type="radio"] { display: none; }
- 
+
+.severity-option input[type="radio"] {
+    display: none;
+}
+
 .severity-option label {
     display: flex;
     align-items: center;
@@ -2604,16 +2677,24 @@ as i'll use him to style the rest of pages */
     transition: all var(--transition-fast);
     color: var(--text-secondary);
 }
- 
-.severity-option input:checked + label {
+
+.severity-option input:checked+label {
     border-color: currentColor;
-    background: rgba(0,0,0,0.04);
+    background: rgba(0, 0, 0, 0.04);
 }
- 
-.severity-option.low    label { color: var(--success); }
-.severity-option.medium label { color: var(--warning); }
-.severity-option.high   label { color: var(--error);   }
- 
+
+.severity-option.low label {
+    color: var(--success);
+}
+
+.severity-option.medium label {
+    color: var(--warning);
+}
+
+.severity-option.high label {
+    color: var(--error);
+}
+
 .severity-dot {
     width: 8px;
     height: 8px;
@@ -2621,7 +2702,7 @@ as i'll use him to style the rest of pages */
     background: currentColor;
     flex-shrink: 0;
 }
- 
+
 /* ── File upload ─────────────────────────────────────────────────────────── */
 .upload-area {
     border: 2px dashed var(--border-primary);
@@ -2633,13 +2714,13 @@ as i'll use him to style the rest of pages */
     background: var(--bg-primary);
     position: relative;
 }
- 
+
 .upload-area:hover,
 .upload-area.dragover {
     border-color: var(--primary-blue);
-    background: rgba(46,89,132,0.05);
+    background: rgba(46, 89, 132, 0.05);
 }
- 
+
 .upload-area input[type="file"] {
     position: absolute;
     inset: 0;
@@ -2648,27 +2729,27 @@ as i'll use him to style the rest of pages */
     width: 100%;
     height: 100%;
 }
- 
+
 .upload-area i {
     font-size: 2rem;
     color: var(--text-muted);
     display: block;
     margin-bottom: var(--space-2);
 }
- 
+
 .upload-area p {
     font-size: var(--text-sm);
     color: var(--text-muted);
     margin: 0;
 }
- 
+
 .upload-area span {
     font-size: var(--text-xs);
     color: var(--text-placeholder);
     display: block;
     margin-top: 4px;
 }
- 
+
 .upload-preview {
     display: none;
     align-items: center;
@@ -2679,11 +2760,16 @@ as i'll use him to style the rest of pages */
     padding: var(--space-3) var(--space-4);
     margin-top: var(--space-3);
 }
- 
-.upload-preview.show { display: flex; }
- 
-.upload-preview i { font-size: 20px; color: var(--primary-blue); }
- 
+
+.upload-preview.show {
+    display: flex;
+}
+
+.upload-preview i {
+    font-size: 20px;
+    color: var(--primary-blue);
+}
+
 .upload-preview-name {
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
@@ -2693,7 +2779,7 @@ as i'll use him to style the rest of pages */
     text-overflow: ellipsis;
     white-space: nowrap;
 }
- 
+
 .upload-remove {
     background: none;
     border: none;
@@ -2705,9 +2791,11 @@ as i'll use him to style the rest of pages */
     font-size: 16px;
     line-height: 1;
 }
- 
-.upload-remove:hover { color: var(--error); }
- 
+
+.upload-remove:hover {
+    color: var(--error);
+}
+
 /* ── Submit button ───────────────────────────────────────────────────────── */
 .btn-submit-bug {
     width: 100%;
@@ -2727,25 +2815,32 @@ as i'll use him to style the rest of pages */
     margin-top: var(--space-6);
     font-family: var(--font-primary);
 }
- 
+
 .btn-submit-bug:hover {
     background: var(--gradient-blue);
     transform: translateY(-2px);
     box-shadow: var(--shadow-glow);
 }
- 
-.btn-submit-bug:active { transform: translateY(0); }
- 
+
+.btn-submit-bug:active {
+    transform: translateY(0);
+}
+
 /* ── Success state ───────────────────────────────────────────────────────── */
 .success-state {
     display: none;
     text-align: center;
     padding: var(--space-12) var(--space-8);
 }
- 
-.success-state.show { display: block; }
-.bugs-form-inner.hidden { display: none; }
- 
+
+.success-state.show {
+    display: block;
+}
+
+.bugs-form-inner.hidden {
+    display: none;
+}
+
 .success-icon {
     width: 72px;
     height: 72px;
@@ -2756,22 +2851,25 @@ as i'll use him to style the rest of pages */
     justify-content: center;
     margin: 0 auto var(--space-5);
 }
- 
-.success-icon i { font-size: 36px; color: var(--success); }
- 
+
+.success-icon i {
+    font-size: 36px;
+    color: var(--success);
+}
+
 .success-state h3 {
     font-size: var(--heading-h4);
     font-weight: var(--weight-bold);
     color: var(--heading-primary);
     margin-bottom: var(--space-3);
 }
- 
+
 .success-state p {
     color: var(--text-secondary);
     font-size: var(--text-base);
     margin-bottom: var(--space-6);
 }
- 
+
 .success-ref {
     display: inline-block;
     background: var(--bg-tertiary);
@@ -2785,7 +2883,7 @@ as i'll use him to style the rest of pages */
     letter-spacing: var(--tracking-wider);
     margin-bottom: var(--space-6);
 }
- 
+
 .btn-report-another {
     background: none;
     border: 2px solid var(--primary-navy);
@@ -2798,15 +2896,17 @@ as i'll use him to style the rest of pages */
     transition: all var(--transition-base);
     font-family: var(--font-primary);
 }
- 
+
 .btn-report-another:hover {
     background: var(--primary-navy);
     color: var(--text-light);
 }
- 
+
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
-.bugs-sidebar > * { margin-bottom: var(--space-5); }
- 
+.bugs-sidebar>* {
+    margin-bottom: var(--space-5);
+}
+
 .sidebar-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border-secondary);
@@ -2814,7 +2914,7 @@ as i'll use him to style the rest of pages */
     padding: var(--space-5);
     box-shadow: var(--shadow-sm);
 }
- 
+
 .sidebar-card h4 {
     font-size: var(--text-base);
     font-weight: var(--weight-bold);
@@ -2824,9 +2924,12 @@ as i'll use him to style the rest of pages */
     align-items: center;
     gap: var(--space-2);
 }
- 
-.sidebar-card h4 i { color: var(--primary-blue); font-size: 20px; }
- 
+
+.sidebar-card h4 i {
+    color: var(--primary-blue);
+    font-size: 20px;
+}
+
 .checklist-item {
     display: flex;
     align-items: flex-start;
@@ -2835,9 +2938,14 @@ as i'll use him to style the rest of pages */
     font-size: var(--text-sm);
     color: var(--text-secondary);
 }
- 
-.checklist-item i { color: var(--success); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
- 
+
+.checklist-item i {
+    color: var(--success);
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
 .status-row {
     display: flex;
     justify-content: space-between;
@@ -2846,11 +2954,17 @@ as i'll use him to style the rest of pages */
     border-bottom: 1px solid var(--border-secondary);
     font-size: var(--text-sm);
 }
- 
-.status-row:last-child { border-bottom: none; padding-bottom: 0; }
- 
-.status-row span:first-child { color: var(--text-secondary); font-weight: var(--weight-medium); }
- 
+
+.status-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.status-row span:first-child {
+    color: var(--text-secondary);
+    font-weight: var(--weight-medium);
+}
+
 .status-dot-inline {
     display: inline-flex;
     align-items: center;
@@ -2858,27 +2972,32 @@ as i'll use him to style the rest of pages */
     font-size: var(--text-xs);
     font-weight: var(--weight-bold);
 }
- 
-.dot { width: 7px; height: 7px; border-radius: var(--radius-full); }
-.dot.green  { background: var(--success); box-shadow: 0 0 4px var(--success); }
-.dot.yellow { background: var(--warning); }
-.dot.red    { background: var(--error);   }
- 
-.sla-note {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-md);
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    line-height: var(--leading-relaxed);
+
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
 }
- 
-.sla-note strong { color: var(--text-primary); }
+
+.dot.green {
+    background: var(--success);
+    box-shadow: 0 0 4px var(--success);
+}
+
+.dot.yellow {
+    background: var(--warning);
+}
+
+.dot.red {
+    background: var(--error);
+}
 
 /* terms and conditions */
 
-.policy-wrapper { background: var(--bg-primary); }
- 
+.policy-wrapper {
+    background: var(--bg-primary);
+}
+
 .policy-hero {
     background: var(--gradient-navy-subtle);
     padding: var(--space-20) 0 var(--space-16);
@@ -2886,21 +3005,21 @@ as i'll use him to style the rest of pages */
     overflow: hidden;
     border-bottom: 4px solid var(--sudan-gold);
 }
- 
+
 .policy-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(197,165,114,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(197, 165, 114, 0.06) 1px, transparent 1px);
     background-size: 24px 24px;
     pointer-events: none;
 }
- 
+
 .policy-hero-badge {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    background: rgba(197,165,114,0.12);
+    background: rgba(197, 165, 114, 0.12);
     color: var(--accent-gold);
     border: 1px solid var(--accent-gold);
     border-radius: var(--radius-full);
@@ -2911,34 +3030,34 @@ as i'll use him to style the rest of pages */
     text-transform: uppercase;
     margin-bottom: var(--space-5);
 }
- 
+
 .policy-hero h1 {
     color: var(--text-light);
     font-size: var(--heading-h1);
     font-weight: var(--weight-extrabold);
     margin-bottom: var(--space-4);
 }
- 
+
 .policy-hero p {
-    color: rgba(255,255,255,0.72);
+    color: rgba(255, 255, 255, 0.72);
     font-size: var(--text-lg);
     max-width: 580px;
     line-height: var(--leading-relaxed);
 }
- 
+
 .policy-meta {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-4);
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     font-size: var(--text-sm);
     margin-top: var(--space-6);
 }
- 
+
 .policy-layout {
     max-width: 1100px;
     margin: 0 auto;
@@ -2948,12 +3067,17 @@ as i'll use him to style the rest of pages */
     gap: var(--space-12);
     align-items: start;
 }
- 
+
 @media (max-width: 900px) {
-    .policy-layout { grid-template-columns: 1fr; }
-    .policy-toc { display: none; }
+    .policy-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .policy-toc {
+        display: none;
+    }
 }
- 
+
 .policy-toc {
     position: sticky;
     top: 90px;
@@ -2963,7 +3087,7 @@ as i'll use him to style the rest of pages */
     padding: var(--space-5);
     box-shadow: var(--shadow-md);
 }
- 
+
 .policy-toc h6 {
     font-size: var(--text-xs);
     font-weight: var(--weight-bold);
@@ -2972,7 +3096,7 @@ as i'll use him to style the rest of pages */
     color: var(--text-muted);
     margin-bottom: var(--space-4);
 }
- 
+
 .toc-link {
     display: block;
     font-size: var(--text-sm);
@@ -2985,19 +3109,19 @@ as i'll use him to style the rest of pages */
     border-left: 2px solid transparent;
     margin-bottom: 2px;
 }
- 
+
 .toc-link:hover,
 .toc-link.active {
     color: var(--primary-blue);
     background: var(--bg-tertiary);
     border-left-color: var(--primary-blue);
 }
- 
+
 .policy-content section {
     margin-bottom: var(--space-12);
     scroll-margin-top: 90px;
 }
- 
+
 .section-badge {
     display: inline-flex;
     align-items: center;
@@ -3012,7 +3136,7 @@ as i'll use him to style the rest of pages */
     letter-spacing: var(--tracking-wider);
     margin-bottom: var(--space-3);
 }
- 
+
 .policy-content h2 {
     font-size: var(--heading-h3);
     font-weight: var(--weight-bold);
@@ -3021,21 +3145,23 @@ as i'll use him to style the rest of pages */
     padding-bottom: var(--space-3);
     border-bottom: 2px solid var(--border-secondary);
 }
- 
+
 .policy-content p,
 .policy-content li {
     font-size: var(--text-base);
     color: var(--text-secondary);
     line-height: var(--leading-relaxed);
 }
- 
+
 .policy-content ul {
     padding-left: var(--space-5);
     margin-bottom: var(--space-4);
 }
- 
-.policy-content li { margin-bottom: var(--space-2); }
- 
+
+.policy-content li {
+    margin-bottom: var(--space-2);
+}
+
 .policy-highlight {
     background: var(--bg-tertiary);
     border-left: 4px solid var(--primary-blue);
@@ -3043,13 +3169,13 @@ as i'll use him to style the rest of pages */
     padding: var(--space-4) var(--space-5);
     margin: var(--space-5) 0;
 }
- 
+
 .policy-highlight p {
     margin: 0;
     font-weight: var(--weight-medium);
     color: var(--text-primary) !important;
 }
- 
+
 .policy-danger {
     background: var(--error-light);
     border-left: 4px solid var(--error);
@@ -3057,13 +3183,13 @@ as i'll use him to style the rest of pages */
     padding: var(--space-4) var(--space-5);
     margin: var(--space-5) 0;
 }
- 
+
 .policy-danger p {
     margin: 0;
     color: #7f1d1d !important;
     font-weight: var(--weight-medium);
 }
- 
+
 /* ── Rule cards for prohibited uses ────────────────────────────────────── */
 .rule-grid {
     display: grid;
@@ -3071,7 +3197,7 @@ as i'll use him to style the rest of pages */
     gap: var(--space-4);
     margin: var(--space-5) 0;
 }
- 
+
 .rule-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border-secondary);
@@ -3079,46 +3205,46 @@ as i'll use him to style the rest of pages */
     padding: var(--space-5);
     transition: all var(--transition-base);
 }
- 
+
 .rule-card:hover {
     border-color: var(--error);
     box-shadow: var(--shadow-md);
 }
- 
+
 .rule-card i {
     font-size: 24px;
     color: var(--error);
     margin-bottom: var(--space-3);
     display: block;
 }
- 
+
 .rule-card p {
     font-size: var(--text-sm) !important;
     margin: 0;
     font-weight: var(--weight-medium);
     color: var(--text-primary) !important;
 }
- 
+
 .policy-contact-card {
     background: var(--gradient-navy-subtle);
     border-radius: var(--radius-xl);
     padding: var(--space-8);
     text-align: center;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     margin-top: var(--space-8);
 }
- 
+
 .policy-contact-card h3 {
     color: var(--text-light);
     font-size: var(--heading-h4);
     margin-bottom: var(--space-3);
 }
- 
+
 .policy-contact-card p {
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     margin-bottom: var(--space-5);
 }
- 
+
 .btn-policy {
     display: inline-flex;
     align-items: center;
@@ -3132,7 +3258,7 @@ as i'll use him to style the rest of pages */
     transition: all var(--transition-base);
     font-size: var(--text-sm);
 }
- 
+
 .btn-policy:hover {
     background: #b8941f;
     transform: translateY(-2px);
@@ -3152,7 +3278,7 @@ as i'll use him to style the rest of pages */
 /* ═══════════════════════════════════════════════════════════════════════════
    PAGE HEADER
 ═══════════════════════════════════════════════════════════════════════════ */
-.profile-page-header {
+.page-header {
     background: var(--gradient-navy-subtle);
     border-radius: var(--radius-xl);
     padding: var(--space-8) var(--space-10);
@@ -3162,7 +3288,7 @@ as i'll use him to style the rest of pages */
     border-bottom: 3px solid var(--sudan-gold);
 }
 
-.profile-page-header::before {
+.page-header::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -3171,7 +3297,7 @@ as i'll use him to style the rest of pages */
     pointer-events: none;
 }
 
-.profile-page-header-inner {
+.page-header-inner {
     position: relative;
     display: flex;
     align-items: center;
@@ -3180,7 +3306,7 @@ as i'll use him to style the rest of pages */
     flex-wrap: wrap;
 }
 
-.profile-page-eyebrow {
+.page-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -3192,7 +3318,7 @@ as i'll use him to style the rest of pages */
     margin-bottom: var(--space-2);
 }
 
-.profile-page-title {
+.page-title {
     color: var(--text-light);
     font-size: var(--heading-h2);
     font-weight: var(--weight-extrabold);
@@ -3200,13 +3326,13 @@ as i'll use him to style the rest of pages */
     letter-spacing: var(--tracking-tight);
 }
 
-.profile-page-sub {
+.page-sub {
     color: rgba(255, 255, 255, 0.6);
     font-size: var(--text-sm);
     margin: 0;
 }
 
-.profile-page-header-meta {
+.page-header-meta {
     color: rgba(255, 255, 255, 0.55);
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
@@ -3215,9 +3341,17 @@ as i'll use him to style the rest of pages */
 }
 
 @media (max-width: 576px) {
-    .profile-page-header      { padding: var(--space-6); }
-    .profile-page-title       { font-size: var(--heading-h3); }
-    .profile-page-header-meta { display: none; }
+    .page-header {
+        padding: var(--space-6);
+    }
+
+    .page-title {
+        font-size: var(--heading-h3);
+    }
+
+    .page-header-meta {
+        display: none;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3231,7 +3365,9 @@ as i'll use him to style the rest of pages */
 }
 
 @media (max-width: 992px) {
-    .profile-layout { grid-template-columns: 1fr; }
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3246,7 +3382,9 @@ as i'll use him to style the rest of pages */
 }
 
 @media (max-width: 992px) {
-    .profile-aside { position: static; }
+    .profile-aside {
+        position: static;
+    }
 }
 
 /* ── Identity card ───────────────────────────────────────────────────────── */
@@ -3388,7 +3526,9 @@ as i'll use him to style the rest of pages */
     flex-wrap: wrap;
 }
 
-.profile-id-row:last-child { border-bottom: none; }
+.profile-id-row:last-child {
+    border-bottom: none;
+}
 
 .profile-id-label {
     font-size: var(--text-xs);
@@ -3400,7 +3540,10 @@ as i'll use him to style the rest of pages */
     flex-shrink: 0;
 }
 
-.profile-id-label i { font-size: 14px; color: var(--primary-blue); }
+.profile-id-label i {
+    font-size: 14px;
+    color: var(--primary-blue);
+}
 
 .profile-id-value {
     font-size: var(--text-sm);
@@ -3500,7 +3643,9 @@ as i'll use him to style the rest of pages */
     transition: box-shadow var(--transition-base);
 }
 
-.profile-section:hover { box-shadow: var(--shadow-md); }
+.profile-section:hover {
+    box-shadow: var(--shadow-md);
+}
 
 .profile-section-header {
     display: flex;
@@ -3572,10 +3717,14 @@ as i'll use him to style the rest of pages */
 }
 
 @media (max-width: 640px) {
-    .profile-form-grid { grid-template-columns: 1fr; }
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-.profile-field-full { grid-column: 1 / -1; }
+.profile-field-full {
+    grid-column: 1 / -1;
+}
 
 .profile-field {
     display: flex;
@@ -3593,7 +3742,10 @@ as i'll use him to style the rest of pages */
     margin-bottom: 0;
 }
 
-.profile-field-label i { font-size: 16px; color: var(--primary-blue); }
+.profile-field-label i {
+    font-size: 16px;
+    color: var(--primary-blue);
+}
 
 .profile-field-optional {
     font-size: var(--text-xs);
@@ -3635,8 +3787,13 @@ as i'll use him to style the rest of pages */
     border-color: var(--border-secondary);
 }
 
-.profile-input.input-error   { border-color: var(--border-error); }
-.profile-input.input-success { border-color: var(--border-success); }
+.profile-input.input-error {
+    border-color: var(--border-error);
+}
+
+.profile-input.input-success {
+    border-color: var(--border-success);
+}
 
 /* Password input + show/hide toggle wrapper */
 .profile-input-wrap {
@@ -3662,7 +3819,9 @@ as i'll use him to style the rest of pages */
     transition: color var(--transition-fast);
 }
 
-.btn-toggle-pw:hover { color: var(--primary-blue); }
+.btn-toggle-pw:hover {
+    color: var(--primary-blue);
+}
 
 /* Password match hint below confirm field */
 .pw-match-hint {
@@ -3672,8 +3831,13 @@ as i'll use him to style the rest of pages */
     min-height: 16px;
 }
 
-.pw-match-hint.match    { color: var(--success); }
-.pw-match-hint.no-match { color: var(--error); }
+.pw-match-hint.match {
+    color: var(--success);
+}
+
+.pw-match-hint.no-match {
+    color: var(--error);
+}
 
 /* Collapsed hint visible when password form is hidden */
 .profile-collapsed-hint {
@@ -3765,7 +3929,9 @@ as i'll use him to style the rest of pages */
     border-bottom: 1px solid var(--border-secondary);
 }
 
-.toggle-item:last-child { border-bottom: none; }
+.toggle-item:last-child {
+    border-bottom: none;
+}
 
 .toggle-item-text {
     display: flex;
@@ -3784,7 +3950,10 @@ as i'll use him to style the rest of pages */
     flex-wrap: wrap;
 }
 
-.toggle-item-title i { font-size: 16px; color: var(--primary-blue); }
+.toggle-item-title i {
+    font-size: 16px;
+    color: var(--primary-blue);
+}
 
 .toggle-item-sub {
     font-size: var(--text-xs);
@@ -3801,7 +3970,9 @@ as i'll use him to style the rest of pages */
     flex-shrink: 0;
 }
 
-.profile-toggle input { display: none; }
+.profile-toggle input {
+    display: none;
+}
 
 .profile-toggle-track {
     width: 44px;
@@ -3813,7 +3984,7 @@ as i'll use him to style the rest of pages */
     transition: background var(--transition-base);
 }
 
-.profile-toggle input:checked + .profile-toggle-track {
+.profile-toggle input:checked+.profile-toggle-track {
     background: var(--primary-blue);
 }
 
@@ -3829,7 +4000,7 @@ as i'll use him to style the rest of pages */
     transition: transform var(--transition-base);
 }
 
-.profile-toggle input:checked + .profile-toggle-track .profile-toggle-thumb {
+.profile-toggle input:checked+.profile-toggle-track .profile-toggle-thumb {
     transform: translateX(20px);
 }
 
@@ -4027,7 +4198,9 @@ as i'll use him to style the rest of pages */
     transition: all var(--transition-base);
 }
 
-.btn-modal-cancel:hover { background: var(--bg-tertiary); }
+.btn-modal-cancel:hover {
+    background: var(--bg-tertiary);
+}
 
 .btn-modal-confirm {
     display: inline-flex;
@@ -4054,71 +4227,11 @@ as i'll use him to style the rest of pages */
 /* ═══════════════════════════════════════════════════════════════════════════
    HISTORY PAGE
 ═══════════════════════════════════════════════════════════════════════════ */
- 
+
 .history-wrapper {
     padding-bottom: var(--space-16);
 }
- 
-/* ── Page header ─────────────────────────────────────────────────────────── */
-.history-header {
-    background: var(--gradient-navy-subtle);
-    border-radius: var(--radius-xl);
-    padding: var(--space-8) var(--space-10);
-    margin-bottom: var(--space-8);
-    position: relative;
-    overflow: hidden;
-    border-bottom: 3px solid var(--sudan-gold);
-}
- 
-.history-header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(197,165,114,0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    pointer-events: none;
-}
- 
-.history-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-}
- 
-.history-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--accent-gold);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-bold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wider);
-    margin-bottom: var(--space-2);
-}
- 
-.history-header h1 {
-    color: var(--text-light);
-    font-size: var(--heading-h2);
-    font-weight: var(--weight-extrabold);
-    margin-bottom: var(--space-1);
-    letter-spacing: var(--tracking-tight);
-}
- 
-.history-header-sub {
-    color: rgba(255,255,255,0.6);
-    font-size: var(--text-sm);
-    margin: 0;
-}
- 
-@media (max-width: 576px) {
-    .history-header { padding: var(--space-6); }
-    .history-header h1 { font-size: var(--heading-h3); }
-}
- 
+
 /* ── Layout: sidebar filters + main timeline ─────────────────────────────── */
 .history-layout {
     display: grid;
@@ -4126,24 +4239,29 @@ as i'll use him to style the rest of pages */
     gap: var(--space-6);
     align-items: start;
 }
- 
+
 @media (max-width: 900px) {
-    .history-layout { grid-template-columns: 1fr; }
-    .history-sidebar { display: none; }
+    .history-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .history-sidebar {
+        display: none;
+    }
 }
- 
+
 /* Month group */
 .history-month-group {
     margin-bottom: var(--space-8);
 }
- 
+
 .history-month-label {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     margin-bottom: var(--space-4);
 }
- 
+
 .history-month-label span {
     font-size: var(--text-xs);
     font-weight: var(--weight-bold);
@@ -4152,14 +4270,14 @@ as i'll use him to style the rest of pages */
     color: var(--text-muted);
     white-space: nowrap;
 }
- 
+
 .history-month-label::after {
     content: '';
     flex: 1;
     height: 1px;
     background: var(--border-secondary);
 }
- 
+
 /* Timeline card — the list that holds items */
 .history-card {
     background: var(--bg-secondary);
@@ -4169,9 +4287,11 @@ as i'll use him to style the rest of pages */
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--transition-base);
 }
- 
-.history-card:hover { box-shadow: var(--shadow-md); }
- 
+
+.history-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
 /* Individual item — mirrors the dashboard activity-item exactly */
 .activity-item {
     display: flex;
@@ -4181,10 +4301,15 @@ as i'll use him to style the rest of pages */
     border-bottom: 1px solid var(--border-secondary);
     transition: background var(--transition-fast);
 }
- 
-.activity-item:last-child { border-bottom: none; }
-.activity-item:hover { background: var(--bg-primary); }
- 
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item:hover {
+    background: var(--bg-primary);
+}
+
 .activity-dot-col {
     display: flex;
     flex-direction: column;
@@ -4192,7 +4317,7 @@ as i'll use him to style the rest of pages */
     padding-top: 4px;
     flex-shrink: 0;
 }
- 
+
 .activity-dot-line {
     width: 1px;
     flex: 1;
@@ -4200,34 +4325,36 @@ as i'll use him to style the rest of pages */
     margin-top: 4px;
     min-height: 20px;
 }
- 
-.activity-item:last-child .activity-dot-line { display: none; }
- 
+
+.activity-item:last-child .activity-dot-line {
+    display: none;
+}
+
 /* Body of each item: text + optional detail + timestamp */
 .activity-body {
     flex: 1;
     min-width: 0;
 }
- 
+
 .activity-text {
     font-size: var(--text-sm);
     color: var(--text-primary);
     font-weight: var(--weight-medium);
     margin-bottom: 2px;
 }
- 
+
 .activity-detail {
     font-size: var(--text-xs);
     color: var(--text-muted);
     line-height: var(--leading-relaxed);
     margin-bottom: 4px;
 }
- 
+
 .activity-time {
     font-size: var(--text-xs);
     color: var(--text-muted);
 }
- 
+
 /* Category badge on the right */
 .activity-badge {
     display: inline-flex;
@@ -4242,15 +4369,34 @@ as i'll use him to style the rest of pages */
     align-self: center;
     margin-top: 2px;
     margin-left: auto;
-    
+
 }
- 
-.activity-badge.green  { background: var(--success-light); color: var(--success); }
-.activity-badge.blue   { background: var(--info-light);    color: var(--info); }
-.activity-badge.gold   { background: rgba(197,165,114,0.15); color: var(--accent-gold); }
-.activity-badge.red    { background: var(--error-light);   color: var(--error); }
-.activity-badge.warn   { background: var(--warning-light); color: var(--warning); }
- 
+
+.activity-badge.green {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.activity-badge.blue {
+    background: var(--info-light);
+    color: var(--info);
+}
+
+.activity-badge.gold {
+    background: rgba(197, 165, 114, 0.15);
+    color: var(--accent-gold);
+}
+
+.activity-badge.red {
+    background: var(--error-light);
+    color: var(--error);
+}
+
+.activity-badge.warn {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
 /* ── Empty state ─────────────────────────────────────────────────────────── */
 .history-empty {
     background: var(--bg-secondary);
@@ -4260,21 +4406,21 @@ as i'll use him to style the rest of pages */
     text-align: center;
     box-shadow: var(--shadow-sm);
 }
- 
+
 .history-empty i {
     font-size: 3rem;
     color: var(--text-muted);
     display: block;
     margin-bottom: var(--space-4);
 }
- 
+
 .history-empty h4 {
     font-size: var(--heading-h5);
     font-weight: var(--weight-semibold);
     color: var(--heading-primary);
     margin-bottom: var(--space-2);
 }
- 
+
 .history-empty p {
     font-size: var(--text-sm);
     color: var(--text-muted);

@@ -53,7 +53,7 @@
 }
 
 .sidebar {
-    background: var(--bg-secondary);
+    background: var(--bg-secondary) !important;
     border-right: 1px solid var(--border-secondary);
     display: flex;
     flex-direction: column;
