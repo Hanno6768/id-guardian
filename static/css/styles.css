@@ -4427,4 +4427,286 @@ as i'll use him to style the rest of pages */
     margin: 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   help_and_support.css
+   Only styles that Bootstrap cannot provide.
+   Layout, spacing, and grid use Bootstrap utilities in the HTML.
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.hs-hero {
+    background: var(--gradient-navy-subtle);
+    border-bottom: 3px solid var(--sudan-gold);
+}
+
+.hs-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(197,165,114,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+}
+
+.hs-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-gold);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+}
+
+.hs-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: var(--radius-full);
+    padding: 8px 20px;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-light) !important;
+    text-decoration: none;
+    transition: all var(--transition-base);
+}
+
+.hs-pill:hover {
+    background: rgba(255,255,255,0.16);
+    color: var(--text-light);
+    transform: translateY(-2px);
+}
+
+/* ── Section divider label ───────────────────────────────────────────────── */
+.hs-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text-muted);
+}
+
+.hs-section-label i { font-size: 16px; color: var(--primary-blue); }
+
+.hs-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-secondary);
+}
+
+/* ── FAQ group title ─────────────────────────────────────────────────────── */
+.hs-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    color: var(--heading-secondary);
+}
+
+.hs-group-title i { font-size: 18px; color: var(--primary-blue); }
+
+/* ── Accordion overrides ─────────────────────────────────────────────────── */
+.hs-accordion {
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-xl) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.hs-accordion .accordion-item {
+    background: var(--bg-secondary);
+    border-color: var(--border-secondary) !important;
+}
+
+.hs-acc-btn {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    font-family: var(--font-primary);
+    box-shadow: none !important;
+    padding: 18px 24px;
+}
+
+.hs-acc-btn:hover { background: var(--bg-primary) !important; }
+
+.hs-acc-btn:not(.collapsed) {
+    color: var(--primary-blue) !important;
+    background: var(--bg-primary) !important;
+}
+
+/* Replace Bootstrap's default chevron with a boxicon-friendly one */
+.hs-acc-btn::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    transition: transform var(--transition-base);
+}
+
+.hs-acc-btn:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232E5984' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.hs-acc-body {
+    background: var(--bg-primary);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.hs-acc-body a {
+    color: var(--primary-blue);
+    font-weight: var(--weight-semibold);
+}
+
+/* ── Documentation cards ─────────────────────────────────────────────────── */
+.hs-doc-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    transition: all var(--transition-base);
+}
+
+.hs-doc-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-blue);
+}
+
+.hs-doc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.hs-doc-card h5 {
+    color: var(--heading-primary);
+}
+
+.hs-doc-list {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.hs-doc-list li {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    line-height: var(--leading-normal);
+}
+
+/* ── Contact info icon ───────────────────────────────────────────────────── */
+.hs-info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--primary-blue);
+}
+
+/* ── Contact form card ───────────────────────────────────────────────────── */
+.hs-form-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+}
+
+/* Override Bootstrap's form-control to match the site theme */
+.hs-ctrl {
+    border-color: var(--border-primary) !important;
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    font-size: var(--text-sm) !important;
+    font-family: var(--font-primary) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 10px 14px !important;
+    transition: all var(--transition-fast) !important;
+}
+
+.hs-ctrl:focus {
+    border-color: var(--border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(46,89,132,0.12) !important;
+    background: var(--bg-secondary) !important;
+}
+
+.hs-ctrl.is-invalid { border-color: var(--border-error) !important; }
+
+.hs-textarea { min-height: 130px; resize: vertical; }
+
+.hs-counter {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.hs-counter.warn { color: var(--warning); }
+.hs-counter.over { color: var(--error); }
+
+/* ── Submit button ───────────────────────────────────────────────────────── */
+.hs-btn-submit {
+    background: var(--gradient-navy);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hs-btn-submit:hover {
+    background: var(--gradient-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+/* ── Success state ───────────────────────────────────────────────────────── */
+.hs-success-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--success-light);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: var(--success);
+}
+
+.hs-btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-navy);
+    border-radius: var(--radius-md);
+    padding: 10px 24px;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    font-family: var(--font-primary);
+    color: var(--primary-navy);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.hs-btn-outline:hover {
+    background: var(--primary-navy);
+    color: var(--text-light);
+}
+
 /* End of AI-generated CSS  */

@@ -1,34 +1,498 @@
+<!-- used claude to design -->
 {% extends "layout.html" %}
+{% block title %}Help & Support{% endblock %}
 
-{% block title %} Help and Support {% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/help_and_support.css') }}">
+{% endblock %}
 
 {% block content %}
+<div class="pb-5">
 
-<div class="help-wrapper">
-
-    <div class="page-header">
-        <div class="page-header-inner">
-            <div>
-
-                <p class="page-eyebrow">
-                    <i class='bx bx-support'></i> Support
-                </p>
-
-                <h1 class="page-title">
-                    Help & Support
-                </h1>
-
-                <p class="page-sub">
-                    Find answers or contact support
-                </p>
-
-            </div>
-
-            <div class="page-header-meta" id="Date"></div>
-
+    {# ── Hero ─────────────────────────────────────────────────────────────── #}
+    <div class="hs-hero rounded-4 text-center mb-5 p-5 position-relative overflow-hidden">
+        <p class="hs-eyebrow mb-3"><i class='bx bx-help-circle'></i> Support Centre</p>
+        <h1 class="fw-bolder text-white mb-3">How can we help you?</h1>
+        <p class="text-white-50 fs-5 mb-4">Find answers, read documentation, or contact our support team directly.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="#faq"     class="hs-pill"><i class='bx bx-question-mark'></i> FAQs</a>
+            <a href="#docs"    class="hs-pill"><i class='bx bx-book-open'></i> Documentation</a>
+            <a href="#contact" class="hs-pill"><i class='bx bx-envelope'></i> Contact Us</a>
         </div>
     </div>
 
-</div>
+    {# ── FAQ ──────────────────────────────────────────────────────────────── #}
+    <section id="faq" class="mb-5">
+        <div class="hs-section-label mb-4">
+            <i class='bx bx-question-mark'></i> Frequently Asked Questions
+        </div>
 
+        {# Registration #}
+        <p class="hs-group-title mb-3"><i class='bx bx-user-plus'></i> Registration &amp; Verification</p>
+        <div class="accordion hs-accordion mb-4" id="accReg">
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#reg1">
+                        How do I register on SudaGuardian?
+                    </button>
+                </h2>
+                <div id="reg1" class="accordion-collapse collapse" data-bs-parent="#accReg">
+                    <div class="accordion-body hs-acc-body">
+                        Go to the <a href="{{ url_for('register') }}">Register</a> page and fill in your full legal name, date of birth, email, phone number, username, and 11-digit National ID. Upload a clear photo or scan of your identity document (JPG, PNG, or PDF — max 5 MB). After submitting, verify your email within 30 minutes. Your application then enters the reviewer queue.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#reg2">
+                        I submitted my registration. What happens next?
+                    </button>
+                </h2>
+                <div id="reg2" class="accordion-collapse collapse" data-bs-parent="#accReg">
+                    <div class="accordion-body hs-acc-body">
+                        After email verification your application enters the reviewer queue. A reviewer checks your information against your documents — this takes up to 5 business days. You receive an email once a decision is made: approval, rejection, or a correction request.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#reg3">
+                        I did not receive the verification email. What should I do?
+                    </button>
+                </h2>
+                <div id="reg3" class="accordion-collapse collapse" data-bs-parent="#accReg">
+                    <div class="accordion-body hs-acc-body">
+                        Check your spam folder first. If the email isn't there, go to the <strong>Check Your Inbox</strong> page and click <strong>Resend Verification Link</strong>. Each link is valid for 30 minutes. If it has expired, the page lets you request a new one automatically.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#reg4">
+                        My application was rejected. Can I apply again?
+                    </button>
+                </h2>
+                <div id="reg4" class="accordion-collapse collapse" data-bs-parent="#accReg">
+                    <div class="accordion-body hs-acc-body">
+                        Yes. The rejection email includes the reviewer's specific reason. Address the issue and submit a new registration. There is no limit on reapplications, but submitting false information violates our Terms &amp; Conditions and may be referred to national authorities.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#reg5">
+                        A reviewer asked me to correct my information. What does that mean?
+                    </button>
+                </h2>
+                <div id="reg5" class="accordion-collapse collapse" data-bs-parent="#accReg">
+                    <div class="accordion-body hs-acc-body">
+                        A correction request means one detail needs fixing — for example your birthdate didn't match your document, or the uploaded file was unreadable. The email explains exactly what to fix. You do not start from scratch; simply re-register with the corrected information.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# Login #}
+        <p class="hs-group-title mb-3"><i class='bx bx-lock-alt'></i> Login &amp; Password</p>
+        <div class="accordion hs-accordion mb-4" id="accLogin">
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#log1">
+                        How do I log in for the first time after approval?
+                    </button>
+                </h2>
+                <div id="log1" class="accordion-collapse collapse" data-bs-parent="#accLogin">
+                    <div class="accordion-body hs-acc-body">
+                        When your application is approved you receive a <strong>Set Password</strong> link by email, valid for 24 hours. Click it, choose a secure password, and you are logged in automatically. If the link has expired, request a new one from the expired-link page.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#log2">
+                        Can I log in with my National ID instead of my username?
+                    </button>
+                </h2>
+                <div id="log2" class="accordion-collapse collapse" data-bs-parent="#accLogin">
+                    <div class="accordion-body hs-acc-body">
+                        Yes. The login form accepts either your <strong>username</strong> or your <strong>11-digit National ID number</strong> in the identifier field.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#log3">
+                        I forgot my password. How do I reset it?
+                    </button>
+                </h2>
+                <div id="log3" class="accordion-collapse collapse" data-bs-parent="#accLogin">
+                    <div class="accordion-body hs-acc-body">
+                        Click <strong>Forgot Password?</strong> on the login page. A reset link will be sent to your registered email address. If you no longer have access to that email, contact support using the form below.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# Documents #}
+        <p class="hs-group-title mb-3"><i class='bx bx-folder'></i> Documents &amp; QR Codes</p>
+        <div class="accordion hs-accordion mb-4" id="accDocs">
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#doc1">
+                        What document types does SudaGuardian support?
+                    </button>
+                </h2>
+                <div id="doc1" class="accordion-collapse collapse" data-bs-parent="#accDocs">
+                    <div class="accordion-body hs-acc-body">
+                        Passport, National ID, Driving Licence, Birth Certificate, Marriage Certificate, and Nationality Card. Upload files must be JPG, PNG, or PDF and must not exceed 5 MB.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#doc2">
+                        What does the QR code on my document do?
+                    </button>
+                </h2>
+                <div id="doc2" class="accordion-collapse collapse" data-bs-parent="#accDocs">
+                    <div class="accordion-body hs-acc-body">
+                        Each verified document has a unique QR code. When scanned by an authorised third party it opens a SudaGuardian verification page confirming the document's authenticity. The QR encodes your document ID and user ID only — your National ID number is never exposed.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#doc3">
+                        My document shows "Pending". How long does review take?
+                    </button>
+                </h2>
+                <div id="doc3" class="accordion-collapse collapse" data-bs-parent="#accDocs">
+                    <div class="accordion-body hs-acc-body">
+                        3–5 business days (Sunday–Thursday, 08:00–17:00 SST) per our SLA. If pending longer than 5 business days, contact support.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# Security #}
+        <p class="hs-group-title mb-3"><i class='bx bx-shield-alt-2'></i> Account &amp; Security</p>
+        <div class="accordion hs-accordion" id="accSec">
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#sec1">
+                        Can I change my name, username, or National ID number?
+                    </button>
+                </h2>
+                <div id="sec1" class="accordion-collapse collapse" data-bs-parent="#accSec">
+                    <div class="accordion-body hs-acc-body">
+                        No. Full name, username, National ID, date of birth, and gender are locked once verified. These are part of your permanent national identity record and can only change through an official governmental process.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#sec2">
+                        Can I delete my account?
+                    </button>
+                </h2>
+                <div id="sec2" class="accordion-collapse collapse" data-bs-parent="#accSec">
+                    <div class="accordion-body hs-acc-body">
+                        No. Account deletion is permanently disabled. Your verified digital identity is a national record protected under the SudaGuardian data sovereignty framework. You may deactivate notifications and stop using the platform at any time.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#sec3">
+                        How is my National ID number protected?
+                    </button>
+                </h2>
+                <div id="sec3" class="accordion-collapse collapse" data-bs-parent="#accSec">
+                    <div class="accordion-body hs-acc-body">
+                        Your National ID is encrypted with AES-256 before storage and is never held in plain text. Only authorised reviewers can access a decrypted version during review, and that access is logged. Passwords are hashed with a modern adaptive algorithm.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed hs-acc-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#sec4">
+                        I see a session I don't recognise. What should I do?
+                    </button>
+                </h2>
+                <div id="sec4" class="accordion-collapse collapse" data-bs-parent="#accSec">
+                    <div class="accordion-body hs-acc-body">
+                        Go to <strong>My Profile → Active Sessions</strong> and click <strong>Log Out All Sessions</strong> immediately, then change your password. If you believe your account has been compromised, contact support below.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    {# ── Documentation ────────────────────────────────────────────────────── #}
+    <section id="docs" class="mb-5">
+        <div class="hs-section-label mb-4">
+            <i class='bx bx-book-open'></i> Documentation
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(46,89,132,0.1);color:var(--primary-blue)"><i class='bx bx-user-plus'></i></div>
+                    <h5 class="fw-bold mb-2">Getting Started</h5>
+                    <p class="text-muted small mb-3">Step-by-step guide to creating your account, verifying your email, and completing identity review.</p>
+                    <ul class="hs-doc-list">
+                        <li>How to register</li>
+                        <li>Email verification</li>
+                        <li>Setting your password</li>
+                        <li>Accessing your dashboard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(4,120,87,0.1);color:var(--success)"><i class='bx bx-folder'></i></div>
+                    <h5 class="fw-bold mb-2">Managing Documents</h5>
+                    <p class="text-muted small mb-3">Uploading, viewing, and understanding the status of your identity documents.</p>
+                    <ul class="hs-doc-list">
+                        <li>Supported document types</li>
+                        <li>Upload requirements</li>
+                        <li>Understanding statuses</li>
+                        <li>Using QR codes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(220,38,38,0.1);color:var(--error)"><i class='bx bx-lock-alt'></i></div>
+                    <h5 class="fw-bold mb-2">Security &amp; Privacy</h5>
+                    <p class="text-muted small mb-3">How your data is protected and how to keep your account secure.</p>
+                    <ul class="hs-doc-list">
+                        <li>AES-256 encryption</li>
+                        <li>Password requirements</li>
+                        <li>Session management</li>
+                        <li>Data sovereignty</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(197,165,114,0.15);color:var(--accent-gold)"><i class='bx bx-bell'></i></div>
+                    <h5 class="fw-bold mb-2">Notifications</h5>
+                    <p class="text-muted small mb-3">Configure your SMS notification preferences for alerts and announcements.</p>
+                    <ul class="hs-doc-list">
+                        <li>Turning on/off SMS alerts</li>
+                        <li>Verification notifications</li>
+                        <li>Security alert settings</li>
+                        <li>Platform announcements</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(37,99,235,0.1);color:var(--info)"><i class='bx bx-bar-chart-alt-2'></i></div>
+                    <h5 class="fw-bold mb-2">Service Level Agreement</h5>
+                    <p class="text-muted small mb-3">Our formal commitments to uptime, review times, and incident response.</p>
+                    <ul class="hs-doc-list">
+                        <li>99.5% uptime target</li>
+                        <li>5-day max verification time</li>
+                        <li>Incident severity levels</li>
+                        <li>Support response times</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="hs-doc-card h-100 p-4 rounded-4">
+                    <div class="hs-doc-icon mb-3" style="background:rgba(15,31,46,0.08);color:var(--primary-navy)"><i class='bx bx-file-blank'></i></div>
+                    <h5 class="fw-bold mb-2">Legal Documents</h5>
+                    <p class="text-muted small mb-3">Privacy Policy, Terms &amp; Conditions, and your data rights.</p>
+                    <ul class="hs-doc-list">
+                        <li>Privacy Policy</li>
+                        <li>Terms &amp; Conditions</li>
+                        <li>Data retention policy</li>
+                        <li>Your rights</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    {# ── Contact ──────────────────────────────────────────────────────────── #}
+    <section id="contact">
+        <div class="hs-section-label mb-4">
+            <i class='bx bx-envelope'></i> Contact Support
+        </div>
+
+        <div class="row g-5 align-items-start">
+
+            {# Info column #}
+            <div class="col-lg-4">
+                <h3 class="fw-bold mb-2">We're here to help</h3>
+                <p class="text-muted small mb-4">Email is our primary support channel. Submit the form and our team will respond within <strong>1 business day</strong>. Mark security issues as High priority.</p>
+
+                <div class="d-flex flex-column gap-3">
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="hs-info-icon flex-shrink-0"><i class='bx bx-time-five'></i></div>
+                        <div>
+                            <span class="d-block fw-semibold small">Response Time</span>
+                            <span class="text-muted" style="font-size:var(--text-xs)">1 business day for standard queries</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="hs-info-icon flex-shrink-0"><i class='bx bx-calendar'></i></div>
+                        <div>
+                            <span class="d-block fw-semibold small">Business Hours</span>
+                            <span class="text-muted" style="font-size:var(--text-xs)">Sun – Thu, 08:00 – 17:00 SST</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="hs-info-icon flex-shrink-0"><i class='bx bx-globe'></i></div>
+                        <div>
+                            <span class="d-block fw-semibold small">Languages</span>
+                            <span class="text-muted" style="font-size:var(--text-xs)">Arabic and English</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="hs-info-icon flex-shrink-0"><i class='bx bx-bug'></i></div>
+                        <div>
+                            <span class="d-block fw-semibold small">Found a bug?</span>
+                            <span class="text-muted" style="font-size:var(--text-xs)">Use the dedicated <a href="{{ url_for('help_and_support') }}">Bug Report</a> form.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# Form column #}
+            <div class="col-lg-8">
+                <div class="hs-form-card p-4 p-md-5 rounded-4 shadow-sm">
+
+                    {# Success state #}
+                    <div id="formSuccess" class="text-center py-5 d-none">
+                        <div class="hs-success-icon mx-auto mb-4"><i class='bx bx-check'></i></div>
+                        <h4 class="fw-bold mb-2">Message Sent</h4>
+                        <p class="text-muted mb-4">Our team will reply to your email within 1 business day.</p>
+                        <button class="hs-btn-outline" id="btnAnother" type="button">Send Another Message</button>
+                    </div>
+
+                    {# Form #}
+                    <form class="needs-validation" id="contactForm" method="post" novalidate>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" for="cName">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" id="cName" name="name" class="form-control hs-ctrl"
+                                    placeholder="Your full name" required
+                                    {% if current_user.is_authenticated %}value="{{ current_user.full_name }}"{% endif %}>
+                                    <div class="invalid-feedback">Please enter your full name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" for="cEmail">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" id="cEmail" name="email" class="form-control hs-ctrl"
+                                    placeholder="your@email.com" required
+                                    {% if current_user.is_authenticated %}value="{{ current_user.contact_email or '' }}"{% endif %}>
+                                    <div class="invalid-feedback">Please provide a valid email address.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" for="cCategory">Category <span class="text-danger">*</span></label>
+                                <select id="cCategory" name="category" class="form-select hs-ctrl" required>
+                                    <option value="" disabled selected>Select a category…</option>
+                                    <option value="registration">Registration &amp; Verification</option>
+                                    <option value="login">Login &amp; Password</option>
+                                    <option value="documents">Documents &amp; QR Codes</option>
+                                    <option value="account">Account &amp; Security</option>
+                                    <option value="notifications">Notifications</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">Please choose a category.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" for="cPriority">Priority</label>
+                                <select id="cPriority" name="priority" class="form-select hs-ctrl">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="high">High — Security Issue</option>
+                                    <option value="low">Low — General Enquiry</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small" for="cSubject">Subject <span class="text-danger">*</span></label>
+                            <input type="text" id="cSubject" name="subject" class="form-control hs-ctrl"
+                                placeholder="Brief description of your issue" required maxlength="120">
+                                <div class="invalid-feedback">Please enter a subject line (max 120 characters).</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small" for="cMessage">Message <span class="text-danger">*</span></label>
+                            <textarea id="cMessage" name="message" class="form-control hs-ctrl hs-textarea"
+                                placeholder="Describe your issue in detail. Include any error messages and the steps that led to the problem."
+                                required maxlength="2000"></textarea>
+                                <div class="invalid-feedback">Please type a message before submitting.</div>
+                            <div class="text-end mt-1 hs-counter" id="msgCounter">0 / 2000</div>
+                        </div>
+
+                        <button type="submit" class="hs-btn-submit w-100">
+                            <i class='bx bx-send me-2'></i>Send Message
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help_and_support.js"></script>
 {% endblock %}
