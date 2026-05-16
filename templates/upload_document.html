@@ -1,0 +1,216 @@
+<!-- designed using claude ai -->
+{% extends "layout.html" %}
+{% block title %}Upload {# TODO: doc.name #}{% endblock %}
+
+{% block content %}
+<div class="upload-wrapper">
+
+    {# ── Breadcrumb ───────────────────────────────────────────────────────── #}
+    <nav class="upload-breadcrumb mb-4">
+        <a href="{{ url_for('my_documents') }}"><i class='bx bx-folder'></i> My Documents</a>
+        <i class='bx bx-chevron-right'></i>
+        <span>Upload {# TODO: doc.name #}</span>
+    </nav>
+
+    {# ── Page header ──────────────────────────────────────────────────────── #}
+    <div class="upload-header rounded-4 mb-5 p-5 position-relative overflow-hidden">
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div class="upload-header-icon">
+                {# TODO: doc.svg_icon | safe #}
+            </div>
+            <div>
+                <p class="upload-eyebrow mb-1"><i class='bx bx-cloud-upload'></i> Document Upload</p>
+                <h1 class="upload-title mb-1">Upload {# TODO: doc.name #}</h1>
+                <p class="upload-sub mb-0">{# TODO: doc.description #}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5 align-items-start">
+
+        {# ── Left: instructions ───────────────────────────────────────────── #}
+        <div class="col-lg-4">
+
+            <div class="upload-instructions-card mb-4">
+                <div class="upload-instructions-header">
+                    <i class='bx bx-info-circle'></i>
+                    <h5>Upload Requirements</h5>
+                </div>
+                <ul class="upload-req-list">
+                    <li>
+                        <i class='bx bx-file-blank'></i>
+                        <div>
+                            <strong>Accepted formats</strong>
+                            <span>JPG, PNG, PDF only</span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class='bx bx-data'></i>
+                        <div>
+                            <strong>Maximum size</strong>
+                            <span>5 MB per file</span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class='bx bx-search-alt'></i>
+                        <div>
+                            <strong>Image quality</strong>
+                            <span>Clear, high-resolution scan or photo</span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class='bx bx-show'></i>
+                        <div>
+                            <strong>Visibility</strong>
+                            <span>All text and details must be fully readable</span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class='bx bx-calendar-check'></i>
+                        <div>
+                            <strong>Validity</strong>
+                            <span>Document must be current and not expired</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            {# Document-specific checklist #}
+            <div class="upload-checklist-card">
+                <div class="upload-instructions-header">
+                    <i class='bx bx-list-check'></i>
+                    <h5>{# TODO: doc.name #} Checklist</h5>
+                </div>
+                <ul class="upload-check-list">
+                {# TODO: for item in doc.checklist #}
+                    <li><i class='bx bx-check-circle'></i> {# TODO: item #}</li>
+                {# TODO: endfor #}   
+            </div>
+
+        </div>
+
+        {# ── Right: upload form ───────────────────────────────────────────── #}
+        <div class="col-lg-8">
+            <div class="upload-form-card rounded-4 p-4 p-md-5">
+
+                <form action="{{ url_for('upload_document') }}" method="POST"
+                      enctype="multipart/form-data" id="uploadForm"
+                      class="needs-validation" novalidate>
+
+                    {# Hidden field carries the document type to Flask #}
+                    <input type="hidden" name="doc_type" value=""> <!-- TODO: add {# doc.type #} as the value -->
+
+                    {# ── Drag & drop zone ─────────────────────────────────── #}
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="fileInput" name="document"
+                               accept=".jpg,.jpeg,.png,.pdf" required
+                               class="upload-file-input">
+
+                        {# Default state #}
+                        <div class="upload-zone-content" id="zoneDefault">
+                            <div class="upload-zone-icon">
+                                <i class='bx bx-cloud-upload'></i>
+                            </div>
+                            <h4 class="upload-zone-title">Drag &amp; drop your file here</h4>
+                            <p class="upload-zone-sub">or <span class="upload-zone-link">click to browse</span></p>
+                            <span class="upload-zone-hint">JPG, PNG, PDF · Max 5 MB</span>
+                        </div>
+
+                        {# Preview state (hidden until file selected) #}
+                        <div class="upload-zone-preview d-none" id="zonePreview">
+                            <div class="upload-preview-icon" id="previewIcon">
+                                <i class='bx bx-file'></i>
+                            </div>
+                            <div class="upload-preview-info">
+                                <span class="upload-preview-name" id="previewName"></span>
+                                <span class="upload-preview-size" id="previewSize"></span>
+                            </div>
+                            <button type="button" class="upload-preview-remove" id="btnRemoveFile"
+                                    title="Remove file">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    {# Bootstrap validation feedback for the file input #}
+                    <div class="invalid-feedback d-block mt-2" id="fileError" style="display:none!important;"></div>
+
+                    {# ── Separator ────────────────────────────────────────── #}
+                    <div class="upload-divider my-4"></div>
+
+                    {# ── Notes field ──────────────────────────────────────── #}
+                    <div class="mb-4">
+                        <label class="upload-label" for="uploadNotes">
+                            Additional Notes <span class="upload-optional">Optional</span>
+                        </label>
+                        <textarea id="uploadNotes" name="notes" class="upload-textarea"
+                                  placeholder="Any additional information that may help the reviewer (e.g. document is bilingual, issued abroad, etc.)"
+                                  maxlength="400" rows="3"></textarea>
+                        <div class="upload-char-counter" id="notesCounter">0 / 400</div>
+                    </div>
+
+                    {# ── Declaration ──────────────────────────────────────── #}
+                    <div class="upload-declaration mb-4">
+                        <label class="upload-declaration-label" for="chkDeclare">
+                            <input type="checkbox" id="chkDeclare" name="declaration"
+                                   class="upload-declaration-check" required>
+                            <span>
+                                I declare that the document I am uploading is genuine, belongs to me,
+                                and all information provided is accurate and true. I understand that
+                                submitting false documents is a violation of the SudaGuardian
+                                Terms &amp; Conditions and may be referred to national authorities.
+                            </span>
+                        </label>
+                        <div class="invalid-feedback">You must confirm this declaration before submitting.</div>
+                    </div>
+
+                    {# ── Actions ──────────────────────────────────────────── #}
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button type="submit" class="upload-btn-submit" id="btnSubmit" disabled>
+                            <i class='bx bx-send'></i> Submit for Review
+                        </button>
+                        <a href="{{ url_for('my_documents') }}" class="upload-btn-cancel">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+            {# ── What happens next ────────────────────────────────────────── #}
+            <div class="upload-next-card mt-4 p-4 rounded-4">
+                <h5 class="upload-next-title"><i class='bx bx-right-arrow-circle'></i> What happens after you submit?</h5>
+                <div class="row g-3 mt-1">
+                    <div class="col-sm-4">
+                        <div class="upload-step">
+                            <span class="upload-step-num">01</span>
+                            <strong>Under Review</strong>
+                            <p>Your document enters the reviewer queue and is checked within 3–5 business days.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="upload-step">
+                            <span class="upload-step-num">02</span>
+                            <strong>Decision</strong>
+                            <p>You receive an email — approved, rejected, or a correction request with details.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="upload-step">
+                            <span class="upload-step-num">03</span>
+                            <strong>Access</strong>
+                            <p>Approved documents appear in your vault with a unique QR code for verification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload_document.js') }}"></script>
+{% endblock %}

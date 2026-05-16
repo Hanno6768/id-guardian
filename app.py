@@ -655,5 +655,9 @@ def terms_and_conditions():
 def report_bugs():
     return render_template("report-bugs.html")
 
+@app.route("/my-documents/upload-document")
+def upload_document():
+    return render_template("upload_document.html")
+
 if __name__ == "__main__":
     app.run(debug=True)

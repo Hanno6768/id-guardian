@@ -151,14 +151,6 @@
                 <span class="menu-text">My Profile</span>
             </a>
 
-            <a href="{{ url_for('notifications') }}" class="menu-item">
-                <i class='bx bx-bell'></i>
-                <span class="menu-text">Notifications</span>
-                {% if unread_notifications %}
-                <span class="menu-badge badge-danger">{{ unread_notifications }}</span>
-                {% endif %}
-            </a>
-
             <a href="{{ url_for('help_and_support') }}" class="menu-item">
                 <i class='bx bx-help-circle'></i>
                 <span class="menu-text">Help & Support</span>
