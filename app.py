@@ -659,5 +659,9 @@ def report_bugs():
 def upload_document():
     return render_template("upload_document.html")
 
+@app.route("/system-settings")
+def system_settings():
+    return render_template("system_settings.html")
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,438 @@
+{% extends "layout.html" %}
+{% block title %}System Administration{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="sa-wrapper">
+
+    {# ── Page header ──────────────────────────────────────────────────────── #}
+    <div class="sa-header rounded-4 mb-4 p-5 position-relative overflow-hidden">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <p class="sa-eyebrow mb-1">
+                    <i class='bx bx-shield-alt-2'></i> Admin Only
+                </p>
+                <h1 class="sa-title mb-1">System Administration</h1>
+                <p class="sa-sub mb-0">
+                    Manage platform settings and review the full audit log
+                </p>
+            </div>
+            <div class="sa-admin-info">
+                <span class="sa-admin-label">Logged in as</span>
+                <span class="sa-admin-name">{{ current_user.full_name }}</span>
+                <span class="sa-admin-role">Administrator</span>
+            </div>
+        </div>
+    </div>
+
+    {# ── Tabs ─────────────────────────────────────────────────────────────── #}
+    <div class="sa-tabs mb-4">
+        <button class="sa-tab active" data-tab="settings">
+            <i class='bx bx-cog'></i> System Settings
+        </button>
+        <button class="sa-tab" data-tab="logs">
+            <i class='bx bx-list-ul'></i> System Logs
+        </button>
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════════════
+       TAB 1 — SYSTEM SETTINGS
+    ════════════════════════════════════════════════════════════════════════ #}
+    <div class="sa-tab-panel" id="panel-settings">
+
+        <form action="/system/settings" method="POST" class="needs-validation" novalidate>
+
+            {# ── Platform ─────────────────────────────────────────────────── #}
+            <div class="sa-section mb-4">
+                <div class="sa-section-header">
+                    <i class='bx bx-globe'></i>
+                    <div>
+                        <h4 class="sa-section-title">Platform</h4>
+                        <p class="sa-section-sub">General platform identity and availability settings</p>
+                    </div>
+                </div>
+                <div class="sa-section-body">
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="sa-label" for="platformName">Platform Name</label>
+                            <input type="text" id="platformName" name="platform_name"
+                                   class="sa-input" value="SudaGuardian" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="platformVersion">Current Version</label>
+                            <input type="text" id="platformVersion" name="platform_version"
+                                   class="sa-input" value="v0.0.0" readonly>
+                            <span class="sa-field-hint">Set by deployment — read-only</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="supportEmail">Support Email</label>
+                            <input type="email" id="supportEmail" name="support_email"
+                                   class="sa-input" placeholder="support@gov.sd" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label">Maintenance Mode</label>
+                            <div class="sa-toggle-row">
+                                <label class="sa-toggle" for="toggleMaintenance">
+                                    <input type="checkbox" id="toggleMaintenance" name="maintenance_mode">
+                                    <span class="sa-toggle-track">
+                                        <span class="sa-toggle-thumb"></span>
+                                    </span>
+                                </label>
+                                <span class="sa-toggle-desc">
+                                    When on, the platform shows a maintenance notice to all non-admin users.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Registration ─────────────────────────────────────────────── #}
+            <div class="sa-section mb-4">
+                <div class="sa-section-header">
+                    <i class='bx bx-user-plus'></i>
+                    <div>
+                        <h4 class="sa-section-title">Registration</h4>
+                        <p class="sa-section-sub">Control who can submit new identity applications</p>
+                    </div>
+                </div>
+                <div class="sa-section-body">
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="sa-label">Open Registration</label>
+                            <div class="sa-toggle-row">
+                                <label class="sa-toggle" for="toggleRegistration">
+                                    <input type="checkbox" id="toggleRegistration"
+                                           name="registration_open" checked>
+                                    <span class="sa-toggle-track">
+                                        <span class="sa-toggle-thumb"></span>
+                                    </span>
+                                </label>
+                                <span class="sa-toggle-desc">
+                                    Allow new citizens to submit registration applications.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="maxUploadMb">Max Upload Size (MB)</label>
+                            <input type="number" id="maxUploadMb" name="max_upload_mb"
+                                   class="sa-input" value="5" min="1" max="50" required>
+                            <span class="sa-field-hint">Currently {{ (config.MAX_CONTENT_LENGTH // 1048576) if config else 5 }} MB</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="emailExpiry">Email Verification Expiry (minutes)</label>
+                            <input type="number" id="emailExpiry" name="email_expiry_minutes"
+                                   class="sa-input" value="30" min="5" max="1440" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="passwordExpiry">Set-Password Link Expiry (hours)</label>
+                            <input type="number" id="passwordExpiry" name="password_expiry_hours"
+                                   class="sa-input" value="24" min="1" max="168" required>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Email ────────────────────────────────────────────────────── #}
+            <div class="sa-section mb-4">
+                <div class="sa-section-header">
+                    <i class='bx bx-envelope'></i>
+                    <div>
+                        <h4 class="sa-section-title">Email (SMTP)</h4>
+                        <p class="sa-section-sub">Outbound email delivery configuration</p>
+                    </div>
+                </div>
+                <div class="sa-section-body">
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="sa-label" for="mailServer">Mail Server</label>
+                            <input type="text" id="mailServer" name="mail_server"
+                                   class="sa-input" placeholder="smtp.example.com">
+                            <span class="sa-field-hint">Loaded from .env — changes require restart</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="mailPort">Mail Port</label>
+                            <input type="number" id="mailPort" name="mail_port"
+                                   class="sa-input" placeholder="587">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label" for="mailUser">Mail Username</label>
+                            <input type="text" id="mailUser" name="mail_username"
+                                   class="sa-input" placeholder="no-reply@gov.sd">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label">TLS / SSL</label>
+                            <div class="d-flex gap-4 mt-1">
+                                <div class="sa-toggle-row">
+                                    <label class="sa-toggle" for="toggleTLS">
+                                        <input type="checkbox" id="toggleTLS" name="mail_tls" checked>
+                                        <span class="sa-toggle-track">
+                                            <span class="sa-toggle-thumb"></span>
+                                        </span>
+                                    </label>
+                                    <span class="sa-toggle-desc">TLS</span>
+                                </div>
+                                <div class="sa-toggle-row">
+                                    <label class="sa-toggle" for="toggleSSL">
+                                        <input type="checkbox" id="toggleSSL" name="mail_ssl">
+                                        <span class="sa-toggle-track">
+                                            <span class="sa-toggle-thumb"></span>
+                                        </span>
+                                    </label>
+                                    <span class="sa-toggle-desc">SSL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Security ─────────────────────────────────────────────────── #}
+            <div class="sa-section mb-4">
+                <div class="sa-section-header">
+                    <i class='bx bx-lock-alt'></i>
+                    <div>
+                        <h4 class="sa-section-title">Security</h4>
+                        <p class="sa-section-sub">Access control and session security settings</p>
+                    </div>
+                </div>
+                <div class="sa-section-body">
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="sa-label">Permanent Sessions</label>
+                            <div class="sa-toggle-row">
+                                <label class="sa-toggle" for="togglePermanentSession">
+                                    <input type="checkbox" id="togglePermanentSession"
+                                           name="session_permanent">
+                                    <span class="sa-toggle-track">
+                                        <span class="sa-toggle-thumb"></span>
+                                    </span>
+                                </label>
+                                <span class="sa-toggle-desc">
+                                    Keep users logged in across browser closes.
+                                    Currently: <strong>Off</strong> (recommended).
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="sa-label">Debug Mode</label>
+                            <div class="sa-toggle-row">
+                                <label class="sa-toggle" for="toggleDebug">
+                                    <input type="checkbox" id="toggleDebug"
+                                           name="debug_mode" checked>
+                                    <span class="sa-toggle-track">
+                                        <span class="sa-toggle-thumb"></span>
+                                    </span>
+                                </label>
+                                <span class="sa-toggle-desc">
+                                    Enable Flask debug mode.
+                                    <strong class="text-danger">Disable in production.</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Save ─────────────────────────────────────────────────────── #}
+            <div class="d-flex gap-3 flex-wrap">
+                <button type="submit" class="sa-btn-primary">
+                    <i class='bx bx-save'></i> Save Settings
+                </button>
+                <button type="reset" class="sa-btn-secondary">
+                    Reset
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════════════
+       TAB 2 — SYSTEM LOGS
+    ════════════════════════════════════════════════════════════════════════ #}
+    <div class="sa-tab-panel d-none" id="panel-logs">
+
+        {# ── Log stats ────────────────────────────────────────────────────── #}
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="sa-stat-card accent-blue">
+                    <div class="sa-stat-icon blue"><i class='bx bx-list-ul'></i></div>
+                    <div class="sa-stat-value">—</div>
+                    <div class="sa-stat-label">Total Events</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="sa-stat-card accent-green">
+                    <div class="sa-stat-icon green"><i class='bx bx-check-shield'></i></div>
+                    <div class="sa-stat-value">—</div>
+                    <div class="sa-stat-label">Approvals</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="sa-stat-card accent-red">
+                    <div class="sa-stat-icon red"><i class='bx bx-x-circle'></i></div>
+                    <div class="sa-stat-value">—</div>
+                    <div class="sa-stat-label">Rejections</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="sa-stat-card accent-warn">
+                    <div class="sa-stat-icon warn"><i class='bx bx-shield-alt-2'></i></div>
+                    <div class="sa-stat-value">—</div>
+                    <div class="sa-stat-label">Security Events</div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Filter bar ───────────────────────────────────────────────────── #}
+        <div class="sa-log-toolbar mb-3">
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <select class="sa-input sa-select" id="logFilter" style="width:auto;">
+                    <option value="all">All Events</option>
+                    <option value="auth">Auth</option>
+                    <option value="verification">Verification</option>
+                    <option value="document">Documents</option>
+                    <option value="security">Security</option>
+                    <option value="system">System</option>
+                </select>
+            </div>
+            <button class="sa-btn-outline-sm" onclick="window.print()" type="button">
+                <i class='bx bx-export'></i> Export
+            </button>
+        </div>
+
+        {# ── Log table ────────────────────────────────────────────────────── #}
+        <div class="sa-log-card">
+            <div class="table-responsive">
+                <table class="sa-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Event</th>
+                            <th>User</th>
+                            <th>IP Address</th>
+                            <th>Category</th>
+                            <th>Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+
+                        {% if logs %}
+                            {% for log in logs %}
+                            <tr data-category="{{ log.category }}">
+                                <td class="sa-log-time">{{ log.timestamp }}</td>
+                                <td class="sa-log-event">{{ log.event }}</td>
+                                <td class="sa-log-user">{{ log.username or '—' }}</td>
+                                <td class="sa-log-ip">{{ log.ip or '—' }}</td>
+                                <td>
+                                    <span class="sa-badge sa-badge-{{ log.category }}">
+                                        {{ log.category | capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="sa-outcome sa-outcome-{{ log.outcome }}">
+                                        {{ log.outcome | capitalize }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- TODO: Static placeholder rows — replace with real DB query  -->
+                            <tr data-category="auth">
+                                <td class="sa-log-time">2024-01-15 10:34:02</td>
+                                <td class="sa-log-event">User login</td>
+                                <td class="sa-log-user">admin</td>
+                                <td class="sa-log-ip">196.1.0.1</td>
+                                <td><span class="sa-badge sa-badge-auth">Auth</span></td>
+                                <td><span class="sa-outcome sa-outcome-success">Success</span></td>
+                            </tr>
+                            <tr data-category="verification">
+                                <td class="sa-log-time">2024-01-15 10:41:17</td>
+                                <td class="sa-log-event">Application approved</td>
+                                <td class="sa-log-user">reviewer1</td>
+                                <td class="sa-log-ip">196.1.0.4</td>
+                                <td><span class="sa-badge sa-badge-verification">Verification</span></td>
+                                <td><span class="sa-outcome sa-outcome-success">Success</span></td>
+                            </tr>
+                            <tr data-category="verification">
+                                <td class="sa-log-time">2024-01-14 14:17:33</td>
+                                <td class="sa-log-event">Application rejected</td>
+                                <td class="sa-log-user">reviewer1</td>
+                                <td class="sa-log-ip">196.1.0.4</td>
+                                <td><span class="sa-badge sa-badge-verification">Verification</span></td>
+                                <td><span class="sa-outcome sa-outcome-fail">Rejected</span></td>
+                            </tr>
+                            <tr data-category="document">
+                                <td class="sa-log-time">2024-01-14 09:05:11</td>
+                                <td class="sa-log-event">Document uploaded — Passport</td>
+                                <td class="sa-log-user">muhaned92</td>
+                                <td class="sa-log-ip">197.5.12.8</td>
+                                <td><span class="sa-badge sa-badge-document">Document</span></td>
+                                <td><span class="sa-outcome sa-outcome-success">Success</span></td>
+                            </tr>
+                            <tr data-category="security">
+                                <td class="sa-log-time">2024-01-13 22:03:44</td>
+                                <td class="sa-log-event">New session from unrecognised device</td>
+                                <td class="sa-log-user">ahmed_kh</td>
+                                <td class="sa-log-ip">102.89.3.21</td>
+                                <td><span class="sa-badge sa-badge-security">Security</span></td>
+                                <td><span class="sa-outcome sa-outcome-warn">Warning</span></td>
+                            </tr>
+                            <tr data-category="auth">
+                                <td class="sa-log-time">2024-01-13 18:55:00</td>
+                                <td class="sa-log-event">Failed login attempt</td>
+                                <td class="sa-log-user">unknown</td>
+                                <td class="sa-log-ip">41.77.202.3</td>
+                                <td><span class="sa-badge sa-badge-auth">Auth</span></td>
+                                <td><span class="sa-outcome sa-outcome-fail">Failed</span></td>
+                            </tr>
+                            <tr data-category="system">
+                                <td class="sa-log-time">2024-01-13 08:00:00</td>
+                                <td class="sa-log-event">Platform started</td>
+                                <td class="sa-log-user">system</td>
+                                <td class="sa-log-ip">—</td>
+                                <td><span class="sa-badge sa-badge-system">System</span></td>
+                                <td><span class="sa-outcome sa-outcome-success">Success</span></td>
+                            </tr>
+                            <tr data-category="verification">
+                                <td class="sa-log-time">2024-01-12 11:22:05</td>
+                                <td class="sa-log-event">Correction request sent</td>
+                                <td class="sa-log-user">reviewer2</td>
+                                <td class="sa-log-ip">196.1.0.5</td>
+                                <td><span class="sa-badge sa-badge-verification">Verification</span></td>
+                                <td><span class="sa-outcome sa-outcome-warn">Pending</span></td>
+                            </tr>
+                        {% endif %}
+
+                    </tbody>
+                </table>
+            </div>
+
+            {# Empty state #}
+            <div class="sa-log-empty d-none" id="logEmpty">
+                <i class='bx bx-search-alt'></i>
+                <p>No log entries match the selected filter.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/system_settings.js') }}"></script>
+{% endblock %}
