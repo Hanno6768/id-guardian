@@ -1,0 +1,596 @@
+<!-- designed usin claude -->
+{% extends "layout.html" %}
+{% block title %}Manage Users{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="mu-wrapper">
+
+    {# ── Page header ──────────────────────────────────────────────────────── #}
+    <div class="mu-header rounded-4 mb-4 p-5 position-relative overflow-hidden">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <p class="mu-eyebrow mb-1"><i class='bx bx-group'></i> Administration</p>
+                <h1 class="mu-title mb-1">Manage Users</h1>
+                <p class="mu-sub mb-0">View, create, and manage all platform users</p>
+            </div>
+            <button class="mu-btn-create" id="btnNewUser" type="button">
+                <i class='bx bx-user-plus'></i> Create New User
+            </button>
+        </div>
+    </div>
+
+    {# ── Stats row ────────────────────────────────────────────────────────── #}
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="mu-stat accent-blue">
+                <div class="mu-stat-icon blue"><i class='bx bx-group'></i></div>
+                <div class="mu-stat-value">{{ verified_users|length if verified_users else '—' }}</div>
+                <div class="mu-stat-label">Verified Users</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="mu-stat accent-warn">
+                <div class="mu-stat-icon warn"><i class='bx bx-time'></i></div>
+                <div class="mu-stat-value">{{ pending_users|length if pending_users else '—' }}</div>
+                <div class="mu-stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="mu-stat accent-green">
+                <div class="mu-stat-icon green"><i class='bx bx-shield-check'></i></div>
+                <div class="mu-stat-value">—</div>
+                <div class="mu-stat-label">Reviewers</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="mu-stat accent-gold">
+                <div class="mu-stat-icon gold"><i class='bx bx-crown'></i></div>
+                <div class="mu-stat-value">—</div>
+                <div class="mu-stat-label">Admins</div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Tabs ─────────────────────────────────────────────────────────────── #}
+    <div class="mu-tabs mb-4">
+        <button class="mu-tab active" data-tab="verified">
+            <i class='bx bx-check-circle'></i>
+            Verified Users
+            <span class="mu-tab-count">{{ verified_users|length if verified_users else 0 }}</span>
+        </button>
+        <button class="mu-tab" data-tab="pending">
+            <i class='bx bx-time'></i>
+            Pending Applications
+            <span class="mu-tab-count mu-tab-count-warn">
+                {{ pending_users|length if pending_users else 0 }}
+            </span>
+        </button>
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════════════
+       TAB — VERIFIED USERS
+    ════════════════════════════════════════════════════════════════════════ #}
+    <div class="mu-panel" id="panel-verified">
+
+        {# Search + role filter #}
+        <div class="mu-toolbar mb-3">
+            <div class="mu-search-wrap">
+                <i class='bx bx-search'></i>
+                <input type="text" id="searchVerified"
+                       placeholder="Search name, username or email…"
+                       autocomplete="off">
+            </div>
+            <select class="mu-select" id="roleFilter">
+                <option value="all">All Roles</option>
+                <option value="user">Citizen</option>
+                <option value="reviewer">Reviewer</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <div class="mu-card">
+            <div class="table-responsive">
+                <table class="mu-table" id="verifiedTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Verified</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% if verified_users %}
+                        {% for u in verified_users %}
+                        <tr data-name="{{ u.full_name | lower }}"
+                            data-username="{{ u.username | lower }}"
+                            data-email="{{ u.contact_email | lower }}"
+                            data-role="{{ u.role }}">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar">{{ u.full_name[0] | upper }}</div>
+                                    <div>
+                                        <div class="mu-user-name">{{ u.full_name }}</div>
+                                        <div class="mu-user-email">{{ u.contact_email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@{{ u.username }}</td>
+                            <td>
+                                <span class="mu-role-badge mu-role-{{ u.role }}">
+                                    {% if u.role == 'admin' %}<i class='bx bx-crown'></i>
+                                    {% elif u.role == 'reviewer' %}<i class='bx bx-check-circle'></i>
+                                    {% else %}<i class='bx bx-user'></i>{% endif %}
+                                    {{ u.role | capitalize }}
+                                </span>
+                            </td>
+                            <td class="mu-mono">{{ u.contact_phone or '—' }}</td>
+                            <td class="mu-date">
+                                {{ u.verified_at[:10] if u.verified_at else '—' }}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="mu-btn-icon mu-btn-edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editModal"
+                                            data-id="{{ u.id }}"
+                                            data-name="{{ u.full_name }}"
+                                            data-username="{{ u.username }}"
+                                            data-email="{{ u.contact_email }}"
+                                            data-phone="{{ u.contact_phone or '' }}"
+                                            data-role="{{ u.role }}"
+                                            title="Edit role">
+                                        <i class='bx bx-edit'></i>
+                                    </button>
+                                    {% if u.id != current_user.id %}
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal"
+                                            data-id="{{ u.id }}"
+                                            data-name="{{ u.full_name }}"
+                                            title="Delete user">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                    {% else %}
+                                    <span class="mu-self-label">You</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% else %}
+                        {# ── Static placeholder rows ── #}
+                        <tr data-name="ali hassan" data-username="ali_h" data-email="ali@example.com" data-role="user">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar">A</div>
+                                    <div>
+                                        <div class="mu-user-name">Ali Hassan</div>
+                                        <div class="mu-user-email">ali@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@ali_h</td>
+                            <td><span class="mu-role-badge mu-role-user"><i class='bx bx-user'></i> Citizen</span></td>
+                            <td class="mu-mono">+249 91 234 5678</td>
+                            <td class="mu-date">2022-03-05</td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="mu-btn-icon mu-btn-edit"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="1" data-name="Ali Hassan" data-username="ali_h"
+                                            data-email="ali@example.com" data-phone="+249912345678" data-role="user">
+                                        <i class='bx bx-edit'></i>
+                                    </button>
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="1" data-name="Ali Hassan">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-name="sara mahmoud" data-username="sara_m" data-email="sara@gov.sd" data-role="reviewer">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar">S</div>
+                                    <div>
+                                        <div class="mu-user-name">Sara Mahmoud</div>
+                                        <div class="mu-user-email">sara@gov.sd</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@sara_m</td>
+                            <td><span class="mu-role-badge mu-role-reviewer"><i class='bx bx-check-circle'></i> Reviewer</span></td>
+                            <td class="mu-mono">+249 92 111 2222</td>
+                            <td class="mu-date">2021-06-14</td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="mu-btn-icon mu-btn-edit"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="2" data-name="Sara Mahmoud" data-username="sara_m"
+                                            data-email="sara@gov.sd" data-phone="+249921112222" data-role="reviewer">
+                                        <i class='bx bx-edit'></i>
+                                    </button>
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="2" data-name="Sara Mahmoud">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-name="muhaned admin" data-username="admin" data-email="admin@gov.sd" data-role="admin">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar mu-avatar-gold">M</div>
+                                    <div>
+                                        <div class="mu-user-name">Muhaned Admin</div>
+                                        <div class="mu-user-email">admin@gov.sd</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@admin</td>
+                            <td><span class="mu-role-badge mu-role-admin"><i class='bx bx-crown'></i> Admin</span></td>
+                            <td class="mu-mono">+249 90 000 0001</td>
+                            <td class="mu-date">2021-01-01</td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="mu-btn-icon mu-btn-edit"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="3" data-name="Muhaned Admin" data-username="admin"
+                                            data-email="admin@gov.sd" data-phone="+249900000001" data-role="admin">
+                                        <i class='bx bx-edit'></i>
+                                    </button>
+                                    <span class="mu-self-label">You</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    </tbody>
+                </table>
+            </div>
+
+            {# Empty / no-results state #}
+            <div class="mu-empty d-none" id="verifiedEmpty">
+                <i class='bx bx-search-alt'></i>
+                <p>No users match your search.</p>
+            </div>
+        </div>
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════════════
+       TAB — PENDING APPLICATIONS
+    ════════════════════════════════════════════════════════════════════════ #}
+    <div class="mu-panel d-none" id="panel-pending">
+
+        <div class="mu-toolbar mb-3">
+            <div class="mu-search-wrap">
+                <i class='bx bx-search'></i>
+                <input type="text" id="searchPending"
+                       placeholder="Search name or email…"
+                       autocomplete="off">
+            </div>
+        </div>
+
+        <div class="mu-card">
+            <div class="table-responsive">
+                <table class="mu-table" id="pendingTable">
+                    <thead>
+                        <tr>
+                            <th>Applicant</th>
+                            <th>Username</th>
+                            <th>National ID</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% if pending_users %}
+                        {% for pu in pending_users %}
+                        <tr data-name="{{ pu.full_name | lower }}"
+                            data-email="{{ pu.contact_email | lower }}">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar mu-avatar-warn">{{ pu.full_name[0] | upper }}</div>
+                                    <div>
+                                        <div class="mu-user-name">{{ pu.full_name }}</div>
+                                        <div class="mu-user-email">{{ pu.contact_email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@{{ pu.username }}</td>
+                            <td class="mu-mono">{{ pu.national_id or '—' }}</td>
+                            <td class="mu-date">{{ pu.submitted_at }}</td>
+                            <td>
+                                <span class="mu-status-badge">● {{ pu.status | capitalize }}</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('reviewer_dashboard') }}"
+                                       class="mu-btn-icon mu-btn-view" title="Review in queue">
+                                        <i class='bx bx-show'></i>
+                                    </a>
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal"
+                                            data-id="{{ pu.id }}"
+                                            data-name="{{ pu.full_name }}"
+                                            title="Delete application">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% else %}
+                        {# Static placeholder #}
+                        <tr data-name="omar salih" data-email="omar@example.com">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar mu-avatar-warn">O</div>
+                                    <div>
+                                        <div class="mu-user-name">Omar Salih</div>
+                                        <div class="mu-user-email">omar@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@omar_s</td>
+                            <td class="mu-mono">12345678901</td>
+                            <td class="mu-date">2024-01-15</td>
+                            <td><span class="mu-status-badge">● Email Verified</span></td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('reviewer_dashboard') }}"
+                                       class="mu-btn-icon mu-btn-view" title="Review">
+                                        <i class='bx bx-show'></i>
+                                    </a>
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="10" data-name="Omar Salih">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-name="hana ibrahim" data-email="hana@example.com">
+                            <td>
+                                <div class="mu-user-cell">
+                                    <div class="mu-avatar mu-avatar-warn">H</div>
+                                    <div>
+                                        <div class="mu-user-name">Hana Ibrahim</div>
+                                        <div class="mu-user-email">hana@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mu-mono">@hana_i</td>
+                            <td class="mu-mono">98765432100</td>
+                            <td class="mu-date">2024-01-13</td>
+                            <td><span class="mu-status-badge">● Pending</span></td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('reviewer_dashboard') }}"
+                                       class="mu-btn-icon mu-btn-view" title="Review">
+                                        <i class='bx bx-show'></i>
+                                    </a>
+                                    <button class="mu-btn-icon mu-btn-delete"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="11" data-name="Hana Ibrahim">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="mu-empty d-none" id="pendingEmpty">
+                <i class='bx bx-inbox'></i>
+                <p>No pending applications found.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════════
+   MODAL — Create / Edit User
+════════════════════════════════════════════════════════════════════════════ #}
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content mu-modal-content">
+
+            <div class="mu-modal-header" id="editModalHeader">
+                <div class="mu-modal-icon" id="editModalIcon">
+                    <i class='bx bx-user-plus'></i>
+                </div>
+                <div>
+                    <h5 class="mu-modal-title" id="editModalTitle">Create New User</h5>
+                    <p class="mu-modal-sub" id="editModalSub">Fill in all required fields below</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="/admin/users/save" method="POST"
+                  id="userForm" class="needs-validation" novalidate>
+
+                <input type="hidden" name="user_id" id="formUserId" value="">
+
+                <div class="mu-modal-body">
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formFullName">
+                                Full Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="formFullName" name="full_name"
+                                   class="mu-input" placeholder="Full legal name" required>
+                            <div class="invalid-feedback">Full name is required.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formUsername">
+                                Username <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="formUsername" name="username"
+                                   class="mu-input" placeholder="Unique username" required>
+                            <div class="invalid-feedback">Username is required.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formEmail">
+                                Email Address <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" id="formEmail" name="email"
+                                   class="mu-input" placeholder="user@example.com" required>
+                            <div class="invalid-feedback">A valid email is required.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formPhone">
+                                Phone Number <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" id="formPhone" name="phone"
+                                   class="mu-input" placeholder="+249 9X XXX XXXX" required>
+                            <div class="invalid-feedback">Phone number is required.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formNationalId">
+                                National ID <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="formNationalId" name="national_id"
+                                   class="mu-input" placeholder="11-digit National ID"
+                                   maxlength="11" required>
+                            <div class="invalid-feedback">Must be exactly 11 digits.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formBirthdate">
+                                Date of Birth <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" id="formBirthdate" name="birthdate"
+                                   class="mu-input" required>
+                            <div class="invalid-feedback">Date of birth is required.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="mu-label" for="formRole">
+                                Role <span class="text-danger">*</span>
+                            </label>
+                            <select id="formRole" name="role" class="mu-input mu-select" required>
+                                <option value="" disabled selected>Select role…</option>
+                                <option value="user">Citizen</option>
+                                <option value="reviewer">Reviewer</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a role.</div>
+                        </div>
+
+                        {# Password — only shown when creating a new user #}
+                        <div class="col-md-6" id="passwordField">
+                            <label class="mu-label" for="formPassword">
+                                Temporary Password <span class="text-danger">*</span>
+                            </label>
+                            <input type="password" id="formPassword" name="password"
+                                   class="mu-input" placeholder="Min 8 characters" minlength="8">
+                            <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                            <span class="mu-field-hint">User must change this on first login.</span>
+                        </div>
+
+                    </div>
+
+                    {# Admin-create warning #}
+                    <div class="mu-create-notice mt-4" id="createNotice">
+                        <i class='bx bx-info-circle'></i>
+                        <span>
+                            Admin-created accounts bypass the standard verification process.
+                            Ensure all information is accurate before saving.
+                            The user will be prompted to change their password on first login.
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="mu-modal-footer">
+                    <button type="button" class="mu-btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="mu-btn-confirm" id="formSubmitBtn">
+                        <i class='bx bx-user-plus'></i>
+                        <span id="formSubmitLabel">Create User</span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════════
+   MODAL — Delete Confirmation
+════════════════════════════════════════════════════════════════════════════ #}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content mu-modal-content">
+
+            <div class="mu-modal-header mu-modal-header-danger">
+                <div class="mu-modal-icon mu-modal-icon-danger">
+                    <i class='bx bx-trash'></i>
+                </div>
+                <div>
+                    <h5 class="mu-modal-title">Delete User</h5>
+                    <p class="mu-modal-sub">This action is permanent and cannot be undone.</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="mu-modal-body">
+                <p class="mb-3">
+                    You are about to permanently delete the account of
+                    <strong id="deleteUserName">—</strong>.
+                    All associated data will be removed from the platform.
+                </p>
+                <div class="mu-danger-notice">
+                    <i class='bx bx-error'></i>
+                    <span>
+                        Note: According to the SudaGuardian data retention policy,
+                        the National ID record and audit trail will be retained for
+                        7 years after deletion in compliance with national regulations.
+                    </span>
+                </div>
+            </div>
+
+            <form action="/admin/users/delete" method="POST" id="deleteForm">
+                <input type="hidden" name="user_id" id="deleteUserId">
+                <div class="mu-modal-footer">
+                    <button type="button" class="mu-btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="mu-btn-danger">
+                        <i class='bx bx-trash'></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/manage_users.js') }}"></script>
+{% endblock %}

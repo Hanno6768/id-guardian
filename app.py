@@ -635,7 +635,14 @@ def help_and_support():
 @login_required
 @roles_required("admin", "reviewer")
 def review_queue():
-    return render_template("review_queue.html")
+    # Get all the pending users
+    pending_users = PendingUser.get_verified_pending_users()
+
+    # Decrypt the national ID number
+    for user in pending_users:
+        user["national_id"] = decrypt_national_id(user["national_id_ciphertext"])
+
+    return render_template("review_queue.html", current_user=current_user, pending_users=pending_users)
 
 @app.route("/reviewed_documents")
 @login_required
@@ -656,12 +663,21 @@ def report_bugs():
     return render_template("report-bugs.html")
 
 @app.route("/my-documents/upload-document")
+@login_required
 def upload_document():
     return render_template("upload_document.html")
 
 @app.route("/system-settings")
+@login_required
+@roles_required("admin")
 def system_settings():
     return render_template("system_settings.html")
+
+@app.route("/manage-users")
+@login_required
+@roles_required("admin")
+def manage_users():
+    return render_template("manage_users.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

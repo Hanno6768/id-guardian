@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+{% block title %}Review Queue{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reviewer_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="review-queue-wrapper">
+    <div class="review-queue-container container py-4">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div>
+                    <p class="page-eyebrow">
+                        <i class='bx bx-look'></i> Review
+                    </p>
+                    <h1 class="page-title">Review Queue</h1>
+                    <p class="page-sub">
+                        Approve, reject and request correction from users
+                    </p>
+                </div>
+                <div class="page-header-meta" id="Date"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. The Clean Table (No modals inside tbody) -->
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th class="ps-4" scope="col">Full Name</th>
+                    <th scope="col">Submission Date</th>
+                    <th scope="col">Status</th>
+                    <th class="text-end pe-4" scope="col">View Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pending_user in pending_users %}
+                <tr>
+                    <td class="ps-4 text-start">
+                        <div class="fw-bold text-dark">{{ pending_user.full_name }}</div>
+                        <small class="text-muted">{{ pending_user.contact_email }}</small>
+                    </td>
+                    <td>{{ pending_user.submitted_at[:10] }}</td>
+                    <td>
+                        <span class="badge-status bg-warning-subtle text-warning-emphasis border border-warning">
+                            ● {{ pending_user.status }}
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-outline-primary btn-action me-2 rounded-circle" data-bs-toggle="modal"
+                            data-bs-target="#modal-{{ loop.index }}" title="View Details">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6" />
+                                <path d="M12 19c7.63 0 9.93-6.62 9.95-6.68.07-.21.07-.43 0-.63-.02-.07-2.32-6.68-9.95-6.68s-9.93 6.61-9.95 6.67c-.07.21-.07.43 0 .63.02.07 2.32 6.68 9.95 6.68Zm0-12c5.35 0 7.42 3.85 7.93 5-.5 1.16-2.58 5-7.93 5s-7.42-3.84-7.93-5c.5-1.16 2.58-5 7.93-5" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 2. Modals Container (Safely placed outside the table structure) -->
+    {% for pending_user in pending_users %}
+        <!-- Main Details Modal -->
+        <div class="modal fade" id="modal-{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Application Review: {{ pending_user.full_name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="profile-label">Username</div>
+                                        <div class="profile-value">{{ pending_user.username }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="profile-label">National ID Number</div>
+                                        <div class="profile-value">{{ pending_user.national_id }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="profile-label">Phone Number</div>
+                                        <div class="profile-value">{{ pending_user.contact_phone }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="profile-label">Birthdate</div>
+                                        <div class="profile-value">{{ pending_user.birthdate }}</div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info border-0 shadow-sm mt-3">
+                                    <div class="profile-label text-info">Current Status</div>
+                                    <div class="fw-bold">{{ pending_user.status }}</div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="profile-label">Supporting Document</span>
+                                    <a href="{{ url_for('static', filename=pending_user.file_path) }}" target="_blank" class="btn btn-sm btn-link">Open in new tab</a>
+                                </div>
+                                <div class="rounded-3 border overflow-hidden" style="height: 400px; background: #f8f9fa;">
+                                    <iframe src="{{ url_for('static', filename=pending_user.file_path) }}" width="100%" height="100%" frameborder="0"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-0 d-flex">
+                        <div class="me-auto p-2">
+                            <button type="button" class="btn btn-warning px-4" style="color:#0F1F2E" data-bs-toggle="modal" data-bs-target="#requestmodal-{{ loop.index }}">Request Correction</button>
+                        </div>
+                        <div class="p-2">
+                            <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-outline-danger px-4" data-bs-toggle="modal" data-bs-target="#rejectmodal-{{ loop.index }}">Reject Application</button>
+                            <button type="button" class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#approvemodal-{{ loop.index }}">Approve Access</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Correction Modal -->
+        <div class="modal fade" id="requestmodal-{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Request Correction: {{ pending_user.full_name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label fw-bold">Reviewer Instructions</label>
+                        <p class="text-muted small">
+                            Please specify exactly what is incorrect. Your message will be sent to <strong>{{ pending_user.full_name }}</strong>. Use clear language.
+                        </p>
+                        <form method="post" action="/review_user/{{ pending_user.id }}">
+                            <div class="mb-4">
+                                <label for="message-text-req-{{ loop.index }}" class="col-form-label">Message:</label>
+                                <textarea class="form-control" id="message-text-req-{{ loop.index }}" name="message" placeholder="Example: Your birthdate does not match..."></textarea>
+                            </div>
+                            <div class="form-text text-danger mb-3">* This message is legally binding.</div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-outline-danger" name="action" value="request_correction">Send Email & Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reject Modal -->
+        <div class="modal fade" id="rejectmodal-{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Reject User: {{ pending_user.full_name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label fw-bold">Reviewer Instructions</label>
+                        <p class="text-muted small">Describe the issue that prevented verification.</p>
+                        <form method="post" action="/review_user/{{ pending_user.id }}">
+                            <div class="mb-3">
+                                <label for="message-text-rej-{{ loop.index }}" class="col-form-label">Message:</label>
+                                <textarea class="form-control" id="message-text-rej-{{ loop.index }}" name="message" placeholder="Example: Your application could not be approved..."></textarea>
+                            </div>
+                            <div class="form-text text-danger mb-3">* This message is legally binding.</div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-outline-danger" name="action" value="reject">Send Email & Reject</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Modal -->
+        <div class="modal fade" id="approvemodal-{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Approve User: {{ pending_user.full_name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="/review_user/{{ pending_user.id }}">
+                        <div class="modal-body">
+                            <p class="text-muted small mt-2">By approving this application, you confirm that all documents meet verification requirements.</p>
+                            <p class="text-muted fw-semibold">{{ pending_user.full_name }} will be granted full access.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success" name="action" value="approve">Approve User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
