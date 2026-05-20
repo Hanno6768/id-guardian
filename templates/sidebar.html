@@ -78,7 +78,7 @@
         <div class="menu-section">
             <span class="menu-section-title">Main</span>
 
-            <a href="/{{ current_user.role }}_dashboard" class="menu-item active">
+            <a href="/{{ current_user.role }}_dashboard" class="menu-item">
                 <i class='bx bx-home-alt'></i>
                 <span class="menu-text">Dashboard</span>
             </a>
@@ -99,7 +99,7 @@
         </div>
 
         <!-- Reviewer only -->
-        {% if current_user.role == 'reviewer' %}
+        {% if current_user.role == 'reviewer' or current_user.role == 'admin' %}
 
         <div class="menu-section">
             <span class="menu-section-title">Reviewer Tools</span>
@@ -124,7 +124,7 @@
                 <span class="menu-text">Admin Dashboard</span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('manage_users') }}" class="menu-item">
                 <i class='bx bx-group'></i>
                 <span class="menu-text">Manage Users</span>
                 <span class="menu-badge">{{ total_users }}</span>

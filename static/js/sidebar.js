@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.querySelector('.sidebar-toggle-btn');
     const overlay = document.getElementById('sidebarOverlay');
+    const menuSections = document.querySelectorAll('.menu-section');
 
     // check if elements sre there
     if (!sidebar || !toggleBtn) {
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.remove('collapsed')
             if (overlay) overlay.classList.toggle('active');
         } else {
-            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('collapsed');  
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         }
     }
@@ -64,5 +65,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         }
     });
+
+    const menuItems = document.querySelectorAll('.menu-item');
+    const currentUrl = window.location.href;
+    
+    menuItems.forEach(item => {
+        if (item.href.includes(currentUrl)) {
+            item.classList.add('active');
+        }
+    });
+
 
 });
