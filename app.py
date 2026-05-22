@@ -679,5 +679,9 @@ def system_settings():
 def manage_users():
     return render_template("manage_users.html")
 
+@app.route("/services")
+def services():
+    return render_template("services.html")
+
 if __name__ == "__main__":
     app.run(debug=True)

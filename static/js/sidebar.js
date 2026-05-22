@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentUrl = window.location.href;
     
     menuItems.forEach(item => {
-        if (item.href.includes(currentUrl)) {
+        if (currentUrl.startsWith(item.href)) {
             item.classList.add('active');
         }
     });

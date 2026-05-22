@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+
+{% block title %}Services{% endblock %}
+
+{% block content %}
+
+<div class="services-page-wrapper">
+    <section class="services-hero">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <div class="services-hero-badge">
+                        <i class='bx bx-shield-quarter'></i>
+                        Digital Identity Services
+                    </div>
+                    <h1>Secure public services built around verified identity.</h1>
+                    <p>
+                        SudaGuardian helps citizens create a trusted digital identity, submit official documents for
+                        review, and access identity-based services through a protected national platform.
+                    </p>
+                    <div class="services-hero-actions">
+                        <a href="{{ url_for('register') }}" class="services-btn-primary">
+                            <i class='bx bx-user-plus'></i>
+                            Start Registration
+                        </a>
+                        <a href="#service-catalog" class="services-btn-secondary">
+                            <i class='bx bx-grid-alt'></i>
+                            View Services
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="services-status-panel">
+                        <div class="status-panel-header">
+                            <span class="status-pulse"></span>
+                            Identity Network Status
+                        </div>
+                        <div class="status-panel-body">
+                            <div class="status-row">
+                                <span><i class='bx bx-fingerprint'></i> Citizen Verification</span>
+                                <strong>Active</strong>
+                            </div>
+                            <div class="status-row">
+                                <span><i class='bx bx-file-find'></i> Document Review</span>
+                                <strong>Protected</strong>
+                            </div>
+                            <div class="status-row">
+                                <span><i class='bx bx-data'></i> Data Sovereignty</span>
+                                <strong>Local</strong>
+                            </div>
+                        </div>
+                        <div class="status-panel-footer">
+                            <i class='bx bx-lock-alt'></i>
+                            National ID numbers are encrypted before storage.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-overview">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="services-metric">
+                        <span>01</span>
+                        <strong>Register</strong>
+                        <p>Create your citizen profile and submit identity details for review.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="services-metric">
+                        <span>02</span>
+                        <strong>Verify</strong>
+                        <p>Reviewers validate your submitted information and supporting documents.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="services-metric">
+                        <span>03</span>
+                        <strong>Access</strong>
+                        <p>Use your verified account to manage documents and digital services securely.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-catalog py-80" id="service-catalog">
+        <div class="container">
+            <div class="services-section-heading">
+                <span class="section-badge"><i class='bx bx-briefcase'></i> Service Catalog</span>
+                <h2 class="section-title">What SudaGuardian Provides</h2>
+                <p>
+                    A focused set of identity services designed for citizens, reviewers, and administrators working
+                    across the digital government ecosystem.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-fingerprint'></i></span>
+                        <h3>Identity Enrollment</h3>
+                        <p>Register with your personal information, contact details, and national identity number.</p>
+                        <ul>
+                            <li>11-digit National ID validation</li>
+                            <li>Email verification workflow</li>
+                            <li>Secure pending application record</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-file-find'></i></span>
+                        <h3>Document Verification</h3>
+                        <p>Upload identity documents for reviewer approval before account activation.</p>
+                        <ul>
+                            <li>Passport, national ID, and PDF support</li>
+                            <li>Reviewer approval and rejection tools</li>
+                            <li>Correction request handling</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-lock-alt'></i></span>
+                        <h3>Secure Document Vault</h3>
+                        <p>Keep verified documents organized inside a protected personal dashboard.</p>
+                        <ul>
+                            <li>Document status tracking</li>
+                            <li>Controlled file access</li>
+                            <li>Encrypted identity references</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-qr-scan'></i></span>
+                        <h3>QR-Based Sharing</h3>
+                        <p>Generate scannable document references for faster identity checks when needed.</p>
+                        <ul>
+                            <li>Document-specific QR access</li>
+                            <li>Fast verification handoff</li>
+                            <li>Mobile-friendly presentation</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-user-check'></i></span>
+                        <h3>Reviewer Operations</h3>
+                        <p>Give authorized reviewers a clear queue for evaluating registration submissions.</p>
+                        <ul>
+                            <li>Pending verification queue</li>
+                            <li>Approval and rejection records</li>
+                            <li>Reviewer notes and audit trail</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <article class="services-card h-100">
+                        <span class="services-icon"><i class='bx bx-cog'></i></span>
+                        <h3>Administrative Control</h3>
+                        <p>Support platform governance with role-based access and system management screens.</p>
+                        <ul>
+                            <li>Admin-only user management</li>
+                            <li>System settings area</li>
+                            <li>Role-aware navigation</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-assurance">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <span class="section-badge"><i class='bx bx-check-shield'></i> Protection Model</span>
+                    <h2>Designed for trust, privacy, and national control.</h2>
+                    <p>
+                        The platform separates public access, citizen dashboards, reviewer workflows, and
+                        administrative controls so each user only reaches the tools appropriate to their role.
+                    </p>
+                </div>
+                <div class="col-lg-7">
+                    <div class="assurance-grid">
+                        <div class="assurance-item">
+                            <i class='bx bx-key'></i>
+                            <strong>Encrypted Identity Data</strong>
+                            <span>National ID values are protected before they are stored.</span>
+                        </div>
+                        <div class="assurance-item">
+                            <i class='bx bx-id-card'></i>
+                            <strong>Role-Based Access</strong>
+                            <span>Citizens, reviewers, and administrators each have separate spaces.</span>
+                        </div>
+                        <div class="assurance-item">
+                            <i class='bx bx-history'></i>
+                            <strong>Review History</strong>
+                            <span>Verification outcomes can be tracked for transparency and support.</span>
+                        </div>
+                        <div class="assurance-item">
+                            <i class='bx bx-envelope'></i>
+                            <strong>Email Confirmation</strong>
+                            <span>Important account steps are confirmed through secure email workflows.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-cta">
+        <div class="container">
+            <div class="services-cta-inner">
+                <div>
+                    <span class="services-cta-kicker">Ready to begin?</span>
+                    <h2>Create your verified digital identity.</h2>
+                    <p>Submit your details once, complete document review, and unlock your citizen dashboard.</p>
+                </div>
+                <a href="{{ url_for('register') }}" class="services-btn-primary">
+                    <i class='bx bx-right-arrow-alt'></i>
+                    Register Now
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}
