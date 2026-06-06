@@ -76,7 +76,7 @@ class User(UserMixin):
     @staticmethod
     def get_by_email(email):
         """Retrieve user by email"""
-        result = db.execute("SELECT * FROM users WHERE email = ?", email)
+        result = db.execute("SELECT * FROM users WHERE contact_email = ?", email)
         if result:
             row = result[0]
             return User(

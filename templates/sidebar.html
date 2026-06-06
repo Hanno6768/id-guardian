@@ -1,5 +1,5 @@
 {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
 {% endblock %}
 
 <nav class="mobile-topbar d-lg-none">
@@ -35,8 +35,7 @@
 
         <!-- brand -->
         <div class="sidebar-brand">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo"
-                class="sidebar-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian Logo" class="sidebar-logo">
             <div class="sidebar-brand-text">
                 <span class="sidebar-name">SudaGuardian</span>
                 <span class="sidebar-subtitle">GOV.SD</span>
@@ -78,7 +77,7 @@
         <div class="menu-section">
             <span class="menu-section-title">Main</span>
 
-            <a href="/{{ current_user.role }}_dashboard" class="menu-item">
+            <a href="/{{ current_user.role }}-dashboard" class="menu-item">
                 <i class='bx bx-home-alt'></i>
                 <span class="menu-text">Dashboard</span>
             </a>
@@ -119,9 +118,14 @@
         <div class="menu-section">
             <span class="menu-section-title">Administration</span>
 
-            <a href="{{ url_for('admin_dashboard') }}" class="menu-item">
-                <i class='bx bx-shield-alt-2'></i>
-                <span class="menu-text">Admin Dashboard</span>
+            <a href="{{ url_for('user_dashboard') }}" class="menu-item">
+                <i class="bx bx-category"></i>
+                <span class="menu-text">User Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('reviewer_dashboard') }}" class="menu-item">
+                <i class="bx bx-badge-check"></i>
+                <span class="menu-text">Reviewer Dashboard</span>
             </a>
 
             <a href="{{ url_for('manage_users') }}" class="menu-item">

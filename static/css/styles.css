@@ -5742,4 +5742,353 @@ as i'll use him to style the rest of pages */
     }
 }
 
+
+
+/* Agencies page */
+.agencies-page-wrapper {
+    background: var(--bg-primary);
+}
+
+.agencies-hero {
+    background:
+        linear-gradient(135deg, rgba(10, 20, 25, 0.86) 0%, rgba(15, 31, 46, 0.76) 52%, rgba(46, 89, 132, 0.66) 100%),
+        url('/static/tower.jpg');
+    background-size: cover;
+    background-position: center;
+    color: var(--text-light);
+    padding: var(--space-20) 0;
+    border-bottom: 4px solid var(--sudan-gold);
+    position: relative;
+    overflow: hidden;
+}
+
+.agencies-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(197, 165, 114, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+}
+
+.agencies-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.agencies-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(197, 165, 114, 0.14);
+    color: var(--accent-gold);
+    border: 1px solid rgba(197, 165, 114, 0.75);
+    border-radius: var(--radius-full);
+    padding: var(--space-1) var(--space-4);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-5);
+}
+
+.agencies-hero h1 {
+    color: var(--text-light);
+    font-size: var(--heading-h1);
+    font-weight: var(--weight-extrabold);
+    max-width: 720px;
+    margin-bottom: var(--space-5);
+}
+
+.agencies-hero p {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: var(--text-lg);
+    max-width: 650px;
+}
+
+.agencies-summary-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2xl);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+}
+
+.agencies-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.agencies-summary-row span {
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: var(--weight-semibold);
+}
+
+.agencies-summary-row strong {
+    color: var(--accent-gold);
+    font-family: var(--font-heading);
+    font-size: var(--heading-h4);
+}
+
+.agencies-summary-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: var(--text-sm);
+    background: rgba(15, 31, 46, 0.28);
+}
+
+.agencies-summary-footer i {
+    color: var(--accent-gold);
+    font-size: 20px;
+}
+
+.agencies-category-nav {
+    background: var(--primary-dark);
+    padding: var(--space-4) 0;
+}
+
+.agencies-category-nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.agencies-category-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-light) !important;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    transition: all var(--transition-base);
+}
+
+.agencies-category-nav a:hover {
+    background: rgba(197, 165, 114, 0.16);
+    border-color: rgba(197, 165, 114, 0.55);
+    transform: translateY(-2px);
+}
+
+.agencies-section-heading {
+    max-width: 760px;
+    margin-bottom: var(--space-8);
+    scroll-margin-top: 90px;
+}
+
+.agencies-section-heading .section-title {
+    margin-bottom: var(--space-4);
+}
+
+.agencies-section-heading p {
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+}
+
+.agency-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-6);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.agency-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sudan-green), var(--sudan-gold), var(--primary-blue));
+}
+
+.agency-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-blue);
+}
+
+.agency-type {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-tertiary);
+    color: var(--primary-blue);
+    border-radius: var(--radius-full);
+    padding: 4px 12px;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    margin-bottom: var(--space-4);
+}
+
+.agency-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-navy);
+    color: var(--text-light);
+    border-radius: var(--radius-md);
+    font-size: 30px;
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-glow);
+}
+
+.agency-card h3 {
+    color: var(--heading-primary);
+    font-size: var(--heading-h5);
+    min-height: 58px;
+    margin-bottom: var(--space-2);
+}
+
+.agency-card p {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-5);
+}
+
+.agency-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.agency-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.agency-card li::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--sudan-green);
+    margin-top: 8px;
+    flex: 0 0 auto;
+}
+
+.agencies-cta {
+    padding: var(--space-16) 0;
+}
+
+.agencies-cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    background: var(--gradient-navy-subtle);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(197, 165, 114, 0.35);
+    border-bottom: 4px solid var(--sudan-gold);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-8);
+}
+
+.agencies-cta-inner span {
+    color: var(--accent-gold);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+}
+
+.agencies-cta-inner h2 {
+    color: var(--text-light);
+    margin: var(--space-3) 0;
+}
+
+.agencies-cta-inner p {
+    color: rgba(255, 255, 255, 0.68);
+    margin: 0;
+}
+
+.agencies-cta-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: var(--sudan-gold);
+    color: var(--primary-dark) !important;
+    border: 1px solid var(--sudan-gold);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-6);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    transition: all var(--transition-base);
+}
+
+.agencies-cta-link:hover {
+    color: var(--primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(212, 175, 55, 0.3);
+}
+
+@media (max-width: 991px) {
+    .agencies-hero {
+        padding: var(--space-16) 0;
+    }
+
+    .agencies-summary-panel {
+        max-width: 560px;
+    }
+
+    .agencies-cta-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 767px) {
+    .agencies-hero h1 {
+        font-size: var(--heading-h2);
+    }
+
+    .agencies-hero p,
+    .agencies-section-heading p {
+        font-size: var(--text-base);
+    }
+
+    .agencies-category-nav .container {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .agencies-category-nav a,
+    .agencies-cta-link {
+        width: 100%;
+    }
+
+    .agency-card h3 {
+        min-height: 0;
+    }
+
+    .agencies-cta-inner {
+        padding: var(--space-6);
+    }
+}
 /* End of AI-generated CSS  */

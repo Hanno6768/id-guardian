@@ -18,11 +18,13 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-app.config["NATIONAL_ID_ENCRYPTION_KEY"] = os.getenv("NATIONAL_ID_ENCRYPTION_KEY")
+app.config["NATIONAL_ID_ENCRYPTION_KEY"] = os.getenv(
+    "NATIONAL_ID_ENCRYPTION_KEY")
 app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH"))
 
 # Ensure that the upload folder exists
-app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, os.getenv("UPLOAD_FOLDER"))
+app.config["UPLOAD_FOLDER"] = os.path.join(
+    app.root_path, os.getenv("UPLOAD_FOLDER"))
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Enable debug mode
@@ -48,12 +50,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+
 @login_manager.user_loader
 def load_user(user_id):
     # model method that returns user by their id
     return User.get_by_id(int(user_id))
 
 # ------- Error Handlers --------------------------------------------
+
 
 @app.errorhandler(RequestEntityTooLarge)
 def handle_large_file(e):
@@ -62,6 +66,8 @@ def handle_large_file(e):
 # ------- Routes ----------------------------------------------------
 
 # Home page
+
+
 @app.route('/')
 @app.route("/home")
 def home():
@@ -77,15 +83,17 @@ def home():
     # national_id_fast = national_id_hash[-10:]
     # role = "admin"
     # db.execute("""
-    #                  INSERT INTO users (username, 
-    #             password_hash, national_id_hash, full_name, 
-    #             birthdate, contact_email, contact_phone, verified_at, 
+    #                  INSERT INTO users (username,
+    #             password_hash, national_id_hash, full_name,
+    #             birthdate, contact_email, contact_phone, verified_at,
     #             national_id_fast, role) VALUES (?,?,?,?,?,?,?,?,?,?)
     #             """, username, password_hash, national_id_hash, full_name, birthdate,
     #             contact_email, contact_phone, verified_at, national_id_fast, role)
     return render_template("home.html")
 
 # log user in
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -120,21 +128,24 @@ def login():
                 login_user(user)
                 flash("You have successfully logged in!", "success")
                 if user.role == "admin":
-                    return redirect("/admin_dashboard")
+                    return redirect("/admin-dashboard")
                 elif user.role == "reviewer":
-                    return redirect("/reviewer_dashboard")
+                    return redirect("/reviewer-dashboard")
                 else:
-                    return redirect("user_dashboard")
+                    return redirect("/user-dashboard")
             else:
                 flash("Invalid credentials", "danger")
                 return redirect("/login")
 
-# log user out           
+# log user out
+
+
 @app.route("/logout")
 def logout():
     logout_user()
     flash("You have been logged out", "success")
     return redirect("/login")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -142,7 +153,7 @@ def register():
     # if user is already logged in they can't register
     if current_user.is_authenticated:
         return redirect(url_for("user_dashboard"))
-    
+
     if request.method == "GET":
         return render_template("register.html")
     else:
@@ -156,12 +167,12 @@ def register():
 
         # Placing the required field in a dictionary in oreder to iterate
         required_fields = {
-            "Full name" : full_name,
-            "Birthdate" : birthdate,
-            "Email" : email,
-            "Phone number" : phone,
-            "Username" : username,
-            "National ID number" : national_id
+            "Full name": full_name,
+            "Birthdate": birthdate,
+            "Email": email,
+            "Phone number": phone,
+            "Username": username,
+            "National ID number": national_id
         }
 
         # Iterate over the required fields to make sure they are provide
@@ -169,7 +180,7 @@ def register():
             if not value:
                 flash(f"Please fill in your {key} field", "warning")
                 return redirect("/register")
-        
+
         # Check if there is a document uploaded
         if not document or document.filename == "":
             flash("Please upload your ID document file", "warning")
@@ -179,10 +190,10 @@ def register():
         if not allowed_extensions(document.filename):
             flash("The Document format you uploaded is not supported", "warning")
             return redirect("/register")
-            
+
         # Validate the national_id
         if not national_id.isdigit() or len(national_id) != 11:
-            flash ("National ID Number must be exactly 11 digits", "warning")
+            flash("National ID Number must be exactly 11 digits", "warning")
             return redirect("/register")
 
         # Insert information in identities table and check if data is unique
@@ -219,9 +230,10 @@ def register():
         # Insert Object into pending_verifications table
         pending_id = user.insert_to_pending()
         user.id = pending_id
-        
+
         # Encrypt national id and insert into national_id_encrypted
-        encrypted = EncryptedNationalID(pending_id=pending_id, user_id=None, national_id_plain=national_id)
+        encrypted = EncryptedNationalID(
+            pending_id=pending_id, user_id=None, national_id_plain=national_id)
         encrypted.encrypt()
         encrypted.insert()
 
@@ -229,7 +241,7 @@ def register():
         email_success = send_email_verification_email(user)
 
         if email_success:
-            # set the registeration started session to true so user can only open the 
+            # set the registeration started session to true so user can only open the
             # /check_inbox after submitting the register form
             session["registration_started"] = True
             flash("A message was sent to your inbox", "info")
@@ -240,12 +252,14 @@ def register():
         # redirect user to /check_inbox route
         return redirect(url_for("check_inbox"))
 
-@app.route("/check_inbox")
+
+@app.route("/check-inbox")
 def check_inbox():
 
     if not session.get("registration_started"):
         return redirect(url_for("register"))
     return render_template("check_inbox.html")
+
 
 @app.route("/verify_email/<token>")
 def verify_email(token):
@@ -253,25 +267,25 @@ def verify_email(token):
     # redirect logged in users
     if current_user.is_authenticated:
         return redirect(url_for("user_dashboard"))
-    
+
     # make sure registration in progress
     elif not session.get("registration_started"):
         return redirect(url_for("register"))
-    
+
     # validate the token
     else:
         s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
-        try :
+        try:
             id = s.loads(
                 token,
-                salt = "email-verification",
-                max_age = 1800
+                salt="email-verification",
+                max_age=1800
             )
         except SignatureExpired:
-        # 1. Isolate the payload (the part before the first dot)
-            payload_part = token.split('.')[0] 
-        
+            # 1. Isolate the payload (the part before the first dot)
+            payload_part = token.split('.')[0]
+
             try:
                 # 2. Decode ONLY that first part
                 # Use .encode('utf-8') to satisfy the bytes requirement we saw earlier
@@ -287,50 +301,57 @@ def verify_email(token):
         except BadSignature:
             flash("Invalid verification request", "error")
             return redirect(url_for("register"))
-        
+
         # see if user's email exist in the database
         user = PendingUser.get_by_id(id)
 
         if not user:
             flash("Invalid verification request", "error")
             return redirect(url_for("register"))
-        else: 
+        else:
             user.update_email_status(user.contact_email)
             session.pop("registration_started", None)
-            flash("Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
+            flash(
+                "Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
-                
-@app.route("/user_dashboard")
+
+
+@app.route("/user-dashboard")
 @login_required
 @roles_required("user", "admin")
 def user_dashboard():
     return render_template("user_dashboard.html", user=current_user)
 
-@app.route("/reviewer_dashboard")
+
+@app.route("/reviewer-dashboard")
 @login_required
 @roles_required("admin", "reviewer")
 def reviewer_dashboard():
-    
+
     # Get all the pending users
     pending_users = PendingUser.get_verified_pending_users()
 
     # Decrypt the national ID number
     for user in pending_users:
-        user["national_id"] = decrypt_national_id(user["national_id_ciphertext"])
+        user["national_id"] = decrypt_national_id(
+            user["national_id_ciphertext"])
 
     return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users)
 
-@app.route("/admin_dashboard")
+
+@app.route("/admin-dashboard")
 @login_required
 @roles_required("admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", user=current_user)       
+    return render_template("admin_dashboard.html", user=current_user)
+
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     return render_template("reset-password.html")
 
-@app.route("/review_user/<int:pending_id>", methods=["POST"])
+
+@app.route("/review-user/<int:pending_id>", methods=["POST"])
 @login_required
 @roles_required("admin", "reviewer")
 def review_user(pending_id):
@@ -340,28 +361,43 @@ def review_user(pending_id):
 
     # Check which action was comitted
     if action == "approve":
-        
-        # Update database
-        pending_user = PendingUser()
+        # Create the user in the users table
         pending_user = PendingUser.get_by_id(pending_id)
-        user = User()
-        user_id = pending_user.verify_user(pending_id).id
+        if not pending_user:
+            flash("User not found", "danger")
+            return redirect(url_for("review_queue"))
 
-        user = User.get_by_id(user_id)
+        created = PendingUser.verify_user(pending_id)
+        if not created:
+            flash("Failed to create user record.", "danger")
+            return redirect(url_for("review_queue"))
 
-        email_success = send_set_password_email(user)
+        user = User.get_by_id(created.id)
+
+        # Try sending set-password email, but proceed with cleanup regardless of email outcome
+        email_success = False
+        try:
+            email_success = send_set_password_email(user)
+        except Exception as e:
+            app.logger.error(f"Error sending set-password email: {e}")
+
+        # Remove pending records (pending_verifications row and associated encrypted national id)
+        try:
+            pending_user.delete_user()
+            # also remove any encrypted national id entries for this pending id
+            db.execute(
+                "DELETE FROM national_id_encrypted WHERE pending_id = ?", pending_id)
+        except Exception as e:
+            app.logger.error(
+                f"Error cleaning up pending records for id {pending_id}: {e}")
 
         if email_success:
-            # Delete the user from the pending_verifications & identities tables
-            pending_user.delete_user()
-
-            flash("user approved", "success")
+            flash("User approved", "success")
         else:
-            flash("We couldn't notify the user. Please try again later", "warning")
-            return redirect(url_for("reviewer_dashboard"))
+            flash("User approved but we couldn't send the notification email. Please try resending manually.", "warning")
 
-        return redirect(url_for("reviewer_dashboard"))
-    
+        return redirect(url_for("review_queue"))
+
     elif action == "reject":
 
         # Get message from form
@@ -370,28 +406,28 @@ def review_user(pending_id):
         # Make sure there is a message
         if not message:
             flash("Please provide a reason for rejection", "warning")
-            return redirect(url_for("reviewer_dashboard"))
-        
+            return redirect(url_for("review_queue"))
+
         # Get user data before deletion
-        pending_user = PendingUser.get_by_id(user_id)
-        
+        pending_user = PendingUser.get_by_id(pending_id)
+
         if not pending_user:
             flash("User not found", "danger")
-            return redirect(url_for("reviewer_dashboard"))
-        
+            return redirect(url_for("review_queue"))
+
         # Log the rejection reason in the registeration_reviews table
         PendingUser.log_rejection(
-            user_id=user_id,
+            user_id=pending_id,
             reviewer_name=current_user.full_name,
             rejection_reason=message,
             file_path=pending_user.file_path
         )
-        
+
         # Send rejection email to user
         subject = "Your SudaGuardian Application Status"
         recipients = [pending_user.contact_email]
         template = "rejection_email.html"
-        
+
         email_success = send_mail(
             subject=subject,
             recipients=recipients,
@@ -399,16 +435,34 @@ def review_user(pending_id):
             name=pending_user.full_name,
             reviewer_message=message
         )
-        
-        if email_success:
-            # Delete the user from the pending_verifications table
+
+        # Clean up identities, pending_verifications and encrypted national id regardless of email result
+        try:
             pending_user.delete_from_identities()
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting identities for pending {pending_id}: {e}")
+
+        try:
+            pending_user.delete_user()
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting pending_verifications for pending {pending_id}: {e}")
+
+        try:
+            db.execute(
+                "DELETE FROM national_id_encrypted WHERE pending_id = ?", pending_id)
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting encrypted national id for pending {pending_id}: {e}")
+
+        if email_success:
             flash("User rejected and notification email sent", "success")
         else:
-            flash("We couldn't send the notification email, Please try again", "warning")
-        
-        return redirect(url_for("reviewer_dashboard"))
-    
+            flash("User rejected; notification email failed to send.", "warning")
+
+        return redirect(url_for("review_queue"))
+
     elif action == "request_correction":
 
         # Get message from form
@@ -417,27 +471,27 @@ def review_user(pending_id):
         # Make sure there is a message
         if not message:
             flash("Please provide a reason for correction request", "warning")
-            return redirect(url_for("reviewer_dashboard"))
-        
-        pending_user = PendingUser.get_by_id(user_id)
-        
+            return redirect(url_for("review_queue"))
+
+        pending_user = PendingUser.get_by_id(pending_id)
+
         if not pending_user:
             flash("User not found", "danger")
-            return redirect(url_for("reviewer_dashboard"))
-        
+            return redirect(url_for("review_queue"))
+
         # Log the correction request in the registeration_reviews table
         PendingUser.log_correction_request(
-            user_id=user_id,
+            user_id=pending_id,
             reviewer_name=current_user.full_name,
             correction_reason=message,
             file_path=pending_user.file_path
         )
-        
+
         # Send correction request email to user
         subject = "Action Required: Resubmit Information for SudaGuardian Application"
         recipients = [pending_user.contact_email]
         template = "correction_request_email.html"
-        
+
         email_success = send_mail(
             subject=subject,
             recipients=recipients,
@@ -445,47 +499,67 @@ def review_user(pending_id):
             name=pending_user.full_name,
             reviewer_message=message
         )
-        
-        if email_success:
-            # TODO : get the data that needs correction from the pending_user object and prefill the registeration form with it
+
+        # Remove identities and pending records so user can re-register (keep encrypted id as well)
+        try:
             pending_user.delete_from_identities()
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting identities for pending {pending_id}: {e}")
+
+        try:
+            pending_user.delete_user()
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting pending_verifications for pending {pending_id}: {e}")
+
+        try:
+            db.execute(
+                "DELETE FROM national_id_encrypted WHERE pending_id = ?", pending_id)
+        except Exception as e:
+            app.logger.error(
+                f"Error deleting encrypted national id for pending {pending_id}: {e}")
+
+        if email_success:
             flash("Correction request sent to user", "success")
         else:
-            flash("Correction request logged but we couldn't send the notification email", "warning")
-        
-        return redirect(url_for("reviewer_dashboard"))
+            flash(
+                "Correction request logged but we couldn't send the notification email", "warning")
+
+        return redirect(url_for("review_queue"))
 
     else:
-        return redirect(url_for("reviewer_dashboard"))
+        return redirect(url_for("review_queue"))
 
-@app.route("/set_password/<token>", methods=["GET", "POST"])
+
+@app.route("/set-password/<token>", methods=["GET", "POST"])
 def set_password(token):
     # complete logic for setting the password
     if current_user.is_authenticated:
         return redirect(url_for("user_dashboard"))
-    
+
     s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
     try:
         # detokenize the token
         user_id = s.loads(
             token,
-            salt = "password-set-salt",
-            max_age = 86400
+            salt="password-set-salt",
+            max_age=86400
         )
     except SignatureExpired:
-        payload_part = token.split('.')[0] 
-    
+        payload_part = token.split('.')[0]
+
         try:
             # 3. Decode only that first part
             user_id = s.load_payload(payload_part.encode('utf-8'))
         except Exception as e:
             print(f"Extraction Error: {e}")
-            user_id = None # Fallback if even that fails
+            user_id = None  # Fallback if even that fails
 
         if user_id:
 
-        # store data in a seesion to avoid manual url tampering
+            # store data in a seesion to avoid manual url tampering
             session["expired_user_id"] = user_id
             session["expired_source"] = "set_password"
 
@@ -494,11 +568,11 @@ def set_password(token):
         else:
             flash("the link is expired and can not be recovered.", "error")
             return redirect(url_for("login"))
-        
+
     except BadSignature:
-            flash("Invalid password reset request", "error")
-            return redirect(url_for("login"))
-    
+        flash("Invalid password reset request", "error")
+        return redirect(url_for("login"))
+
     # When user submits form
     if request.method == "POST":
         password = request.form.get("password")
@@ -507,15 +581,15 @@ def set_password(token):
         if not password or not confirmation:
             flash("Please fill in both fields.", "warning")
             return redirect(url_for("set_password", token=token))
-        
+
         if password != confirmation:
             flash("Passwords does not match.", "danger")
             return redirect(url_for("set_password", token=token))
-        
+
         # hash the password and update the user record
-        password_success = User.update_password(id, password)
+        password_success = User.update_password(user_id, password)
         if password_success:
-            user_to_login = User.get_by_id(id)
+            user_to_login = User.get_by_id(user_id)
 
             if user_to_login:
                 flash("Welcome! Your password has been set successfully.", "success")
@@ -525,10 +599,10 @@ def set_password(token):
                 flash("Something went wrong. Please try logging in.", "warning")
                 return redirect(url_for("login"))
         else:
-            flash("Something went wrong. Please try again later.","warning")
+            flash("Something went wrong. Please try again later.", "warning")
             return redirect(url_for("set_password", token=token))
-        
-    elif request.method == "GET":    
+
+    elif request.method == "GET":
 
         # add a landing page for the user where the user submits a form
 
@@ -536,15 +610,15 @@ def set_password(token):
         if not user:
             flash("Invalid password reset request", "error")
             return redirect(url_for("login"))
-        
 
-        return render_template("set_password.html", full_name=user.full_name)
- 
-@app.route("/link_expired", methods=["GET", "POST"])
+        return render_template("set_password.html", full_name=user.full_name, token=token)
+
+
+@app.route("/link-expired", methods=["GET", "POST"])
 def link_expired():
     source = session.get("expired_source")
     user_id = session.get("expired_user_id")
-    
+
     # Security check: if no session data, kick to home
     if not source or not user_id:
         return redirect(url_for("home"))
@@ -556,12 +630,12 @@ def link_expired():
             button_text = "Request New Link"
         else:
             return redirect(url_for("home"))
-        
+
         return render_template("link_expired.html", button_text=button_text)
 
     # --- POST Logic ---
     email_success = False
-    
+
     if source == "verify_email":
         user = PendingUser.get_by_id(user_id)
         if user:
@@ -583,53 +657,66 @@ def link_expired():
         session.pop("expired_source", None)
         session.pop("expired_user_id", None)
         flash("A new link has been sent to your inbox.", "info")
-        
-        return redirect(url_for("check_inbox")) 
+
+        return redirect(url_for("check_inbox"))
     else:
         flash("We couldn't send the email. Please try again later.", "error")
         return redirect(url_for("login"))
-    
+
 
 @app.route("/about-sudan")
 def about_sudan():
     return render_template("about_sudan.html")
 
+
 @app.route("/my-documents")
 @login_required
 def my_documents():
     docs = [
-        { "id": 1, "name": "Passport",             "type": "passport",             "status": "verified", "issued": "12 Jan 2021", "hasFile": True  },
-        { "id": 2, "name": "National ID",          "type": "national_id",          "status": "verified", "issued": "5 Mar 2022",  "hasFile": True  },
-        { "id": 3, "name": "Driving licence",      "type": "driving_license",      "status": "pending",  "issued": "—",           "hasFile": True  },
-        { "id": 4, "name": "Birth certificate",    "type": "birth_certificate",    "status": "rejected", "issued": "—",           "hasFile": True  },
-        { "id": 5, "name": "Marriage certificate", "type": "marriage_certificate", "status": "verified",  "issued": "—",           "hasFile": True },
-        { "id": 6, "name": "Nationality card",     "type": "nationality_card",     "status": "pending", "issued": "-",  "hasFile": False  },
+        {"id": 1, "name": "Passport",             "type": "passport",
+            "status": "verified", "issued": "12 Jan 2021", "hasFile": True},
+        {"id": 2, "name": "National ID",          "type": "national_id",
+            "status": "verified", "issued": "5 Mar 2022",  "hasFile": True},
+        {"id": 3, "name": "Driving licence",      "type": "driving_license",
+            "status": "pending",  "issued": "—",           "hasFile": True},
+        {"id": 4, "name": "Birth certificate",    "type": "birth_certificate",
+            "status": "rejected", "issued": "—",           "hasFile": True},
+        {"id": 5, "name": "Marriage certificate", "type": "marriage_certificate",
+            "status": "verified",  "issued": "—",           "hasFile": True},
+        {"id": 6, "name": "Nationality card",     "type": "nationality_card",
+            "status": "pending", "issued": "-",  "hasFile": False},
     ]
     return render_template("my_documents.html", docs=docs)
+
 
 @app.route("/history")
 @login_required
 def history():
     return render_template("history.html")
 
+
 @app.route("/my-profile")
 @login_required
 def my_profile():
     return render_template("my_profile.html")
+
 
 @app.route("/settings")
 @login_required
 def settings():
     return render_template("settings.html")
 
+
 @app.route("/notifications")
 @login_required
 def notifications():
     return render_template("notifications.html")
 
+
 @app.route("/help-and-support")
 def help_and_support():
     return render_template("help_and_support.html")
+
 
 @app.route("/review-queue")
 @login_required
@@ -640,32 +727,39 @@ def review_queue():
 
     # Decrypt the national ID number
     for user in pending_users:
-        user["national_id"] = decrypt_national_id(user["national_id_ciphertext"])
+        user["national_id"] = decrypt_national_id(
+            user["national_id_ciphertext"])
 
     return render_template("review_queue.html", current_user=current_user, pending_users=pending_users)
 
-@app.route("/reviewed_documents")
+
+@app.route("/reviewed-documents")
 @login_required
 @roles_required("admin", "reviewer")
 def reviewed_documents():
     return render_template("reviewed_documents.html")
 
+
 @app.route("/privacy-policy")
 def privacy_policy():
     return render_template("privacy_policy.html")
+
 
 @app.route("/terms-and-conditions")
 def terms_and_conditions():
     return render_template("terms_and_conditions.html")
 
+
 @app.route("/report-bugs")
 def report_bugs():
     return render_template("report-bugs.html")
 
-@app.route("/my-documents/upload-document")
+
+@app.route("/my-documents/upload-document" methods=["GET", "POST"])
 @login_required
 def upload_document():
     return render_template("upload_document.html")
+
 
 @app.route("/system-settings")
 @login_required
@@ -673,15 +767,23 @@ def upload_document():
 def system_settings():
     return render_template("system_settings.html")
 
+
 @app.route("/manage-users")
 @login_required
 @roles_required("admin")
 def manage_users():
     return render_template("manage_users.html")
 
+
 @app.route("/services")
 def services():
     return render_template("services.html")
+
+
+@app.route("/agencies")
+def agencies():
+    return render_template("agencies.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
