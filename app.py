@@ -755,7 +755,7 @@ def report_bugs():
     return render_template("report-bugs.html")
 
 
-@app.route("/my-documents/upload-document" methods=["GET", "POST"])
+@app.route("/my-documents/upload-document", methods=["GET", "POST"])
 @login_required
 def upload_document():
     return render_template("upload_document.html")
