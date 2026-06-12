@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from flask_login import UserMixin
 from datetime import datetime
-from helpers import encrypt_national_id, decrypt_national_id
+from helpers import encrypt_national_id, decrypt_national_id, STANDARD_DOCUMENTS
 
 db = SQL("sqlite:///idguardian.db")
 
@@ -496,14 +496,14 @@ class EncryptedNationalID():
 
 
 class Document():
-    def __init__(self, id=None, user_id=None, document_type=None, document_number=None, original_filename=None, file_path=None, mimetyoe=None, size=None, uploaded_at=None, has_file=None, status=None, approved_at=None, qr_token=None, updated_at=None):
+    def __init__(self, id=None, user_id=None, document_type=None, document_number=None, original_filename=None, file_path=None, mimetype=None, size=None, uploaded_at=None, has_file=None, status=None, approved_at=None, qr_token=None, updated_at=None, issued=None):
         self.id = id
         self.user_id = user_id
         self.document_type = document_type
         self.document_number = document_number
         self.original_filename = original_filename
         self.file_path = file_path
-        self.mimetype = mimetyoe
+        self.mimetype = mimetype
         self.size = size
         self.uploaded_at = uploaded_at
         self.has_file = has_file
@@ -511,6 +511,7 @@ class Document():
         self.approved_at = approved_at
         self.qr_token = qr_token
         self.updated_at = updated_at
+        self.issued = issued
 
     @staticmethod
     def get_by_user(user_id):
@@ -534,7 +535,8 @@ class Document():
                     status=row["status"],
                     approved_at=row["approved_at"],
                     qr_token=row["qr_token"],
-                    updated_at=row["updated_at"]
+                    updated_at=row["updated_at"],
+                    issued=row["issued"]
                 ))
             return documents
         else:
@@ -561,7 +563,8 @@ class Document():
                 status=row["status"],
                 approved_at=row["approved_at"],
                 qr_token=row["qr_token"],
-                updated_at=row["updated_at"]
+                updated_at=row["updated_at"],
+                issued=row["issued"]
             )
         else:
             return None
@@ -587,15 +590,18 @@ class Document():
                 status=row["status"],
                 approved_at=row["approved_at"],
                 qr_token=row["qr_token"],
-                updated_at=row["updated_at"]
+                updated_at=row["updated_at"],
+                issued=row["issued"]
             )
         else:
             return None
 
     @staticmethod
-    def create_placeholder(user_id, document_type, name):
-        """Initializes a document entry in the documents table with has_file = 0"""
-        return db.exceute("INSERT INTO documents (user_id, document_type, name, has_file, status, updated_at) VALUES (?, ?, ?, 0, 'not_uploaded', ?)", user_id, document_type, name, datetime.now())
+    def create_placeholders_for_user(user_id):
+        """Initializes a documents entry in the documents table with has_file = 0"""
+        for doc_type in STANDARD_DOCUMENTS.keys():
+            db.execute("INSERT INTO documents (user_id, document_type, has_file, status, updated_at) VALUES (?, ?, ?, ?, ?)",
+                       user_id, doc_type, 0, "not_uploaded", datetime.now())
 
     @staticmethod
     def mark_pending(user_id, document_type):
@@ -617,14 +623,15 @@ class Document():
         """Updates the document status to rejected if approval is denied"""
         return db.execute("UPDATE documents SET status = 'rejected' WHERE user_id = ? AND document_type = ?", user_id, document_type)
 
+
 class PendingDocument():
-    def __init__(self, id=None, user_id=None, document_id=None, document_type=None, original_filename=None, filepath=None, mimetype=None, size=None, notes=None, status=None, reviewer_id=None, reviewer_notes=None, submitted_at=None, reviewed_at=None, decision_email_sent=None):
+    def __init__(self, id=None, user_id=None, document_id=None, document_type=None, original_filename=None, file_path=None, mimetype=None, size=None, notes=None, status=None, reviewer_id=None, reviewer_notes=None, submitted_at=None, reviewed_at=None, decision_email_sent=None):
         self.id = id
         self.user_id = user_id
         self.document_id = document_id
         self.document_type = document_type
         self.original_filename = original_filename
-        self.filepath = filepath
+        self.file_path = file_path
         self.mimetype = mimetype
         self.size = size
         self.notes = notes
@@ -636,9 +643,9 @@ class PendingDocument():
         self.decision_email_sent = decision_email_sent
 
     @staticmethod
-    def insert_pending(user_id, document_type, original_filename, filepath, mimetype=None, size=None, notes=None):
+    def insert_pending(user_id, document_id, document_type, original_filename, file_path, mimetype=None, size=None, notes=None):
         """Records a new submission in  the pending_documents table"""
-        return db.execute("INSERT INTO pending_documents (user_id, document_type, original_filename, filepath, mimetype, size, notes, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ,?, ?, ?)", user_id, document_type, original_filename, filepath, mimetype, size, notes, 'pending', datetime.now())
+        return db.execute("INSERT INTO pending_documents (user_id, document_id, document_type, original_filename, file_path, mimetype, size, notes, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user_id, document_id, document_type, original_filename, file_path, mimetype, size, notes, 'pending', datetime.now())
 
     @staticmethod
     def get_queue():
@@ -658,7 +665,7 @@ class PendingDocument():
                 document_id=row["document_id"],
                 document_type=row["document_type"],
                 original_filename=row["original_filename"],
-                filepath=row["filepath"],
+                file_path=row["filepath"],
                 mimetype=row["mimetype"],
                 size=row["size"],
                 notes=row["notes"],
@@ -671,7 +678,7 @@ class PendingDocument():
             )
         else:
             return None
-    
+
     @staticmethod
     def approve(pending_document_id, reviewer_id, reviewer_notes=None):
         """Updates the pending document status to approved and records the reviewer id, notes, and reviewed at timestamp"""
@@ -683,13 +690,14 @@ class PendingDocument():
         """Updates the pending document status to rejected and records the reviewer id, notes, and reviewed at timestamp"""
         reviewed_at = datetime.now()
         return db.execute("UPDATE pending_documents SET status = ?, reviewer_id = ?, reviewer_notes = ?, reviewed_at = ? WHERE id = ?", 'rejected', reviewer_id, reviewer_notes, reviewed_at, pending_document_id)
-    
+
     @staticmethod
     def reject(pending_document_id, reviewer_id, reviewer_notes):
         """Updates the pending document status to correction requested and records the reviewer id, notes, and reviewed at timestamp"""
         reviewed_at = datetime.now()
         return db.execute("UPDATE pending_documents SET status = ?, reviewer_id = ?, reviewer_notes = ?, reviewed_at = ? WHERE id = ?", 'correction_requested', reviewer_id, reviewer_notes, reviewed_at, pending_document_id)
-    
+
+
 class HistoryLog():
     def __init__(self, id=None, actor_user_id=None, target_user_id=None, action=None, entity_type=None, entity_id=None, status=None, description=None, created_at=None):
         self.id = id
@@ -702,7 +710,7 @@ class HistoryLog():
         self.description = description
         self.created_at = created_at
 
-        @staticmethod
-        def log_action(actor_user_id, target_user_id, action, entity_type, entity_id, status, description):
-            """Logs an action in the history_logs table"""
-            return db.execute("INSERT INTO history (actor_user_id, target_user_id, action, entity_type, entity_id, status, description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", actor_user_id, target_user_id, action, entity_type, entity_id, status, description, datetime.now())
+    @staticmethod
+    def log_action(actor_user_id, target_user_id, action, entity_type, entity_id, status, description):
+        """Logs an action in the history_logs table"""
+        return db.execute("INSERT INTO history (actor_user_id, target_user_id, action, entity_type, entity_id, status, description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", actor_user_id, target_user_id, action, entity_type, entity_id, status, description, datetime.now())

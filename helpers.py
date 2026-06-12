@@ -11,6 +11,15 @@ from premailer import transform
 
 ALLOWED_EXTENSIONS = {"png", "jpg","jpeg", "pdf"}
 
+STANDARD_DOCUMENTS = {
+    "passport":"Passport",
+    "national_id":"National ID",
+    "nationality_card":"Nationality Card",
+    "driving_license":"Driving License",
+    "birth_certificate":"Birth Certificate",
+    "marriage_certificate":"Marriage Certificate"
+}
+
 def allowed_extensions(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -153,6 +162,8 @@ def send_email_verification_email(user):
             return True
         else:
             return False
+
+
 
 
 

@@ -93,7 +93,7 @@
         <div class="col-lg-8">
             <div class="upload-form-card rounded-4 p-4 p-md-5">
 
-                <form action="{{ url_for('upload_document') }}" method="POST"
+                <form action="{{ url_for('upload_document', type=doc_type) }}" method="POST"
                       enctype="multipart/form-data" id="uploadForm"
                       class="needs-validation" novalidate>
 

@@ -3,8 +3,8 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
-from models import User, PendingUser, EncryptedNationalID
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email
+from models import User, PendingUser, EncryptedNationalID, Document, PendingDocument, HistoryLog
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.security import generate_password_hash
@@ -12,7 +12,7 @@ import hashlib
 from extensions import mail
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from dotenv import load_dotenv
-import qrcode
+import mimetypes
 
 load_dotenv()
 
@@ -165,7 +165,7 @@ def register():
         national_id = request.form.get("id-num", "").strip().replace(" ", "")
         document = request.files.get("document")
 
-        # Placing the required field in a dictionary in oreder to iterate
+        # Placing the required field in a dictionary in order to iterate
         required_fields = {
             "Full name": full_name,
             "Birthdate": birthdate,
@@ -592,8 +592,13 @@ def set_password(token):
             user_to_login = User.get_by_id(user_id)
 
             if user_to_login:
+
                 flash("Welcome! Your password has been set successfully.", "success")
                 login_user(user_to_login)
+
+                # initialize user documents placeholders
+                Document.create_placeholders_for_user(current_user.id)
+
                 return redirect(url_for("user_dashboard"))
             else:
                 flash("Something went wrong. Please try logging in.", "warning")
@@ -672,21 +677,125 @@ def about_sudan():
 @app.route("/my-documents")
 @login_required
 def my_documents():
-    docs = [
-        {"id": 1, "name": "Passport",             "type": "passport",
-            "status": "verified", "issued": "12 Jan 2021", "hasFile": True},
-        {"id": 2, "name": "National ID",          "type": "national_id",
-            "status": "verified", "issued": "5 Mar 2022",  "hasFile": True},
-        {"id": 3, "name": "Driving licence",      "type": "driving_license",
-            "status": "pending",  "issued": "—",           "hasFile": True},
-        {"id": 4, "name": "Birth certificate",    "type": "birth_certificate",
-            "status": "rejected", "issued": "—",           "hasFile": True},
-        {"id": 5, "name": "Marriage certificate", "type": "marriage_certificate",
-            "status": "verified",  "issued": "—",           "hasFile": True},
-        {"id": 6, "name": "Nationality card",     "type": "nationality_card",
-            "status": "pending", "issued": "-",  "hasFile": False},
-    ]
-    return render_template("my_documents.html", docs=docs)
+
+    docs = {}
+
+    for doc_type, doc_name in STANDARD_DOCUMENTS.items():
+        docs[doc_type] = {
+            "id": None,
+            "name": doc_name,
+            "type": doc_type,
+            "status": "not_uploaded",
+            "issued": "-",
+            "has_file": False,
+            "file_url": None,
+            "qr_link": None
+        }
+
+    user_docs = Document.get_by_user(current_user.id)
+
+    if user_docs:
+        for row in user_docs:
+            doc_type = row.document_type
+            if doc_type in docs:
+                docs[doc_type].update({
+                    "id": row.id,
+                    "status": row.status,
+                    "issued": row.issued or "-",
+                    "has_file": bool(row.has_file),
+                    "file_url": url_for("static", filename=row.file_path) if row.file_path else None,
+                    "qr_link": url_for("verify_document", token=row.qr_token, _external=True) if row.qr_token else None,
+
+                })
+
+    return render_template("my_documents.html", docs=list(docs.values()))
+
+
+@app.route("/my-documents/upload-document", methods=["GET", "POST"])
+@login_required
+def upload_document():
+
+    doc_type = request.args.get("type")
+
+    if not doc_type or doc_type not in STANDARD_DOCUMENTS.keys():
+        return redirect(url_for("my_documents"))
+
+    if request.method == "POST":
+
+        # check if user is authenticated
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
+
+        # load the user's document row
+        document_row = Document.get_by_user_and_type(current_user.id, doc_type)
+
+        if not document_row:
+            flash("Document record not founded", "danger")
+            return redirect(url_for("my_documents"))
+
+        # get fields
+        file = request.files.get("document")
+        notes = request.form.get("notes")
+        declaration = request.form.get("declaration")
+
+        # check fields
+        if not file or file.filename == "":
+            flash("Please select a document file to upload", "warning")
+            return redirect(url_for("upload_document"))
+        if not notes:
+            notes = None
+        if not declaration:
+            flash("Please check the declaration", "warning")
+            return redirect(url_for("my_documents"))
+
+        # check filetype and size
+        if not allowed_extensions(file.filename):
+            flash("The Document format you uploaded is not supported", "warning")
+            return redirect(url_for("upload_document"))
+
+        # Secure and generate new filename
+        filename = secure_filename(file.filename)
+        new_filename = generate_new_filename(filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+
+        # Save the uploaded file
+        file.save(file_path)
+
+        # Relative filepath
+        relative_path = f"uploads/{new_filename}"
+
+        # Mimetype
+        mimetype, _ = mimetypes.guess_type(new_filename)
+
+        # Size
+        size = os.path.getsize(file_path)
+
+        # insert record into the pending documents table
+        pending_document_id = PendingDocument.insert_pending(
+            user_id=current_user.id,
+            document_id=document_row.id,
+            document_type=doc_type,
+            original_filename=filename,
+            file_path=relative_path,
+            mimetype=mimetype,
+            size=size,
+            notes=notes
+        )
+
+        Document.mark_pending(current_user.id, doc_type)
+
+        # log into history
+        HistoryLog.log_action(actor_user_id=current_user.id, target_user_id=current_user.id, action="Document upload",
+                              entity_type="pending_document", entity_id=pending_document_id, status="pending", description=f"{doc_type} submitted for review")
+
+        # flash success message
+        flash("Document submitted for review", "success")
+
+        # redirect user back
+        return redirect(url_for("my_documents"))
+
+    else:
+        return render_template("upload_document.html", doc_type=doc_type)
 
 
 @app.route("/history")
@@ -753,12 +862,6 @@ def terms_and_conditions():
 @app.route("/report-bugs")
 def report_bugs():
     return render_template("report-bugs.html")
-
-
-@app.route("/my-documents/upload-document", methods=["GET", "POST"])
-@login_required
-def upload_document():
-    return render_template("upload_document.html")
 
 
 @app.route("/system-settings")

@@ -125,7 +125,7 @@
 
                 <!-- thumbnail -->
                 <div class="card-thumb {% if not doc.hasFile %}empty{% endif %} ">
-                    {% if doc.hasFile %}
+                    {% if doc.has_file %}
                     {{ render_doc_icon(doc.type) }}
                     <span class="type-lbl">{{ doc.name }}</span>
                     {% else %}
