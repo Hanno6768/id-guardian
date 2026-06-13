@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID, Document, PendingDocument, HistoryLog
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS, generate_document_qr_token
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.security import generate_password_hash
@@ -92,8 +92,6 @@ def home():
     return render_template("home.html")
 
 # log user in
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -138,8 +136,6 @@ def login():
                 return redirect("/login")
 
 # log user out
-
-
 @app.route("/logout")
 def logout():
     logout_user()
@@ -710,6 +706,12 @@ def my_documents():
 
     return render_template("my_documents.html", docs=list(docs.values()))
 
+@app.route("/my-documents/verify-document")
+@login_required
+@roles_required("admin", "reviewer")
+def verify_document():
+    pass
+
 
 @app.route("/my-documents/upload-document", methods=["GET", "POST"])
 @login_required
@@ -831,6 +833,7 @@ def help_and_support():
 @login_required
 @roles_required("admin", "reviewer")
 def review_queue():
+
     # Get all the pending users
     pending_users = PendingUser.get_verified_pending_users()
 
@@ -838,9 +841,129 @@ def review_queue():
     for user in pending_users:
         user["national_id"] = decrypt_national_id(
             user["national_id_ciphertext"])
+        
+    # load pending documents    
+    pending_documents = PendingDocument.get_queue()
 
-    return render_template("review_queue.html", current_user=current_user, pending_users=pending_users)
+    return render_template("review_queue.html", current_user=current_user, pending_users=pending_users, pending_documents=pending_documents)
 
+@app.route("/review-document/<int:pending_document_id>", methods=["POST"])
+@login_required
+@roles_required("admin", "reviewer")
+def review_document(pending_document_id):
+
+    # Get actions
+    action = request.form.get("action")
+
+    # Get message
+    message = request.form.get("message")
+
+    # Load PendingDocument
+    pending_document = PendingDocument.get_by_id(pending_document_id)
+
+    if not pending_document:
+        flash("Document not found", "danger")
+        return redirect(url_for("review_queue"))
+
+    # Load user info
+    info = PendingDocument.get_user_info(pending_document_id)
+
+    if not info:
+        flash("User information not found", "danger")
+        return redirect(url_for("review_queue"))
+    
+    email = info["contact_email"]
+    name = info["full_name"]
+
+    # If action is approve
+    if action == "approve":
+
+        # Generate a unique qr token 
+        qr_token = generate_document_qr_token(pending_document.document_id, pending_document.user_id)
+
+        PendingDocument.approve(pending_document_id, current_user.id, message)
+
+        Document.mark_verified(pending_document.document_id, pending_document.file_path, pending_document.original_filename, pending_document.mimetype, pending_document.size, qr_token)
+
+        subject = f"Status Update: {pending_document.original_filename} Approved"
+        recipients = [email]
+        template = "document_approved_email.html"
+
+        email_success = send_mail(
+            subject=subject,
+            recipients=recipients,
+            template=template,
+            name=name
+        )
+
+        # Log to history
+        HistoryLog.log_action(current_user.id, pending_document.user_id, "document_approved", "document", pending_document.document_id, "approved", description=f"{pending_document.document_type} approved by reviewer")
+
+        if email_success:
+            PendingDocument.set_decision_email_status(pending_document_id)
+            flash("Document approved and notification email sent successfully", "success")
+        else:
+            flash("Document approved and notification email failed", "warning")
+
+        return redirect(url_for("review_queue"))
+
+    # If action is reject | correction requested
+    elif action == "reject" or action == "request_correction":
+
+        # Require message
+        if not message:
+            flash("Please provide a reason for your action")
+            return redirect(url_for("review_queue")) 
+
+        if action == "reject":
+            
+            # Mark rejected
+            PendingDocument.reject(pending_document.id, current_user.id, message)
+            
+            Document.mark_rejected(pending_document.user_id, pending_document.document_type)
+            
+            # set email subject
+            subject = f"Status Update: {pending_document.original_filename} Rejected"
+
+            # Log history
+            HistoryLog.log_action(current_user.id, pending_document.user_id, "document_rejected", "document", pending_document.document_id, "rejected", description=f"{pending_document.document_type} rejected by reviewer")
+
+        else:
+
+            # Mark correction requested
+            PendingDocument.request_correction(pending_document.id, current_user.id, message)
+
+            Document.mark_correction_requested(pending_document.user_id, pending_document.document_type)
+
+            # set email subject
+            subject = f"Status Update: {pending_document.original_filename} Action Needed"
+
+            # Log history
+            HistoryLog.log_action(current_user.id, pending_document.user_id, "correction_requested", "document", pending_document.document_id, "correction requested", description=f"correction requested for {pending_document.document_type} by reviewer")
+
+        recipients = [email]
+        template = "document_approved_email.html"
+
+        email_success = send_mail(
+            subject=subject,
+            recipients=recipients,
+            template=template,
+            name=name,
+            message = message
+        )
+
+        if email_success:
+            PendingDocument.set_decision_email_status(pending_document_id)
+            flash("Action taken and notification email sent successfully", "success")
+        else:
+            flash("Action taken and notification email failed", "warning")
+
+        return redirect(url_for("review_queue"))
+
+    else:
+
+        flash("Invalid action", "danger")
+        return redirect(url_for("review_queue"))
 
 @app.route("/reviewed-documents")
 @login_required

@@ -1,0 +1,21 @@
+{% extends "email_layout.html" %}
+
+{% block title %}Document Approved{% endblock %}
+
+{% block content %}
+    <p>Dear <strong>{{ name }}</strong>,</p>
+
+    <p>Great news! Your submitted document has been reviewed and approved by our verification team.</p>
+
+    <p>Your account and identity verification are now complete, and you may continue using the SudaGuardian portal without interruption.</p>
+
+    {% if next_steps %}
+        <p><strong>Next steps:</strong></p>
+        <p>{{ next_steps }}</p>
+    {% endif %}
+
+    <p style="margin-top: 30px;">
+        Sincerely,<br>
+        <strong>The SudaGuardian Verification Team</strong>
+    </p>
+{% endblock %}

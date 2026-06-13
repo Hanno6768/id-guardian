@@ -302,10 +302,11 @@
     </div>
   </div>
 
+  {% set doc_index = loop.index %}
   {% for action, label, btn in [('request_correction','Send Email & Request','btn-outline-danger'),('reject','Send Email
   & Reject','btn-outline-danger'),('approve','Approve Document','btn-success')] %}
   <div class="modal fade"
-    id="{{ 'request-doc' if action == 'request_correction' else 'reject-doc' if action == 'reject' else 'approve-doc' }}-{{ loop.index }}"
+    id="{{ 'request-doc' if action == 'request_correction' else 'reject-doc' if action == 'reject' else 'approve-doc' }}-{{ doc_index }}"
     tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

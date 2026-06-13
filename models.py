@@ -609,14 +609,16 @@ class Document():
         return db.execute("UPDATE documents SET status = 'pending' WHERE user_id = ? AND document_type = ?", user_id, document_type)
 
     @staticmethod
-    def mark_verified(user_id, document_type):
+    def mark_verified(document_id, file_path, original_filename, mimetype, size, qr_token):
         """Updates the document status to verified once approved and sets has_file = 1"""
-        return db.execute("UPDATE documents SET status = 'verified' WHERE user_id = ? AND document_type = ? AND has_file = 1", user_id, document_type)
+        now = datetime.now()
+
+        return db.execute("UPDATE documents SET has_file = ?, status = ?, file_path = ?, original_filename = ?, mimetype = ?, size = ?, uploaded_at = ?, issued = ?, approved_at = ?, qr_token = ?, updated_at = ? WHERE id = ?", 1, 'verified', file_path, original_filename, mimetype, size, now, now, now, qr_token, now, document_id)
 
     @staticmethod
     def mark_correction_requested(user_id, document_type):
         """Updates the document status to correction requested"""
-        return db.execute("UPDATE documents SET status = 'correction_requsted' WHERE user_id = ? AND document_type = ?", user_id, document_type)
+        return db.execute("UPDATE documents SET status = 'correction_requested' WHERE user_id = ? AND document_type = ?", user_id, document_type)
 
     @staticmethod
     def mark_rejected(user_id, document_type):
@@ -650,7 +652,7 @@ class PendingDocument():
     @staticmethod
     def get_queue():
         """Retieves all submissions with a pending stataus to populate the reviewer dashboard"""
-        return db.execute("SELECT pd.id, pd.user_id, pd.document_type, pd.original_filename, pd.file_path, pd.mimetype, pd.size, pd.notes, pd.status, pd.submitted_at, u.full_name, u.contact_email FROM pending_documents JOIN users u ON pd.user_id = u.id WHERE pd.status = ? ORDER BY submitted_at ASC", 'pending')
+        return db.execute("SELECT pd.id, pd.user_id, pd.document_type, pd.original_filename, pd.file_path, pd.mimetype, pd.size, pd.notes, pd.status, pd.submitted_at, u.full_name, u.contact_email FROM pending_documents pd JOIN users u ON pd.user_id = u.id WHERE pd.status = ? ORDER BY submitted_at ASC", 'pending')
 
     @staticmethod
     def get_by_id(id):
@@ -665,7 +667,7 @@ class PendingDocument():
                 document_id=row["document_id"],
                 document_type=row["document_type"],
                 original_filename=row["original_filename"],
-                file_path=row["filepath"],
+                file_path=row["file_path"],
                 mimetype=row["mimetype"],
                 size=row["size"],
                 notes=row["notes"],
@@ -692,10 +694,25 @@ class PendingDocument():
         return db.execute("UPDATE pending_documents SET status = ?, reviewer_id = ?, reviewer_notes = ?, reviewed_at = ? WHERE id = ?", 'rejected', reviewer_id, reviewer_notes, reviewed_at, pending_document_id)
 
     @staticmethod
-    def reject(pending_document_id, reviewer_id, reviewer_notes):
+    def request_correction(pending_document_id, reviewer_id, reviewer_notes):
         """Updates the pending document status to correction requested and records the reviewer id, notes, and reviewed at timestamp"""
         reviewed_at = datetime.now()
         return db.execute("UPDATE pending_documents SET status = ?, reviewer_id = ?, reviewer_notes = ?, reviewed_at = ? WHERE id = ?", 'correction_requested', reviewer_id, reviewer_notes, reviewed_at, pending_document_id)
+
+    @staticmethod
+    def get_user_info(pending_document_id):
+        """Retrieves the user's name, username, email, and phone number for a pending document."""
+        result = db.execute(
+            "SELECT username, full_name, contact_phone, contact_email FROM users WHERE id = (SELECT user_id FROM pending_documents WHERE id = ?)", pending_document_id)
+        if result:
+            return result[0]
+        else:
+            return None
+
+    @staticmethod
+    def set_decision_email_status(pending_document_id):
+        """Updates the decidion email sent to true if email email was sent successfully"""
+        return db.execute("Update pending_documents SET decision_email_sent = ? WHERE document_id = ?", 1, pending_document_id)
 
 
 class HistoryLog():

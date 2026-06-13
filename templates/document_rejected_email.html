@@ -1,0 +1,28 @@
+{% extends "email_layout.html" %}
+
+{% block title %}Document Rejected{% endblock %}
+
+{% block content %}
+    <p>Dear <strong>{{ name }}</strong>,</p>
+
+    <p>We have completed the review of your submitted document. Unfortunately, it did not meet our verification requirements.</p>
+
+    <p><strong>Reviewer feedback:</strong></p>
+
+    <div class="alert-box alert-danger">
+        <em>"{{ reviewer_message }}"</em>
+    </div>
+
+    <p>Please review the comments above and submit a corrected document so we can continue processing your application.</p>
+
+    {% if resubmit_link %}
+        <div style="text-align: center;">
+            <a href="{{ resubmit_link }}" class="btn-primary">Resubmit Document</a>
+        </div>
+    {% endif %}
+
+    <p style="margin-top: 30px;">
+        Thank you for your attention,<br>
+        <strong>The SudaGuardian Verification Team</strong>
+    </p>
+{% endblock %}

@@ -124,7 +124,7 @@
             <div class="doc-card h-100">
 
                 <!-- thumbnail -->
-                <div class="card-thumb {% if not doc.hasFile %}empty{% endif %} ">
+                <div class="card-thumb {% if not doc.has_file %}empty{% endif %} ">
                     {% if doc.has_file %}
                     {{ render_doc_icon(doc.type) }}
                     <span class="type-lbl">{{ doc.name }}</span>
@@ -151,7 +151,7 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        {% if doc.hasFile %}
+                        {% if doc.has_file %}
                         <button class="btn btn-doc-outline flex-fill rounded-2" data-bs-toggle="modal"
                             data-bs-target="#docModal" data-id="{{ doc.id }}">View Details</button>
                         {% else %}
