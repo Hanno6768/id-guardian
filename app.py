@@ -530,7 +530,7 @@ def review_user(pending_id):
 
 @app.route("/set-password/<token>", methods=["GET", "POST"])
 def set_password(token):
-    # complete logic for setting the password
+
     if current_user.is_authenticated:
         return redirect(url_for("user_dashboard"))
 
@@ -706,12 +706,43 @@ def my_documents():
 
     return render_template("my_documents.html", docs=list(docs.values()))
 
-@app.route("/my-documents/verify-document")
+@app.route("/my-documents/verify_document/<token>")
 @login_required
 @roles_required("admin", "reviewer")
-def verify_document():
-    pass
+def verify_document(token):
 
+    # Decode the token
+    s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+    try:
+
+        payloads = s.loads(
+            token,
+            salt="document-qr"
+        )
+
+    except BadSignature:
+        flash("Invalid verification request", "danger")
+        return redirect(url_for("my_documents"))
+
+    document_id = payloads.get("document_id")
+    user_id = payloads.get("user_id")
+
+    if not document_id or not user_id:
+        flash("Invalid verification request", "danger")
+        return redirect(url_for("my_documents"))
+    
+    document = Document.get_by_id(document_id)
+
+    if not document or document.user_id != user_id or document.qr_token != token:
+        flash("Invalid verification request", "error")
+        return redirect(url_for("my_documents"))
+    
+    user = User.get_by_id(user_id)
+    name = user.full_name
+    birthdate = user.birthdate
+    
+    return render_template("verify_document.html", document=document, name=name, birthdate=birthdate)
 
 @app.route("/my-documents/upload-document", methods=["GET", "POST"])
 @login_required

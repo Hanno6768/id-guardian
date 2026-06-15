@@ -166,7 +166,7 @@ def send_email_verification_email(user):
 # Create qr token 
 def generate_document_qr_token(document_id, user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-    return s.dumps({"docuement_id": document_id, "user_id": user_id}, salt="document-qr")
+    return s.dumps({"document_id": document_id, "user_id": user_id}, salt="document-qr")
 
 
 

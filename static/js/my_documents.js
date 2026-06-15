@@ -19,13 +19,14 @@
     const modalPreview = document.getElementById('modalPreview');
     const modalStatus = document.getElementById('modalStatusLabel');
     const modalIssued = document.getElementById('modalIssuedLabel');
-    const qrImage = document.getElementById('qrImage');
+    const qrContainer = document.getElementById('qrCode');
     const btnDoc = document.getElementById('btnDoc');
     const btnQR = document.getElementById('btnQR');
     const panelDoc = document.getElementById('panelDoc');
     const panelQR = document.getElementById('panelQR');
 
     let activeFilter = 'all';
+    let currentDoc = null;
 
     function getCards() {
         return[...docGrid.querySelectorAll('[data-status]')];
@@ -88,7 +89,26 @@
             panelQR.style.display = '';
             btnDoc.classList.remove('active');
             btnQR.classList.add('active');
+            // Generate QR code when tab is shown
+            if (currentDoc && currentDoc.qr_link) {
+                generateQRCode(currentDoc.qr_link);
+            }
         }
+    }
+
+    function generateQRCode(url) {
+        // Clear previous QR code
+        qrContainer.innerHTML = '';
+        
+        // Generate new QR code
+        new QRCode(qrContainer, {
+            text: url,
+            width: 200,
+            height: 200,
+            colorDark: "#0F1F2E",
+            colorLight: "#E8EDF2",
+            correctLevel: QRCode.CorrectLevel.H
+        });
     }
 
     btnDoc.addEventListener('click', () => showTab('doc'));
@@ -117,14 +137,13 @@
         const doc = docMap[docId];
         if (!doc) return;
 
+        currentDoc = doc;
         showTab('doc');
 
         modalTitle.textContent = doc.name;
         modalTitle.style = "font-size:1.25rem; font-weight:500; text-align:left;";
 
         modalPreview.innerHTML = renderDocPreview(doc);
-
-        qrImage.src = doc.qr_code || '';
 
         modalStatus.textContent = doc.status.charAt(0).toUpperCase() + doc.status.slice(1);
         modalIssued.textContent = doc.issued || '-';
@@ -138,7 +157,8 @@
 
     modalEl.addEventListener('hidden.bs.modal', function () {
         modalPreview.innerHTML = '';
-        qrImage.src = '';
+        qrContainer.innerHTML = '';
+        currentDoc = null;
         showTab('doc');
     })
     

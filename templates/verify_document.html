@@ -1,0 +1,676 @@
+<!-- implemented by claud -->
+{% extends "layout.html" %}
+{% block title %}Document Verification{% endblock %}
+
+{% block head %}
+<style>
+
+.vd-wrapper { padding-bottom: var(--space-16); }
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.vd-header {
+    background: var(--gradient-navy-subtle);
+    border-bottom: 3px solid var(--sudan-gold);
+}
+
+.vd-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(197,165,114,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+}
+
+.vd-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-gold);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    position: relative;
+}
+
+.vd-title {
+    color: var(--text-light);
+    font-size: var(--heading-h2);
+    font-weight: var(--weight-extrabold);
+    letter-spacing: var(--tracking-tight);
+    position: relative;
+}
+
+.vd-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: var(--text-sm);
+    position: relative;
+}
+
+.vd-access-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(197,165,114,0.12);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-full);
+    padding: var(--space-2) var(--space-5);
+    color: var(--accent-gold);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    position: relative;
+}
+
+@media (max-width: 576px) {
+    .vd-header { padding: var(--space-6) !important; }
+    .vd-title  { font-size: var(--heading-h3); }
+    .vd-access-badge { display: none; }
+}
+
+/* ── Result banner ───────────────────────────────────────────────────────── */
+.vd-result-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid transparent;
+}
+
+.vd-result-banner p { font-size: var(--text-sm); margin: 0; }
+.vd-result-banner strong { display: block; font-size: var(--text-base); margin-bottom: 3px; }
+
+.vd-result-verified {
+    background: var(--success-light);
+    border-color: rgba(4,120,87,0.25);
+    color: #064e3b;
+}
+
+.vd-result-pending {
+    background: var(--warning-light);
+    border-color: rgba(217,119,6,0.25);
+    color: #78350f;
+}
+
+.vd-result-rejected {
+    background: var(--error-light);
+    border-color: rgba(220,38,38,0.2);
+    color: #7f1d1d;
+}
+
+.vd-result-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.vd-result-verified  .vd-result-icon { color: var(--success); }
+.vd-result-pending   .vd-result-icon { color: var(--warning); }
+.vd-result-rejected  .vd-result-icon { color: var(--error); }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.vd-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.vd-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.vd-card-header > i {
+    font-size: 20px;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+}
+
+.vd-card-header h5 {
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--heading-primary);
+    margin: 0;
+}
+
+.vd-open-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--primary-blue);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.vd-open-link:hover { color: var(--link-hover); }
+
+.vd-card-body {
+    padding: var(--space-2) 0;
+}
+
+/* ── Info rows ───────────────────────────────────────────────────────────── */
+.vd-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-secondary);
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.vd-info-row:last-child { border-bottom: none; }
+
+.vd-info-row-notes { align-items: flex-start; }
+
+.vd-info-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-weight: var(--weight-medium);
+    flex-shrink: 0;
+}
+
+.vd-info-label i { font-size: 14px; color: var(--primary-blue); }
+
+.vd-info-value {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.vd-mono { font-family: var(--font-monospace); font-size: var(--text-xs); }
+
+/* ── Doc type row ────────────────────────────────────────────────────────── */
+.vd-doc-type-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.vd-doc-icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vd-doc-type-name {
+    display: block;
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--heading-primary);
+    margin-bottom: 2px;
+}
+
+.vd-doc-id {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-family: var(--font-monospace);
+}
+
+/* ── Status badge ────────────────────────────────────────────────────────── */
+.vd-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: var(--radius-full);
+    padding: 3px 12px;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+}
+
+.vd-status-verified { background: var(--success-light); color: var(--success); }
+.vd-status-pending  { background: var(--warning-light); color: var(--warning); }
+.vd-status-rejected { background: var(--error-light);   color: var(--error); }
+
+/* ── QR notice ───────────────────────────────────────────────────────────── */
+.vd-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+}
+
+.vd-notice i {
+    font-size: 20px;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.vd-notice p {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+}
+
+/* ── Document preview area ───────────────────────────────────────────────── */
+.vd-preview-area {
+    min-height: 480px;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.vd-preview-iframe {
+    width: 100%;
+    height: 480px;
+    border: none;
+    display: block;
+}
+
+.vd-preview-img {
+    max-width: 100%;
+    max-height: 480px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    padding: var(--space-4);
+}
+
+.vd-preview-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--space-12);
+}
+
+.vd-preview-empty i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: var(--space-3);
+}
+
+.vd-preview-empty p {
+    font-size: var(--text-sm);
+    margin: 0;
+}
+
+/* ── Reviewer action strip ───────────────────────────────────────────────── */
+.vd-action-strip {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+}
+
+.vd-action-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.vd-action-label i { font-size: 18px; color: var(--primary-blue); }
+
+.vd-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--gradient-navy);
+    color: var(--text-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.vd-btn-primary:hover {
+    background: var(--gradient-blue);
+    color: var(--text-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+/* ── Footer stamp ────────────────────────────────────────────────────────── */
+.vd-footer-stamp {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border-top: 1px solid var(--border-secondary);
+    padding-top: var(--space-5);
+}
+
+.vd-stamp-name {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+}
+
+.vd-stamp-sub {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ── Reuse the same doc icon macro from my_documents ─────────────────────── #}
+{% macro render_doc_icon(type) %}
+  {% if type == 'passport' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle cx="32" cy="26" r="10" fill="#AFA9EC"/>
+    <circle cx="32" cy="26" r="6.5" fill="#EEEDFE"/>
+    <ellipse cx="32" cy="46" rx="13" ry="6" fill="#AFA9EC"/>
+    <rect x="18" y="38" width="28" height="2" rx="1" fill="#7F77DD" opacity=".35"/>
+    <rect x="18" y="43" width="20" height="2" rx="1" fill="#7F77DD" opacity=".35"/>
+  </svg>
+  {% elif type == 'national_id' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+    <circle cx="20" cy="30" r="9" fill="#85B7EB"/>
+    <circle cx="20" cy="30" r="5.5" fill="#E6F1FB"/>
+    <rect x="34" y="22" width="18" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+    <rect x="34" y="29" width="13" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+    <rect x="34" y="36" width="15" height="3" rx="1.5" fill="#378ADD" opacity=".45"/>
+  </svg>
+  {% elif type == 'driving_license' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
+    <rect x="4" y="12" width="56" height="13" rx="5" fill="#97C459" opacity=".4"/>
+    <circle cx="19" cy="34" r="9" fill="#C0DD97"/>
+    <rect x="33" y="27" width="20" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+    <rect x="33" y="34" width="14" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+    <rect x="33" y="41" width="17" height="3" rx="1.5" fill="#639922" opacity=".45"/>
+  </svg>
+  {% elif type == 'birth_certificate' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#FBEAF0" stroke="#D4537E" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20" stroke="#D4537E" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+    <path d="M32 44c0-5.5 7-5.5 7 0s-7 10-7 10-7-4.5-7-10 7-5.5 7 0z" fill="#ED93B1"/>
+  </svg>
+  {% elif type == 'marriage_certificate' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#FAEEDA" stroke="#EF9F27" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20" stroke="#EF9F27" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+    <circle cx="32" cy="47" r="9" fill="none" stroke="#EF9F27" stroke-width="1.5"/>
+    <path d="M27 47l3.5 3.5L37 44" stroke="#BA7517" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  {% elif type == 'nationality_card' %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="12" width="56" height="40" rx="5" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+    <rect x="8" y="16" width="18" height="32" rx="3" fill="#9FE1CB"/>
+    <rect x="31" y="22" width="22" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+    <rect x="31" y="29" width="16" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+    <rect x="31" y="36" width="19" height="3" rx="1.5" fill="#1D9E75" opacity=".45"/>
+  </svg>
+  {% else %}
+  <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="4" width="44" height="56" rx="5" fill="#F1EFF9" stroke="#7F77DD" stroke-width="1.5"/>
+    <path d="M18 17h28M18 24h28M18 31h20M18 38h12" stroke="#7F77DD" stroke-width="1.8" stroke-linecap="round" opacity=".45"/>
+  </svg>
+  {% endif %}
+{% endmacro %}
+
+<div class="vd-wrapper">
+
+    {# ── Page header ──────────────────────────────────────────────────────── #}
+    <div class="vd-header rounded-4 mb-5 p-5 position-relative overflow-hidden">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <p class="vd-eyebrow mb-1">
+                    <i class='bx bx-qr-scan'></i> QR Verification Portal
+                </p>
+                <h1 class="vd-title mb-1">Document Verification</h1>
+                <p class="vd-sub mb-0">
+                    Official SudaGuardian identity document review — authorised personnel only
+                </p>
+            </div>
+            <div class="vd-access-badge">
+                <i class='bx bx-shield-check'></i>
+                <span>{{ current_user.role | capitalize }} Access</span>
+            </div>
+        </div>
+    </div>
+
+    {# ── Verification result banner ────────────────────────────────────────── #}
+    {% if document.status == 'verified' %}
+    <div class="vd-result-banner vd-result-verified mb-4">
+        <div class="vd-result-icon"><i class='bx bxs-check-shield'></i></div>
+        <div>
+            <strong>Document Verified</strong>
+            <p class="mb-0">This document has been reviewed and approved by SudaGuardian. Its authenticity is confirmed.</p>
+        </div>
+    </div>
+    {% elif document.status == 'pending' %}
+    <div class="vd-result-banner vd-result-pending mb-4">
+        <div class="vd-result-icon"><i class='bx bx-time-five'></i></div>
+        <div>
+            <strong>Pending Review</strong>
+            <p class="mb-0">This document has been submitted but is still awaiting reviewer approval. Treat with caution.</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="vd-result-banner vd-result-rejected mb-4">
+        <div class="vd-result-icon"><i class='bx bx-x-circle'></i></div>
+        <div>
+            <strong>Not Verified</strong>
+            <p class="mb-0">This document was rejected or has not passed the verification process.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Two-column layout ────────────────────────────────────────────────── #}
+    <div class="row g-5 align-items-start">
+
+        {# ── Left: identity + document info ──────────────────────────────── #}
+        <div class="col-lg-4">
+
+            {# Identity card #}
+            <div class="vd-card mb-4">
+                <div class="vd-card-header">
+                    <i class='bx bx-user-check'></i>
+                    <h5>Identity Details</h5>
+                </div>
+                <div class="vd-card-body">
+
+                    <div class="vd-info-row">
+                        <span class="vd-info-label">
+                            <i class='bx bx-user'></i> Full Name
+                        </span>
+                        {# Note: the route passes user.contact_phone as 'name' — this appears to be
+                           a bug in the route. Replace with user.full_name when corrected. #}
+                        <span class="vd-info-value">{{ name }}</span>
+                    </div>
+
+                    <div class="vd-info-row">
+                        <span class="vd-info-label">
+                            <i class='bx bx-calendar'></i> Date of Birth
+                        </span>
+                        <span class="vd-info-value">{{ birthdate or '—' }}</span>
+                    </div>
+
+                    <div class="vd-info-row">
+                        <span class="vd-info-label">
+                            <i class='bx bx-fingerprint'></i> User ID
+                        </span>
+                        <span class="vd-info-value vd-mono">#{{ document.user_id }}</span>
+                    </div>
+
+                </div>
+            </div>
+
+            {# Document metadata card #}
+            <div class="vd-card mb-4">
+                <div class="vd-card-header">
+                    <i class='bx bx-file-blank'></i>
+                    <h5>Document Details</h5>
+                </div>
+                <div class="vd-card-body">
+
+                    <div class="vd-doc-type-row">
+                        <div class="vd-doc-icon-wrap">
+                            {{ render_doc_icon(document.doc_type) }}
+                        </div>
+                        <div>
+                            <span class="vd-doc-type-name">
+                                {{ document.doc_type | replace('_', ' ') | title }}
+                            </span>
+                            <span class="vd-doc-id">Document #{{ document.id }}</span>
+                        </div>
+                    </div>
+
+                    <div class="vd-info-row">
+                        <span class="vd-info-label">
+                            <i class='bx bx-check-shield'></i> Status
+                        </span>
+                        <span class="vd-status-badge vd-status-{{ document.status }}">
+                            {% if document.status == 'verified' %}
+                                <i class='bx bxs-check-circle'></i>
+                            {% elif document.status == 'pending' %}
+                                <i class='bx bx-time'></i>
+                            {% else %}
+                                <i class='bx bx-x-circle'></i>
+                            {% endif %}
+                            {{ document.status | capitalize }}
+                        </span>
+                    </div>
+
+                    {% if document.issued_at %}
+                    <div class="vd-info-row">
+                        <span class="vd-info-label">
+                            <i class='bx bx-calendar-check'></i> Issued
+                        </span>
+                        <span class="vd-info-value">
+                            {{ document.issued_at.strftime('%d %b %Y') if document.issued_at else '—' }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if document.notes %}
+                    <div class="vd-info-row vd-info-row-notes">
+                        <span class="vd-info-label">
+                            <i class='bx bx-note'></i> Notes
+                        </span>
+                        <span class="vd-info-value">{{ document.notes }}</span>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            {# QR verification notice #}
+            <div class="vd-notice">
+                <i class='bx bx-qr'></i>
+                <p>
+                    This page was accessed via a cryptographically signed QR code.
+                    The token is bound to this specific document and user —
+                    it cannot be reused for any other record.
+                </p>
+            </div>
+
+        </div>
+
+        {# ── Right: document file preview ─────────────────────────────────── #}
+        <div class="col-lg-8">
+            <div class="vd-card">
+                <div class="vd-card-header">
+                    <i class='bx bx-show'></i>
+                    <h5>Supporting Document</h5>
+                    {% if document.file_path %}
+                    <a href="{{ url_for('static', filename=document.file_path) }}"
+                       target="_blank"
+                       class="vd-open-link ms-auto">
+                        <i class='bx bx-link-external'></i> Open in new tab
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="vd-preview-area">
+                    {% if document.file_path %}
+                        {% set ext = document.file_path.rsplit('.', 1)[-1].lower() %}
+                        {% if ext == 'pdf' %}
+                        <iframe
+                            src="{{ url_for('static', filename=document.file_path) }}"
+                            class="vd-preview-iframe"
+                            frameborder="0">
+                        </iframe>
+                        {% else %}
+                        <img
+                            src="{{ url_for('static', filename=document.file_path) }}"
+                            alt="{{ document.doc_type | replace('_',' ') | title }} document"
+                            class="vd-preview-img">
+                        {% endif %}
+                    {% else %}
+                    <div class="vd-preview-empty">
+                        <i class='bx bx-file-blank'></i>
+                        <p>No file available for this document.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {# Reviewer action strip — only show if document is pending #}
+            {% if document.status == 'pending' %}
+            <div class="vd-action-strip mt-4">
+                <p class="vd-action-label">
+                    <i class='bx bx-info-circle'></i>
+                    This document is pending. You may review it from the queue.
+                </p>
+                <a href="{{ url_for('review_queue') }}" class="vd-btn-primary">
+                    <i class='bx bx-task'></i> Go to Review Queue
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {# ── Footer stamp ─────────────────────────────────────────────────────── #}
+    <div class="vd-footer-stamp mt-5">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="SudaGuardian" height="32">
+        <div>
+            <span class="vd-stamp-name">SudaGuardian</span>
+            <span class="vd-stamp-sub">
+                Verified by GOV.SD Digital Identity Platform &nbsp;·&nbsp;
+                Accessed by {{ current_user.full_name }} ({{ current_user.role | capitalize }})
+            </span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
