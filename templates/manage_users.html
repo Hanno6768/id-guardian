@@ -1,4 +1,4 @@
-<!-- designed usin claude -->
+<!-- designed using claude -->
 {% extends "layout.html" %}
 {% block title %}Manage Users{% endblock %}
 
@@ -28,7 +28,7 @@
         <div class="col-6 col-md-3">
             <div class="mu-stat accent-blue">
                 <div class="mu-stat-icon blue"><i class='bx bx-group'></i></div>
-                <div class="mu-stat-value">{{ verified_users|length if verified_users else '—' }}</div>
+                <div class="mu-stat-value">{{ users|length if users else '—' }}</div>
                 <div class="mu-stat-label">Verified Users</div>
             </div>
         </div>
@@ -60,7 +60,7 @@
         <button class="mu-tab active" data-tab="verified">
             <i class='bx bx-check-circle'></i>
             Verified Users
-            <span class="mu-tab-count">{{ verified_users|length if verified_users else 0 }}</span>
+            <span class="mu-tab-count">{{ users|length if users else 0 }}</span>
         </button>
         <button class="mu-tab" data-tab="pending">
             <i class='bx bx-time'></i>
@@ -107,8 +107,8 @@
                     </thead>
                     <tbody>
 
-                        {% if verified_users %}
-                        {% for u in verified_users %}
+                        {% if users %}
+                        {% for u in users %}
                         <tr data-name="{{ u.full_name | lower }}"
                             data-username="{{ u.username | lower }}"
                             data-email="{{ u.contact_email | lower }}"
@@ -336,63 +336,9 @@
                         {% endfor %}
 
                         {% else %}
-                        {# Static placeholder #}
-                        <tr data-name="omar salih" data-email="omar@example.com">
-                            <td>
-                                <div class="mu-user-cell">
-                                    <div class="mu-avatar mu-avatar-warn">O</div>
-                                    <div>
-                                        <div class="mu-user-name">Omar Salih</div>
-                                        <div class="mu-user-email">omar@example.com</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="mu-mono">@omar_s</td>
-                            <td class="mu-mono">12345678901</td>
-                            <td class="mu-date">2024-01-15</td>
-                            <td><span class="mu-status-badge">● Email Verified</span></td>
-                            <td class="text-end">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="{{ url_for('reviewer_dashboard') }}"
-                                       class="mu-btn-icon mu-btn-view" title="Review">
-                                        <i class='bx bx-show'></i>
-                                    </a>
-                                    <button class="mu-btn-icon mu-btn-delete"
-                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                            data-id="10" data-name="Omar Salih">
-                                        <i class='bx bx-trash'></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr data-name="hana ibrahim" data-email="hana@example.com">
-                            <td>
-                                <div class="mu-user-cell">
-                                    <div class="mu-avatar mu-avatar-warn">H</div>
-                                    <div>
-                                        <div class="mu-user-name">Hana Ibrahim</div>
-                                        <div class="mu-user-email">hana@example.com</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="mu-mono">@hana_i</td>
-                            <td class="mu-mono">98765432100</td>
-                            <td class="mu-date">2024-01-13</td>
-                            <td><span class="mu-status-badge">● Pending</span></td>
-                            <td class="text-end">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="{{ url_for('reviewer_dashboard') }}"
-                                       class="mu-btn-icon mu-btn-view" title="Review">
-                                        <i class='bx bx-show'></i>
-                                    </a>
-                                    <button class="mu-btn-icon mu-btn-delete"
-                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                            data-id="11" data-name="Hana Ibrahim">
-                                        <i class='bx bx-trash'></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                <td colspan="4" class="queue-empty">No pending users.</td>
+              </tr>
                         {% endif %}
 
                     </tbody>
@@ -426,7 +372,7 @@
                         data-bs-dismiss="modal"></button>
             </div>
 
-            <form action="/admin/users/save" method="POST"
+            <form action="{{ url_for('save_user') }}" method="POST"
                   id="userForm" class="needs-validation" novalidate>
 
                 <input type="hidden" name="user_id" id="formUserId" value="">
@@ -470,7 +416,7 @@
                             <div class="invalid-feedback">Phone number is required.</div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6" id="nationalIdField">
                             <label class="mu-label" for="formNationalId">
                                 National ID <span class="text-danger">*</span>
                             </label>

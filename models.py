@@ -129,18 +129,22 @@ class User(UserMixin):
     def insert(self):
         """Insert a user into the users table and returns its id"""
         hashed_password = generate_password_hash(self.password)
-        hashed_national_id = hashlib.sha256(
+        national_id_hash = hashlib.sha256(
             self.national_id.encode("utf_8")).hexdigest()
+        national_id_fast = national_id_hash[-10:]
+
         return db.execute(
-            "INSERT INTO users (username, password_hash, national_id_hash, full_name, birthdate, email, verification_status, verified_at, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (username, password_hash, national_id_hash, national_id_fast, full_name, birthdate, contact_email, contact_phone, verification_status, verified_at, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             self.username,
             hashed_password,
-            hashed_national_id,
+            national_id_hash,
+            national_id_fast,
             self.full_name,
             self.birthdate,
             self.contact_email,
-            self.verification_status,
-            self.verified_at,
+            self.contact_phone,
+            "verified",
+            datetime.now(),
             self.role
         )
 
@@ -159,6 +163,39 @@ class User(UserMixin):
         except Exception as e:
             print(f"Error updating password: {e}")
             return False
+
+    # load all users
+    def load_users():
+        """Load all the users from users table"""
+        result = db.execute(
+            "SELECT id, username, full_name, birthdate, contact_email, contact_phone, verification_status, verified_at, role, profile_picture, address, email_verified FROM users ORDER BY verified_at ASC")
+        if result:
+            return result
+        else:
+            return None
+
+    # update user
+    @staticmethod
+    def update(user_id, original_username, username, full_name, birthdate, email, phone, role):
+        """Updates user details on users & identities tables at a given id and returns the updated row from users table"""
+        result = db.execute("UPDATE users SET username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ?, role = ? WHERE id = ?",
+                            username, full_name, birthdate, email, phone, role, user_id)
+        db.execute("UPDATE identities set username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ? WHERE username = ?",
+                   username, full_name, birthdate, email, phone, original_username)
+        if result:
+            return User.get_by_id(user_id)
+        else:
+            return None
+
+    # delete user
+    @staticmethod
+    def delete_user(user_id, username):
+        """Delete user from users and identities tables using user id"""
+
+        deleted_users = db.execute("DELETE FROM users WHERE id = ?", user_id)
+        db.execute("DELETE FROM identities WHERE username = ?", username)
+
+        return deleted_users
 
 
 class PendingUser():
@@ -428,8 +465,7 @@ class PendingUser():
                             WHERE p.email_verified = 1
                             ORDER BY p.submitted_at ASC
                             """)
-        if result:
-            return result
+        return result or []
 
 
 class EncryptedNationalID():
@@ -652,7 +688,7 @@ class PendingDocument():
     @staticmethod
     def get_queue():
         """Retieves all submissions with a pending stataus to populate the reviewer dashboard"""
-        return db.execute("SELECT pd.id, pd.user_id, pd.document_type, pd.original_filename, pd.file_path, pd.mimetype, pd.size, pd.notes, pd.status, pd.submitted_at, u.full_name, u.contact_email FROM pending_documents pd JOIN users u ON pd.user_id = u.id WHERE pd.status = ? ORDER BY submitted_at ASC", 'pending')
+        return db.execute("SELECT pd.id, pd.user_id, pd.document_type, pd.original_filename, pd.file_path, pd.mimetype, pd.size, pd.notes, pd.status, pd.submitted_at, u.full_name, u.contact_email FROM pending_documents pd JOIN users u ON pd.user_id = u.id WHERE pd.status = ? ORDER BY submitted_at ASC", 'pending') or []
 
     @staticmethod
     def get_by_id(id):

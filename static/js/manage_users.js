@@ -100,6 +100,8 @@
     const formPassword = document.getElementById('formPassword');    
     const createNotice = document.getElementById('createNotice');    
     const formUserId = document.getElementById('formUserId');    
+    const nationalIdField = document.getElementById('nationalIdField');
+    const nationalIdInput = document.getElementById('formNationalId');
 
     // open modal in create user mode
     const btnNewUser = document.getElementById('btnNewUser');
@@ -127,6 +129,11 @@
             setField('formEmail', btn.dataset.email || '');
             setField('formPhone', btn.dataset.phone || '');
             setField('formRole', btn.dataset.role || '');
+            if (nationalIdField) nationalIdField.style.display = 'none';
+            if (nationalIdInput) {
+                nationalIdInput.required = false;
+                nationalIdInput.value = '';
+            }
         });
 
         // remove the was-validated class on modal hide
@@ -148,7 +155,9 @@
             if (passwordField) passwordField.style.display = '';            
             if (formPassword) formPassword.required = true;
             if (createNotice) createNotice.style.display = '';            
-            if (formUserId) formUserId.value = '';                
+            if (formUserId) formUserId.value = '';               
+            if (nationalIdField) nationalIdField.style.display = '';
+            if (nationalIdInput) nationalIdInput.required = true;
         } else {
             if (formTitle) formTitle.textContent = 'Edit User';           
             if (formSub) formSub.textContent = 'Update role or contact details.';           
@@ -157,6 +166,8 @@
             if (passwordField) passwordField.style.display = 'none';            
             if (formPassword) formPassword.required = false;
             if (createNotice) createNotice.style.display = 'none';                           
+            if (nationalIdField) nationalIdField.style.display = 'none';                         
+            if (nationalIdInput) nationalIdInput.required = false;                           
         }
     }
 
@@ -169,25 +180,8 @@
         if (userForm) userForm.reset();
     }
 
-    const natIdInput = document.getElementById('formNationalId');
-    if (natIdInput) {
-        natIdInput.addEventListener('input', (e) => {
-            // Remove non-digit characters
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
-        });
-    }
-
     if (userForm) {
         userForm.addEventListener('submit', (e) => {
-            const natId = document.getElementById('formNationalId');
-            if (natId && natId.closest('[style*="display"]') === null) {
-                if (!/^\d{11}$/.test(natId.value)) {
-                    natId.setCustomValidity('National ID must be exactly 11 digits.');
-                } else {
-                    natId.setCustomValidity('');
-                }
-            }
-
             if (!userForm.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();

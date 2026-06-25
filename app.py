@@ -92,6 +92,8 @@ def home():
     return render_template("home.html")
 
 # log user in
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -141,7 +143,6 @@ def logout():
     logout_user()
     flash("You have been logged out", "success")
     return redirect("/login")
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -248,14 +249,12 @@ def register():
         # redirect user to /check_inbox route
         return redirect(url_for("check_inbox"))
 
-
 @app.route("/check-inbox")
 def check_inbox():
 
     if not session.get("registration_started"):
         return redirect(url_for("register"))
     return render_template("check_inbox.html")
-
 
 @app.route("/verify_email/<token>")
 def verify_email(token):
@@ -311,13 +310,11 @@ def verify_email(token):
                 "Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
 
-
 @app.route("/user-dashboard")
 @login_required
 @roles_required("user", "admin")
 def user_dashboard():
     return render_template("user_dashboard.html", user=current_user)
-
 
 @app.route("/reviewer-dashboard")
 @login_required
@@ -327,13 +324,17 @@ def reviewer_dashboard():
     # Get all the pending users
     pending_users = PendingUser.get_verified_pending_users()
 
-    # Decrypt the national ID number
-    for user in pending_users:
-        user["national_id"] = decrypt_national_id(
-            user["national_id_ciphertext"])
+    if pending_users:
 
-    return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users)
+        # Decrypt the national ID number
+        for user in pending_users:
+            user["national_id"] = decrypt_national_id(
+                user["national_id_ciphertext"])
 
+        return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users)
+
+    else:
+        return render_template("reviewer_dashboard.html")
 
 @app.route("/admin-dashboard")
 @login_required
@@ -341,11 +342,9 @@ def reviewer_dashboard():
 def admin_dashboard():
     return render_template("admin_dashboard.html", user=current_user)
 
-
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     return render_template("reset-password.html")
-
 
 @app.route("/review-user/<int:pending_id>", methods=["POST"])
 @login_required
@@ -527,7 +526,6 @@ def review_user(pending_id):
     else:
         return redirect(url_for("review_queue"))
 
-
 @app.route("/set-password/<token>", methods=["GET", "POST"])
 def set_password(token):
 
@@ -614,7 +612,6 @@ def set_password(token):
 
         return render_template("set_password.html", full_name=user.full_name, token=token)
 
-
 @app.route("/link-expired", methods=["GET", "POST"])
 def link_expired():
     source = session.get("expired_source")
@@ -664,11 +661,9 @@ def link_expired():
         flash("We couldn't send the email. Please try again later.", "error")
         return redirect(url_for("login"))
 
-
 @app.route("/about-sudan")
 def about_sudan():
     return render_template("about_sudan.html")
-
 
 @app.route("/my-documents")
 @login_required
@@ -731,17 +726,17 @@ def verify_document(token):
     if not document_id or not user_id:
         flash("Invalid verification request", "danger")
         return redirect(url_for("my_documents"))
-    
+
     document = Document.get_by_id(document_id)
 
     if not document or document.user_id != user_id or document.qr_token != token:
         flash("Invalid verification request", "error")
         return redirect(url_for("my_documents"))
-    
+
     user = User.get_by_id(user_id)
     name = user.full_name
     birthdate = user.birthdate
-    
+
     return render_template("verify_document.html", document=document, name=name, birthdate=birthdate)
 
 @app.route("/my-documents/upload-document", methods=["GET", "POST"])
@@ -830,24 +825,20 @@ def upload_document():
     else:
         return render_template("upload_document.html", doc_type=doc_type)
 
-
 @app.route("/history")
 @login_required
 def history():
     return render_template("history.html")
-
 
 @app.route("/my-profile")
 @login_required
 def my_profile():
     return render_template("my_profile.html")
 
-
 @app.route("/settings")
 @login_required
 def settings():
     return render_template("settings.html")
-
 
 @app.route("/notifications")
 @login_required
@@ -866,17 +857,23 @@ def help_and_support():
 def review_queue():
 
     # Get all the pending users
-    pending_users = PendingUser.get_verified_pending_users()
+    pending_users = PendingUser.get_verified_pending_users() or []
 
-    # Decrypt the national ID number
+    # Decrypt the national ID number for users in the queue
     for user in pending_users:
         user["national_id"] = decrypt_national_id(
             user["national_id_ciphertext"])
-        
-    # load pending documents    
-    pending_documents = PendingDocument.get_queue()
 
-    return render_template("review_queue.html", current_user=current_user, pending_users=pending_users, pending_documents=pending_documents)
+    # Load pending documents regardless of whether there are pending users
+    pending_documents = PendingDocument.get_queue() or []
+
+    return render_template(
+        "review_queue.html",
+        current_user=current_user,
+        pending_users=pending_users,
+        pending_documents=pending_documents,
+    )
+
 
 @app.route("/review-document/<int:pending_document_id>", methods=["POST"])
 @login_required
@@ -902,19 +899,21 @@ def review_document(pending_document_id):
     if not info:
         flash("User information not found", "danger")
         return redirect(url_for("review_queue"))
-    
+
     email = info["contact_email"]
     name = info["full_name"]
 
     # If action is approve
     if action == "approve":
 
-        # Generate a unique qr token 
-        qr_token = generate_document_qr_token(pending_document.document_id, pending_document.user_id)
+        # Generate a unique qr token
+        qr_token = generate_document_qr_token(
+            pending_document.document_id, pending_document.user_id)
 
         PendingDocument.approve(pending_document_id, current_user.id, message)
 
-        Document.mark_verified(pending_document.document_id, pending_document.file_path, pending_document.original_filename, pending_document.mimetype, pending_document.size, qr_token)
+        Document.mark_verified(pending_document.document_id, pending_document.file_path,
+                               pending_document.original_filename, pending_document.mimetype, pending_document.size, qr_token)
 
         subject = f"Status Update: {pending_document.original_filename} Approved"
         recipients = [email]
@@ -928,7 +927,8 @@ def review_document(pending_document_id):
         )
 
         # Log to history
-        HistoryLog.log_action(current_user.id, pending_document.user_id, "document_approved", "document", pending_document.document_id, "approved", description=f"{pending_document.document_type} approved by reviewer")
+        HistoryLog.log_action(current_user.id, pending_document.user_id, "document_approved", "document",
+                              pending_document.document_id, "approved", description=f"{pending_document.document_type} approved by reviewer")
 
         if email_success:
             PendingDocument.set_decision_email_status(pending_document_id)
@@ -944,33 +944,39 @@ def review_document(pending_document_id):
         # Require message
         if not message:
             flash("Please provide a reason for your action")
-            return redirect(url_for("review_queue")) 
+            return redirect(url_for("review_queue"))
 
         if action == "reject":
-            
+
             # Mark rejected
-            PendingDocument.reject(pending_document.id, current_user.id, message)
-            
-            Document.mark_rejected(pending_document.user_id, pending_document.document_type)
-            
+            PendingDocument.reject(pending_document.id,
+                                   current_user.id, message)
+
+            Document.mark_rejected(
+                pending_document.user_id, pending_document.document_type)
+
             # set email subject
             subject = f"Status Update: {pending_document.original_filename} Rejected"
 
             # Log history
-            HistoryLog.log_action(current_user.id, pending_document.user_id, "document_rejected", "document", pending_document.document_id, "rejected", description=f"{pending_document.document_type} rejected by reviewer")
+            HistoryLog.log_action(current_user.id, pending_document.user_id, "document_rejected", "document",
+                                  pending_document.document_id, "rejected", description=f"{pending_document.document_type} rejected by reviewer")
 
         else:
 
             # Mark correction requested
-            PendingDocument.request_correction(pending_document.id, current_user.id, message)
+            PendingDocument.request_correction(
+                pending_document.id, current_user.id, message)
 
-            Document.mark_correction_requested(pending_document.user_id, pending_document.document_type)
+            Document.mark_correction_requested(
+                pending_document.user_id, pending_document.document_type)
 
             # set email subject
             subject = f"Status Update: {pending_document.original_filename} Action Needed"
 
             # Log history
-            HistoryLog.log_action(current_user.id, pending_document.user_id, "correction_requested", "document", pending_document.document_id, "correction requested", description=f"correction requested for {pending_document.document_type} by reviewer")
+            HistoryLog.log_action(current_user.id, pending_document.user_id, "correction_requested", "document", pending_document.document_id,
+                                  "correction requested", description=f"correction requested for {pending_document.document_type} by reviewer")
 
         recipients = [email]
         template = "document_approved_email.html"
@@ -980,7 +986,7 @@ def review_document(pending_document_id):
             recipients=recipients,
             template=template,
             name=name,
-            message = message
+            message=message
         )
 
         if email_success:
@@ -995,6 +1001,7 @@ def review_document(pending_document_id):
 
         flash("Invalid action", "danger")
         return redirect(url_for("review_queue"))
+
 
 @app.route("/reviewed-documents")
 @login_required
@@ -1029,7 +1036,170 @@ def system_settings():
 @login_required
 @roles_required("admin")
 def manage_users():
-    return render_template("manage_users.html")
+
+    # Load pending users
+    pending_users = PendingUser.get_verified_pending_users()
+
+    # Load verified users
+    users = User.load_users()
+
+    return render_template("manage_users.html", pending_users=pending_users, users=users)
+
+
+@app.route("/admin/users/save", methods=["POST"])
+@login_required
+@roles_required("admin")
+def save_user():
+
+    # check if id was provided
+    user_id = request.form.get("user_id")
+
+    name = request.form.get("full_name", "").strip()
+    username = request.form.get("username", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    phone = request.form.get("phone", "").strip()
+    role = request.form.get("role")
+    birthdate = request.form.get("birthdate")
+
+    required_fields = {
+        "Full name": name,
+        "Username": username,
+        "Email": email,
+        "Phone": phone,
+        "Role": role,
+        "Birthdate": birthdate
+    }
+
+    for label, value in required_fields.items():
+        if not value:
+            flash(f"Please fill in the {label} field.", "warning")
+            return redirect(url_for("manage_users"))
+
+    if role not in ["user", "admin", "reviewer"]:
+        flash("Invalid role selected", "warning")
+        return redirect(url_for("manage_users"))
+
+    # creating a new user
+    if not user_id:
+
+        national_id = request.form.get("national_id")
+        password = request.form.get("password")
+
+        # Validate required fields
+        create_required = {
+            "National ID number": national_id,
+            "Password": password
+        }
+
+        for label, value in create_required.items():
+            if not value:
+                flash(
+                    f"Please fill in the {label} field in order to create a new user", "warning")
+                return redirect(url_for("manage_users"))
+
+        if not national_id.isdigit() or len(national_id) != 11:
+            flash("National ID Number must be exactly 11 digits", "warning")
+            return redirect(url_for("manage_users"))
+
+        # use pending user object temporarily to insert into identities
+        temp_user = PendingUser(full_name=name, national_id=national_id, birthdate=birthdate,
+                                contact_email=email, contact_phone=phone, username=username, status="verified")
+
+        try:
+            temp_user.insert_to_identities()
+        except Exception as e:
+            flash(handle_intergrity_error(e), "warning")
+            return redirect(url_for("manage_users"))
+
+        user = User()
+
+        user.full_name = name
+        user.username = username
+        user.national_id = national_id
+        user.birthdate = birthdate
+        user.contact_email = email
+        user.contact_phone = phone
+        user.role = role
+        user.password = password
+
+        user_id = user.insert()
+
+        if user_id:
+
+            Document.create_placeholders_for_user(user_id)
+
+            # log into history
+            HistoryLog.log_action(current_user.id, user_id, "admin_created_user",
+                                  "user", user_id, "success", f"Admin created user account for {name}.")
+
+            flash("User created", "success")
+            return redirect(url_for("manage_users"))
+        else:
+            flash("User not created", "error")
+            return redirect(url_for("manage_users"))
+
+    # update user
+    else:
+
+        # load user details before updating
+        original_user = User.get_by_id(user_id)
+        original_username = original_user.username
+
+        # update
+        success = User.update(user_id, original_username,
+                              username, name, birthdate, email, phone, role)
+
+        if success:
+
+            HistoryLog.log_action(current_user.id, user_id, "admin_edited_account",
+                                  "user", user_id, "success", f"Admin edited user account for {name}.")
+
+            flash("User information updated", "success")
+            return redirect(url_for("manage_users"))
+
+
+@app.route("/admin/users/delete", methods=["POST"])
+@login_required
+@roles_required("admin")
+def delete_user():
+
+    # get id
+    user_id = request.form.get("user_id")
+
+    # validate id
+    if not user_id:
+        flash("User not found", "warning")
+        return redirect(url_for("manage_users"))
+
+    # exit if the id is == to current user id
+    if user_id == current_user.id:
+        flash("Self-service account deletion is not available")
+        return redirect(url_for("manage_users"))
+
+    # verify target user exists
+    user = User.get_by_id(user_id)
+
+    if not user:
+        flash("User not found", "warning")
+        return redirect(url_for("manage_users"))
+
+    username = user.username
+    name = user.full_name
+
+    # log action
+    HistoryLog.log_action(current_user.id, user_id, "admin_deleted_user",
+                          "user", user_id, "success", f"Admin deleted user account for {name}.")
+
+    # delete user
+    if User.delete_user(user_id, username):
+
+        # flash
+        flash("User account deleted", "success")
+        return redirect(url_for("manage_users"))
+
+    else:
+        flash("Error deleting user", "error")
+        return redirect(url_for("manage_users"))
 
 
 @app.route("/services")
