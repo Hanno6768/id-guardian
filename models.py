@@ -11,7 +11,7 @@ db = SQL("sqlite:///idguardian.db")
 
 
 class User(UserMixin):
-    def __init__(self, id=None, username=None, password=None, national_id=None, full_name=None, birthdate=None, contact_email=None, contact_phone=None, verification_status=None, verified_at=None, national_id_fast=None, role=None):
+    def __init__(self, id=None, username=None, password=None, national_id=None, full_name=None, birthdate=None, contact_email=None, contact_phone=None, verification_status=None, verified_at=None, national_id_fast=None, role=None, profile_picture=None, address=None, email_verified=None):
         self.id = id
         self.username = username
         self.password = password
@@ -24,6 +24,9 @@ class User(UserMixin):
         self.verified_at = verified_at
         self.role = role
         self.national_id_fast = national_id_fast
+        self.profile_picture = profile_picture
+        self.address = address
+        self.email_verified = email_verified
 
     # Check if password match the database
     def verify_password(self, password):
@@ -48,7 +51,10 @@ class User(UserMixin):
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
-                role=row["role"]
+                role=row["role"],
+                profile_picture=row["profile_picture"],
+                address=row["address"],
+                email_verified=row["email_verified"]
             )
         return None
 
@@ -71,7 +77,10 @@ class User(UserMixin):
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
-                role=row["role"]
+                role=row["role"],
+                profile_picture=row["profile_picture"],
+                address=row["address"],
+                email_verified=row["email_verified"]
             )
         return None
 
@@ -94,7 +103,10 @@ class User(UserMixin):
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
-                role=row["role"]
+                role=row["role"],
+                profile_picture=row["profile_picture"],
+                address=row["address"],
+                email_verified=row["email_verified"]
             )
         return None
 
@@ -121,7 +133,10 @@ class User(UserMixin):
                 verification_status=row["verification_status"],
                 verified_at=row["verified_at"],
                 national_id_fast=row["national_id_fast"],
-                role=row["role"]
+                role=row["role"],
+                profile_picture=row["profile_picture"],
+                address=row["address"],
+                email_verified=row["email_verified"]
             )
         return None
 
@@ -162,6 +177,61 @@ class User(UserMixin):
             return True
         except Exception as e:
             print(f"Error updating password: {e}")
+            return False
+
+    # update contact information for the current user
+    @staticmethod
+    def update_contact_info(user_id, email, phone, address, email_verified=None):
+        """Update the user's contact details and optionally their email verification state."""
+        try:
+            if email_verified is None:
+                db.execute(
+                    "UPDATE users SET contact_email = ?, contact_phone = ?, address = ? WHERE id = ?",
+                    email,
+                    phone,
+                    address,
+                    user_id
+                )
+            else:
+                db.execute(
+                    "UPDATE users SET contact_email = ?, contact_phone = ?, address = ?, email_verified = ? WHERE id = ?",
+                    email,
+                    phone,
+                    address,
+                    int(bool(email_verified)),
+                    user_id
+                )
+            return True
+        except Exception as e:
+            print(f"Error updating contact info: {e}")
+            return False
+
+    @staticmethod
+    def update_email_verification_status(user_id, verified):
+        """Set the user's email verification status."""
+        try:
+            db.execute(
+                "UPDATE users SET email_verified = ? WHERE id = ?",
+                int(bool(verified)),
+                user_id
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating email verification: {e}")
+            return False
+
+    @staticmethod
+    def update_profile_picture(user_id, profile_picture_path):
+        """Store the relative path of the user's profile picture."""
+        try:
+            db.execute(
+                "UPDATE users SET profile_picture = ? WHERE id = ?",
+                profile_picture_path,
+                user_id
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating profile picture: {e}")
             return False
 
     # load all users

@@ -63,6 +63,7 @@ def load_user(user_id):
 def handle_large_file(e):
     flash("File too large. Maximum allowed size is 5 MB.", "danger")
     return redirect("/register")
+
 # ------- Routes ----------------------------------------------------
 
 # Home page
@@ -71,24 +72,6 @@ def handle_large_file(e):
 @app.route('/')
 @app.route("/home")
 def home():
-    # username = "admin1"
-    # password_hash = generate_password_hash("test")
-    # national_id = "00000000012"
-    # national_id_hash = hashlib.sha256(national_id.encode("utf-8")).hexdigest()
-    # full_name = "Amin Sayed Altayeb"
-    # birthdate = "1990-04-22"
-    # contact_email = "admin1@gmail.com"
-    # contact_phone = "+249000000001"
-    # verified_at = datetime.now()
-    # national_id_fast = national_id_hash[-10:]
-    # role = "admin"
-    # db.execute("""
-    #                  INSERT INTO users (username,
-    #             password_hash, national_id_hash, full_name,
-    #             birthdate, contact_email, contact_phone, verified_at,
-    #             national_id_fast, role) VALUES (?,?,?,?,?,?,?,?,?,?)
-    #             """, username, password_hash, national_id_hash, full_name, birthdate,
-    #             contact_email, contact_phone, verified_at, national_id_fast, role)
     return render_template("home.html")
 
 # log user in
@@ -138,11 +121,14 @@ def login():
                 return redirect("/login")
 
 # log user out
+
+
 @app.route("/logout")
 def logout():
     logout_user()
     flash("You have been logged out", "success")
     return redirect("/login")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -249,12 +235,14 @@ def register():
         # redirect user to /check_inbox route
         return redirect(url_for("check_inbox"))
 
+
 @app.route("/check-inbox")
 def check_inbox():
 
     if not session.get("registration_started"):
         return redirect(url_for("register"))
     return render_template("check_inbox.html")
+
 
 @app.route("/verify_email/<token>")
 def verify_email(token):
@@ -310,11 +298,13 @@ def verify_email(token):
                 "Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
 
+
 @app.route("/user-dashboard")
 @login_required
 @roles_required("user", "admin")
 def user_dashboard():
     return render_template("user_dashboard.html", user=current_user)
+
 
 @app.route("/reviewer-dashboard")
 @login_required
@@ -336,15 +326,18 @@ def reviewer_dashboard():
     else:
         return render_template("reviewer_dashboard.html")
 
+
 @app.route("/admin-dashboard")
 @login_required
 @roles_required("admin")
 def admin_dashboard():
     return render_template("admin_dashboard.html", user=current_user)
 
+
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     return render_template("reset-password.html")
+
 
 @app.route("/review-user/<int:pending_id>", methods=["POST"])
 @login_required
@@ -526,6 +519,7 @@ def review_user(pending_id):
     else:
         return redirect(url_for("review_queue"))
 
+
 @app.route("/set-password/<token>", methods=["GET", "POST"])
 def set_password(token):
 
@@ -612,6 +606,7 @@ def set_password(token):
 
         return render_template("set_password.html", full_name=user.full_name, token=token)
 
+
 @app.route("/link-expired", methods=["GET", "POST"])
 def link_expired():
     source = session.get("expired_source")
@@ -661,9 +656,11 @@ def link_expired():
         flash("We couldn't send the email. Please try again later.", "error")
         return redirect(url_for("login"))
 
+
 @app.route("/about-sudan")
 def about_sudan():
     return render_template("about_sudan.html")
+
 
 @app.route("/my-documents")
 @login_required
@@ -700,6 +697,7 @@ def my_documents():
                 })
 
     return render_template("my_documents.html", docs=list(docs.values()))
+
 
 @app.route("/my-documents/verify_document/<token>")
 @login_required
@@ -738,6 +736,7 @@ def verify_document(token):
     birthdate = user.birthdate
 
     return render_template("verify_document.html", document=document, name=name, birthdate=birthdate)
+
 
 @app.route("/my-documents/upload-document", methods=["GET", "POST"])
 @login_required
@@ -825,20 +824,282 @@ def upload_document():
     else:
         return render_template("upload_document.html", doc_type=doc_type)
 
+
 @app.route("/history")
 @login_required
 def history():
     return render_template("history.html")
+
 
 @app.route("/my-profile")
 @login_required
 def my_profile():
     return render_template("my_profile.html")
 
+
+@app.route("/my-profile/update-contact", methods=["POST"])
+@login_required
+def update_contact():
+
+    # get fields
+    email = request.form.get("email", "").strip().lower()
+    phone = request.form.get("phone", "").strip().replace(" ", "")
+    address = request.form.get("address", "").strip()
+
+    # validate fields
+    if not email:
+        flash("Please provide an email address.", "warning")
+        return redirect(url_for("my_profile"))
+
+    if "@" not in email or "." not in email.split("@", 1)[1]:
+        flash("Please provide a valid email address.", "warning")
+        return redirect(url_for("my_profile"))
+
+    if not phone:
+        flash("Please provide a phone number.", "warning")
+        return redirect(url_for("my_profile"))
+
+    if not phone.startswith("+249") or len(phone) != 13 or not phone[4:].isdigit():
+        flash("Phone number must use the format +249 followed by 9 digits.", "warning")
+        return redirect(url_for("my_profile"))
+
+    # compare the submitted email with the database
+    email_changed = email != current_user.contact_email
+    existing_user = User.get_by_email(email)
+    if existing_user and existing_user.id != current_user.id:
+        flash("That email address is already in use by another account.", "warning")
+        return redirect(url_for("my_profile"))
+
+    # if not equal
+    if email_changed:
+
+        # update databse(users) with new email
+        update_success = User.update_contact_info(
+            current_user.id,
+            email,
+            phone,
+            address,
+            email_verified=0
+        )
+
+        if not update_success:
+            flash(
+                "We could not update your contact details. Please try again later.", "danger")
+            return redirect(url_for("my_profile"))
+
+        # set email_verified = 0
+        current_user.contact_email = email
+        current_user.contact_phone = phone
+        current_user.address = address
+        current_user.email_verified = 0
+
+        # generate token using itsdangerous
+        serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+        token = serializer.dumps(
+            {"user_id": current_user.id, "new_email": email},
+            salt="email-change"
+        )
+        verify_url = url_for("verify_new_email", token=token, _external=True)
+
+        # send verification to new email
+        email_success = send_mail(
+            subject="Confirm your new email address",
+            recipients=[email],
+            template="verify_email.html",
+            name=current_user.full_name,
+            verify_url=verify_url
+        )
+
+        # log into history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            target_user_id=current_user.id,
+            action="updated_contact_info",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="pending",
+            description="Contact details updated and email verification pending"
+        )
+
+        if email_success:
+            flash("Your contact details were updated. Please verify your new email address.", "info")
+        else:
+            flash("Your contact details were updated, but the verification email could not be sent. Please try again later.", "warning")
+
+    # else email is same
+    else:
+
+        # create methode for updating the address and phone no. only
+        update_success = User.update_contact_info(
+            current_user.id,
+            email,
+            phone,
+            address,
+            email_verified=current_user.email_verified if current_user.email_verified is not None else 1
+        )
+
+        if not update_success:
+            flash("We could not update your contact details. Please try again later.", "danger")
+            return redirect(url_for("my_profile"))
+
+        current_user.contact_email = email
+        current_user.contact_phone = phone
+        current_user.address = address
+
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            target_user_id=current_user.id,
+            action="updated_contact_info",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="success",
+            description="Contact details updated successfully"
+        )
+
+        flash("Your contact details were updated successfully.", "success")
+
+    return redirect(url_for("my_profile"))
+
+
+@app.route("/verify_new_email/<token>", methods=["GET", "POST"])
+@login_required
+def verify_new_email(token):
+
+    # validate token
+    serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+    try:
+        payload = serializer.loads(token, salt="email-change", max_age=86400)
+    except SignatureExpired:
+        flash("This email verification link has expired.", "warning")
+        return redirect(url_for("my_profile"))
+    except BadSignature:
+        flash("This email verification link is invalid.", "danger")
+        return redirect(url_for("my_profile"))
+
+    # if valid set email verified to true
+    user_id = payload.get("user_id")
+    new_email = payload.get("new_email")
+
+    if not user_id or not new_email:
+        flash("This email verification link is invalid.", "danger")
+        return redirect(url_for("my_profile"))
+
+    if int(user_id) != current_user.id:
+        flash("You are not authorized to use this verification link.", "danger")
+        return redirect(url_for("my_profile"))
+
+    if User.update_email_verification_status(current_user.id, True):
+        current_user.email_verified = 1
+        current_user.contact_email = new_email
+        flash("Your new email address has been verified successfully.", "success")
+    else:
+        flash(
+            "We could not verify your new email address. Please try again later.", "danger")
+
+    return redirect(url_for("my_profile"))
+
+
+@app.route("/my-profile/change-password", methods=["POST"])
+@app.route("/profile/change-password", methods=["POST"])
+@login_required
+def change_password():
+
+    # get fields
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    # validate fields
+    if not current_password or not new_password or not confirm_password:
+        flash("Please fill in all password fields.", "warning")
+        return redirect(url_for("my_profile"))
+
+    if len(new_password) < 8:
+        flash("New password must be at least 8 characters long.", "warning")
+        return redirect(url_for("my_profile"))
+
+    # verify new and confirmation
+    if new_password != confirm_password:
+        flash("The new password and confirmation do not match.", "danger")
+        return redirect(url_for("my_profile"))
+
+    # identity verifiaction current_user.verify_password(current_password)
+    if not current_user.verify_password(current_password):
+        flash("Your current password is incorrect.", "danger")
+        return redirect(url_for("my_profile"))
+
+    # finalize by calling User.update_password()
+    if not User.update_password(current_user.id, new_password):
+        flash("We could not update your password. Please try again later.", "danger")
+        return redirect(url_for("my_profile"))
+
+    # log to history
+    HistoryLog.log_action(
+        actor_user_id=current_user.id,
+        target_user_id=current_user.id,
+        action="changed_password",
+        entity_type="user",
+        entity_id=current_user.id,
+        status="success",
+        description="Password updated successfully"
+    )
+
+    flash("Your password was updated successfully.", "success")
+    return redirect(url_for("my_profile"))
+
+
+@app.route("/my-profile/upload-picture", methods=["POST"])
+@login_required
+def upload_picture():
+
+    # get the file
+    file = request.files.get("avatar")
+
+    # validate file and extension
+    if not file or file.filename == "":
+        flash("Please select a profile picture to upload.", "warning")
+        return redirect(url_for("my_profile"))
+
+    if not allowed_extensions(file.filename):
+        flash("Only PNG, JPG, JPEG, and WEBP images are allowed.", "warning")
+        return redirect(url_for("my_profile"))
+
+    # save into uploads folder
+    filename = secure_filename(file.filename)
+    new_filename = generate_new_filename(filename)
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+    file.save(file_path)
+
+    # update database with path
+    relative_path = f"uploads/{new_filename}"
+    if not User.update_profile_picture(current_user.id, relative_path):
+        flash("We could not update your profile picture. Please try again later.", "danger")
+        return redirect(url_for("my_profile"))
+
+    current_user.profile_picture = relative_path
+
+    # log to history
+    HistoryLog.log_action(
+        actor_user_id=current_user.id,
+        target_user_id=current_user.id,
+        action="updated_profile_picture",
+        entity_type="user",
+        entity_id=current_user.id,
+        status="success",
+        description="Profile picture updated successfully"
+    )
+
+    flash("Your profile picture was updated successfully.", "success")
+    return redirect(url_for("my_profile"))
+
+
 @app.route("/settings")
 @login_required
 def settings():
     return render_template("settings.html")
+
 
 @app.route("/notifications")
 @login_required

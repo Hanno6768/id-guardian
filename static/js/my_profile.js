@@ -184,6 +184,42 @@
 
     })();
 
+    // auto-submit avatar upload when a file is selected
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarForm = document.getElementById('avatarForm');
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarInitials = document.getElementById('avatarInitials');
+
+    function showAvatarPreview(src) {
+        if (!avatarImg) return;
+
+        if (src) {
+            avatarImg.src = src;
+            avatarImg.style.display = 'block';
+            if (avatarInitials) avatarInitials.style.display = 'none';
+        } else {
+            avatarImg.removeAttribute('src');
+            avatarImg.style.display = 'none';
+            if (avatarInitials) avatarInitials.style.display = '';
+        }
+    }
+
+    if (avatarInput && avatarForm) {
+        avatarInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                showAvatarPreview(event.target.result);
+            };
+            reader.readAsDataURL(file);
+
+            avatarForm.submit();
+        });
+    }
+
     // show/hide password toggle
     document.querySelectorAll('.btn-toggle-pw').forEach(function (btn) {
         btn.addEventListener('click', function () {
