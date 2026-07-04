@@ -190,3 +190,49 @@ def send_email_verification_email(user):
 def generate_document_qr_token(document_id, user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return s.dumps({"document_id": document_id, "user_id": user_id}, salt="document-qr")
+
+
+def history_color(status):
+    if status in ["success", "approved", "verified"]:
+        return "green"
+
+    if status in ["pending", "correction_requested"]:
+        return "warn"
+
+    if status in ["rejected", "failed", "error"]:
+        return "red"
+
+    return "blue"
+
+
+def format_document_type(document_type):
+    if not document_type:
+        return "Document"
+
+    return document_type.replace("_", " ").replace("-", " ").title()
+
+
+def format_history_description(row):
+    description = row.get("description") if isinstance(row, dict) else None
+    if not description:
+        return ""
+
+    return description.replace("_", " ").replace("-", " ").title()
+
+
+def format_history_title(row):
+
+    action_titles = {
+        "document_upload_submitted": "Document Submitted",
+        "document_approved": "Document Approved",
+        "document_rejected": "Document Rejected",
+        "correction_requested": "Correction Requested",
+        "admin_created_user": "User Account Created",
+        "admin_updated_user": "User Account Updated",
+        "admin_deleted_user": "User Account Deleted",
+        "password_changed": "Password Changed",
+        "email_change_requested": "Email Change Requested",
+        "email_change_verified": "Email Verified"
+    }
+
+    return action_titles.get(row["action"], row["action"].replace("_", " ").title())

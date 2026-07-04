@@ -837,3 +837,17 @@ class HistoryLog():
     def log_action(actor_user_id, target_user_id, action, entity_type, entity_id, status, description):
         """Logs an action in the history_logs table"""
         return db.execute("INSERT INTO history (actor_user_id, target_user_id, action, entity_type, entity_id, status, description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", actor_user_id, target_user_id, action, entity_type, entity_id, status, description, datetime.now())
+
+    @staticmethod
+    def get_all():
+        return db.execute("SELECT * FROM history ORDER BY created_at DESC")
+
+    @staticmethod
+    def get_by_actor(user_id):
+        return db.execute("SELECT * FROM history WHERE actor_user_id = ? ORDER BY created_at DESC", user_id)
+    
+    @staticmethod
+    def get_by_user(user_id):
+        return db.execute("SELECT * FROM history WHERE actor_user_id = ? OR target_user_id = ? ORDER BY created_at DESC", user_id, user_id)
+    
+    

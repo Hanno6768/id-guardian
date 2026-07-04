@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID, Document, PendingDocument, HistoryLog
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS, generate_document_qr_token
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS, generate_document_qr_token, history_color, format_history_title, format_document_type, format_history_description
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.security import generate_password_hash
@@ -384,6 +384,16 @@ def review_user(pending_id):
         else:
             flash("User approved but we couldn't send the notification email. Please try resending manually.", "warning")
 
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            action="approved_pending_user",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="success",
+            description="Pending user approved successfully"
+        )
+
         return redirect(url_for("review_queue"))
 
     elif action == "reject":
@@ -443,6 +453,16 @@ def review_user(pending_id):
         except Exception as e:
             app.logger.error(
                 f"Error deleting encrypted national id for pending {pending_id}: {e}")
+
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            action="approved_pending_user",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="success",
+            description="Pending user rejected successfully"
+        )
 
         if email_success:
             flash("User rejected and notification email sent", "success")
@@ -507,6 +527,16 @@ def review_user(pending_id):
         except Exception as e:
             app.logger.error(
                 f"Error deleting encrypted national id for pending {pending_id}: {e}")
+
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            action="correction_requested",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="success",
+            description="Correction requested successfully"
+        )
 
         if email_success:
             flash("Correction request sent to user", "success")
@@ -812,8 +842,8 @@ def upload_document():
         Document.mark_pending(current_user.id, doc_type)
 
         # log into history
-        HistoryLog.log_action(actor_user_id=current_user.id, target_user_id=current_user.id, action="Document upload",
-                              entity_type="pending_document", entity_id=pending_document_id, status="pending", description=f"{doc_type} submitted for review")
+        HistoryLog.log_action(actor_user_id=current_user.id, target_user_id=current_user.id, action="document_upload_submitted",
+                              entity_type="pending_document", entity_id=pending_document_id, status="pending", description=f"{format_document_type(doc_type)} submitted for review")
 
         # flash success message
         flash("Document submitted for review", "success")
@@ -828,7 +858,32 @@ def upload_document():
 @app.route("/history")
 @login_required
 def history():
-    return render_template("history.html")
+
+    # choose depending on roles
+    if current_user.role == "admin":
+        rows = HistoryLog.get_all()
+    elif current_user.role == "reviewer":
+        rows = HistoryLog.get_by_actor(current_user.id)
+    else:
+        rows = HistoryLog.get_by_user(current_user.id)
+
+    # create the list thta will be passed to the frontend
+    history_events = []
+
+    for row in rows:
+        created_at = datetime.strptime(
+            row["created_at"].strip(), "%Y-%m-%d %H:%M:%S")
+
+        history_events.append({
+            "month": created_at.strftime("%B %Y"),
+            "title": format_history_title(row),
+            "detail": format_history_description(row),
+            "timestamp": created_at.strftime("%d %b %Y, %I:%M %p"),
+            "color": history_color(row["status"])
+        })
+
+    # return
+    return render_template("history.html", history=history_events)
 
 
 @app.route("/my-profile")
@@ -867,7 +922,7 @@ def update_contact():
     email_changed = email != current_user.contact_email
     existing_user = User.get_by_email(email)
     if existing_user and existing_user.id != current_user.id:
-        flash("That email address is already in use by another account.", "warning")
+        flash("That email address is already in use.", "warning")
         return redirect(url_for("my_profile"))
 
     # if not equal
@@ -914,7 +969,7 @@ def update_contact():
         HistoryLog.log_action(
             actor_user_id=current_user.id,
             target_user_id=current_user.id,
-            action="updated_contact_info",
+            action="email_change_requested  ",
             entity_type="user",
             entity_id=current_user.id,
             status="pending",
@@ -922,7 +977,8 @@ def update_contact():
         )
 
         if email_success:
-            flash("Your contact details were updated. Please verify your new email address.", "info")
+            flash(
+                "Your contact details were updated. Please verify your new email address.", "info")
         else:
             flash("Your contact details were updated, but the verification email could not be sent. Please try again later.", "warning")
 
@@ -939,7 +995,8 @@ def update_contact():
         )
 
         if not update_success:
-            flash("We could not update your contact details. Please try again later.", "danger")
+            flash(
+                "We could not update your contact details. Please try again later.", "danger")
             return redirect(url_for("my_profile"))
 
         current_user.contact_email = email
@@ -994,6 +1051,17 @@ def verify_new_email(token):
         current_user.email_verified = 1
         current_user.contact_email = new_email
         flash("Your new email address has been verified successfully.", "success")
+
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=current_user.id,
+            target_user_id=current_user.id,
+            action="email_change_verified",
+            entity_type="user",
+            entity_id=current_user.id,
+            status="success",
+            description="Email updated successfully"
+        )
     else:
         flash(
             "We could not verify your new email address. Please try again later.", "danger")
@@ -1039,7 +1107,7 @@ def change_password():
     HistoryLog.log_action(
         actor_user_id=current_user.id,
         target_user_id=current_user.id,
-        action="changed_password",
+        action="password_changed",
         entity_type="user",
         entity_id=current_user.id,
         status="success",
@@ -1099,12 +1167,6 @@ def upload_picture():
 @login_required
 def settings():
     return render_template("settings.html")
-
-
-@app.route("/notifications")
-@login_required
-def notifications():
-    return render_template("notifications.html")
 
 
 @app.route("/help-and-support")
@@ -1189,7 +1251,7 @@ def review_document(pending_document_id):
 
         # Log to history
         HistoryLog.log_action(current_user.id, pending_document.user_id, "document_approved", "document",
-                              pending_document.document_id, "approved", description=f"{pending_document.document_type} approved by reviewer")
+                              pending_document.document_id, "approved", description=f"{format_document_type(pending_document.document_type)} approved by reviewer")
 
         if email_success:
             PendingDocument.set_decision_email_status(pending_document_id)
@@ -1221,7 +1283,7 @@ def review_document(pending_document_id):
 
             # Log history
             HistoryLog.log_action(current_user.id, pending_document.user_id, "document_rejected", "document",
-                                  pending_document.document_id, "rejected", description=f"{pending_document.document_type} rejected by reviewer")
+                                  pending_document.document_id, "rejected", description=f"{format_document_type(pending_document.document_type)} rejected by reviewer")
 
         else:
 
@@ -1237,7 +1299,7 @@ def review_document(pending_document_id):
 
             # Log history
             HistoryLog.log_action(current_user.id, pending_document.user_id, "correction_requested", "document", pending_document.document_id,
-                                  "correction requested", description=f"correction requested for {pending_document.document_type} by reviewer")
+                                  "correction requested", description=f"correction requested for {format_document_type(pending_document.document_type)} by reviewer")
 
         recipients = [email]
         template = "document_approved_email.html"
@@ -1412,7 +1474,7 @@ def save_user():
 
         if success:
 
-            HistoryLog.log_action(current_user.id, user_id, "admin_edited_account",
+            HistoryLog.log_action(current_user.id, user_id, "admin_updated_user",
                                   "user", user_id, "success", f"Admin edited user account for {name}.")
 
             flash("User information updated", "success")
@@ -1449,7 +1511,7 @@ def delete_user():
 
     # log action
     HistoryLog.log_action(current_user.id, user_id, "admin_deleted_user",
-                          "user", user_id, "success", f"Admin deleted user account for {name}.")
+                          "user", user_id, "rejected", f"Admin deleted user account for {name}.")
 
     # delete user
     if User.delete_user(user_id, username):

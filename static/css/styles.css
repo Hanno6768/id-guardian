@@ -2055,6 +2055,10 @@ footer>small {
     background: var(--error);
 }
 
+.activity-dot.warn {
+    background: var(--warning);
+}
+
 .activity-dot-line {
     width: 1px;
     flex: 1;
