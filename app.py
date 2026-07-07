@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, PendingUser, EncryptedNationalID, Document, PendingDocument, HistoryLog
-from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS, generate_document_qr_token, history_color, format_history_title, format_document_type, format_history_description
+from helpers import allowed_extensions, generate_new_filename, handle_intergrity_error, roles_required, decrypt_national_id, send_mail, send_set_password_email, send_email_verification_email, STANDARD_DOCUMENTS, generate_document_qr_token, history_color, format_history_title, format_document_type, format_history_description, send_reset_password_email
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.security import generate_password_hash
@@ -58,7 +58,6 @@ def load_user(user_id):
 
 # ------- Error Handlers --------------------------------------------
 
-
 @app.errorhandler(RequestEntityTooLarge)
 def handle_large_file(e):
     flash("File too large. Maximum allowed size is 5 MB.", "danger")
@@ -67,16 +66,12 @@ def handle_large_file(e):
 # ------- Routes ----------------------------------------------------
 
 # Home page
-
-
 @app.route('/')
 @app.route("/home")
 def home():
     return render_template("home.html")
 
 # log user in
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -121,14 +116,11 @@ def login():
                 return redirect("/login")
 
 # log user out
-
-
 @app.route("/logout")
 def logout():
     logout_user()
     flash("You have been logged out", "success")
     return redirect("/login")
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -235,14 +227,12 @@ def register():
         # redirect user to /check_inbox route
         return redirect(url_for("check_inbox"))
 
-
 @app.route("/check-inbox")
 def check_inbox():
 
     if not session.get("registration_started"):
         return redirect(url_for("register"))
     return render_template("check_inbox.html")
-
 
 @app.route("/verify_email/<token>")
 def verify_email(token):
@@ -298,13 +288,26 @@ def verify_email(token):
                 "Request recieved successfully.Please wait for a reviewer approval before logging in", "success")
             return redirect(url_for("home"))
 
-
 @app.route("/user-dashboard")
 @login_required
 @roles_required("user", "admin")
 def user_dashboard():
-    return render_template("user_dashboard.html", user=current_user)
 
+    if current_user.role == "admin":
+        rows = HistoryLog.get_all()
+    else:
+        rows = HistoryLog.get_by_user(current_user.id)
+
+    history_events = []
+    for row in rows:
+        created_at = datetime.strptime(row["created_at"].strip(), "%Y-%m-%d %H:%M:%S") if row.get("created_at") else None
+        history_events.append({
+            "description": format_history_description(row),
+            "time": created_at.strftime("%d %b %Y, %I:%M %p") if created_at else "",
+            "color": history_color(row.get("status"))
+        })
+
+    return render_template("user_dashboard.html", user=current_user, history=history_events[:6])
 
 @app.route("/reviewer-dashboard")
 @login_required
@@ -326,18 +329,129 @@ def reviewer_dashboard():
     else:
         return render_template("reviewer_dashboard.html")
 
-
 @app.route("/admin-dashboard")
 @login_required
 @roles_required("admin")
 def admin_dashboard():
     return render_template("admin_dashboard.html", user=current_user)
 
-
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
-    return render_template("reset-password.html")
+    if request.method == "POST":
 
+        email = request.form.get("email")
+
+        if not email:
+            flash("Please enter a valid email address so we can send your reset link")
+            return redirect(url_for("reset_password"))
+
+        # find user by there email
+        user = User.get_by_email(email)
+
+        # Give a success message even if no user 
+        if not user:
+            flash("We have sent instructions to reset your password. Please check your inbox", "success")
+            return redirect(url_for("login"))
+        
+        # log to history
+        HistoryLog.log_action(
+            actor_user_id=user.id,
+            target_user_id=user.id,
+            action="password_reset_requested",
+            entity_type="user",
+            entity_id=user.id,
+            status="pending",
+            description="User requested password reset"
+        )
+
+        # generate token
+        send_reset_password_email(user)
+        flash("We have sent instructions to reset your password. Please check your inbox.", "success")
+        return redirect(url_for("login"))
+
+    else:
+        return render_template("reset-password.html")
+    
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def update_password(token):
+
+    # validate token
+    s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+    try:
+        # detokenize the token
+        user_id = s.loads(
+            token,
+            salt="password-reset-salt",
+            max_age=86400
+        )
+    except SignatureExpired:
+        payload_part = token.split('.')[0]
+
+        try:
+            # 3. Decode only that first part
+            user_id = s.load_payload(payload_part.encode('utf-8'))
+        except Exception as e:
+            print(f"Extraction Error: {e}")
+            user_id = None  # Fallback if even that fails
+
+        if user_id:
+            session["expired_user_id"] = user_id
+            session["expired_source"] = "reset_password"
+            return redirect(url_for("link_expired"))
+        else:
+            flash("The link is expired and can not be recovered.", "error")
+            return redirect(url_for("login"))
+        
+    except BadSignature:
+        flash("Invalid password reset request", "error")
+        return redirect(url_for("login"))
+
+    if request.method == "GET":
+
+        # show form
+        user = User.get_by_id(user_id)
+        if not user:
+            flash("Invalid password reset request", "error")
+            return redirect(url_for("login"))
+        return render_template("update_password.html", token=token, full_name=user.full_name)
+
+    elif request.method == "POST":
+
+        # update 
+        password = request.form.get("password")
+        confirmation = request.form.get("confirm_password")
+
+        if not password or not confirmation:
+            flash("Please fill in both fields.", "warning")
+            return redirect(url_for("update_password", token=token))
+
+        if password != confirmation:
+            flash("Passwords do not match.", "danger")
+            return redirect(url_for("update_password", token=token))
+
+        # Update password and redirect to login
+        password_success = User.update_password(user_id, password)
+        if password_success:
+
+            HistoryLog.log_action(
+                actor_user_id=user_id,
+                target_user_id=user_id,
+                action="password_reset_completed",
+                entity_type="user",
+                entity_id=user_id,
+                status="success",
+                description="Password reset successfully"
+            )
+
+            flash("Your password has been reset successfully. Please log in.", "success")
+            return redirect(url_for("login"))
+        else:
+            flash("Something went wrong. Please try again later.", "warning")
+            return redirect(url_for("update_password", token=token))
+    
+    else:
+        return redirect(url_for("reset_password"))
 
 @app.route("/review-user/<int:pending_id>", methods=["POST"])
 @login_required
@@ -387,6 +501,7 @@ def review_user(pending_id):
         # log to history
         HistoryLog.log_action(
             actor_user_id=current_user.id,
+            target_user_id=None,
             action="approved_pending_user",
             entity_type="user",
             entity_id=current_user.id,
@@ -549,7 +664,6 @@ def review_user(pending_id):
     else:
         return redirect(url_for("review_queue"))
 
-
 @app.route("/set-password/<token>", methods=["GET", "POST"])
 def set_password(token):
 
@@ -577,7 +691,7 @@ def set_password(token):
 
         if user_id:
 
-            # store data in a seesion to avoid manual url tampering
+            # store data in a session to avoid manual url tampering
             session["expired_user_id"] = user_id
             session["expired_source"] = "set_password"
 
@@ -628,14 +742,12 @@ def set_password(token):
     elif request.method == "GET":
 
         # add a landing page for the user where the user submits a form
-
         user = User.get_by_id(user_id)
         if not user:
             flash("Invalid password reset request", "error")
             return redirect(url_for("login"))
 
         return render_template("set_password.html", full_name=user.full_name, token=token)
-
 
 @app.route("/link-expired", methods=["GET", "POST"])
 def link_expired():
@@ -686,11 +798,9 @@ def link_expired():
         flash("We couldn't send the email. Please try again later.", "error")
         return redirect(url_for("login"))
 
-
 @app.route("/about-sudan")
 def about_sudan():
     return render_template("about_sudan.html")
-
 
 @app.route("/my-documents")
 @login_required
@@ -727,7 +837,6 @@ def my_documents():
                 })
 
     return render_template("my_documents.html", docs=list(docs.values()))
-
 
 @app.route("/my-documents/verify_document/<token>")
 @login_required
@@ -766,7 +875,6 @@ def verify_document(token):
     birthdate = user.birthdate
 
     return render_template("verify_document.html", document=document, name=name, birthdate=birthdate)
-
 
 @app.route("/my-documents/upload-document", methods=["GET", "POST"])
 @login_required
@@ -854,7 +962,6 @@ def upload_document():
     else:
         return render_template("upload_document.html", doc_type=doc_type)
 
-
 @app.route("/history")
 @login_required
 def history():
@@ -885,12 +992,10 @@ def history():
     # return
     return render_template("history.html", history=history_events)
 
-
 @app.route("/my-profile")
 @login_required
 def my_profile():
     return render_template("my_profile.html")
-
 
 @app.route("/my-profile/update-contact", methods=["POST"])
 @login_required
@@ -1018,7 +1123,6 @@ def update_contact():
 
     return redirect(url_for("my_profile"))
 
-
 @app.route("/verify_new_email/<token>", methods=["GET", "POST"])
 @login_required
 def verify_new_email(token):
@@ -1068,7 +1172,6 @@ def verify_new_email(token):
 
     return redirect(url_for("my_profile"))
 
-
 @app.route("/my-profile/change-password", methods=["POST"])
 @app.route("/profile/change-password", methods=["POST"])
 @login_required
@@ -1117,7 +1220,6 @@ def change_password():
     flash("Your password was updated successfully.", "success")
     return redirect(url_for("my_profile"))
 
-
 @app.route("/my-profile/upload-picture", methods=["POST"])
 @login_required
 def upload_picture():
@@ -1162,17 +1264,14 @@ def upload_picture():
     flash("Your profile picture was updated successfully.", "success")
     return redirect(url_for("my_profile"))
 
-
 @app.route("/settings")
 @login_required
 def settings():
     return render_template("settings.html")
 
-
 @app.route("/help-and-support")
 def help_and_support():
     return render_template("help_and_support.html")
-
 
 @app.route("/review-queue")
 @login_required
@@ -1196,7 +1295,6 @@ def review_queue():
         pending_users=pending_users,
         pending_documents=pending_documents,
     )
-
 
 @app.route("/review-document/<int:pending_document_id>", methods=["POST"])
 @login_required
@@ -1325,35 +1423,29 @@ def review_document(pending_document_id):
         flash("Invalid action", "danger")
         return redirect(url_for("review_queue"))
 
-
 @app.route("/reviewed-documents")
 @login_required
 @roles_required("admin", "reviewer")
 def reviewed_documents():
     return render_template("reviewed_documents.html")
 
-
 @app.route("/privacy-policy")
 def privacy_policy():
     return render_template("privacy_policy.html")
-
 
 @app.route("/terms-and-conditions")
 def terms_and_conditions():
     return render_template("terms_and_conditions.html")
 
-
 @app.route("/report-bugs")
 def report_bugs():
     return render_template("report-bugs.html")
-
 
 @app.route("/system-settings")
 @login_required
 @roles_required("admin")
 def system_settings():
     return render_template("system_settings.html")
-
 
 @app.route("/manage-users")
 @login_required
@@ -1367,7 +1459,6 @@ def manage_users():
     users = User.load_users()
 
     return render_template("manage_users.html", pending_users=pending_users, users=users)
-
 
 @app.route("/admin/users/save", methods=["POST"])
 @login_required
@@ -1480,7 +1571,6 @@ def save_user():
             flash("User information updated", "success")
             return redirect(url_for("manage_users"))
 
-
 @app.route("/admin/users/delete", methods=["POST"])
 @login_required
 @roles_required("admin")
@@ -1524,16 +1614,13 @@ def delete_user():
         flash("Error deleting user", "error")
         return redirect(url_for("manage_users"))
 
-
 @app.route("/services")
 def services():
     return render_template("services.html")
 
-
 @app.route("/agencies")
 def agencies():
     return render_template("agencies.html")
-
 
 if __name__ == "__main__":
     app.run(debug=True)

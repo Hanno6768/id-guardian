@@ -221,33 +221,16 @@
                 </div>
                     {% if history %}
                         {% for activity in history %}
-
                         <div class="activity-item">
-                            {% if activity.type == 'document_upload' %}
                             <div class="activity-dot-col">
-                                <span class="activity-dot blue"></span>
+                                <span class="activity-dot {{ activity.color }}"></span>
+                                <span class="activity-dot-line"></span>
                             </div>
-                            {% elif activity.type == 'verification' %}
-                                <div class="activity-dot-col">
-                                <span class="activity-dot green"></span>
+                            <div class="activity-body">
+                                <p class="activity-text">{{ activity.description }}</p>
+                                <span class="activity-time">{{ activity.time }}</span>
                             </div>
-                            {% elif activity.type == 'rejection' %}
-                                <div class="activity-dot-col">
-                                <span class="activity-dot red"></span>
-                            </div>
-                            {% else %}
-                                <div class="activity-dot-col">
-                                <span class="activity-dot gold"></span>
-                            </div>
-                            {% endif %}
-                            <span class="activity-dot-line"></span>
                         </div>
-                        <div >
-                            <p class="activity-text"> {{ activity.description }} </p>
-                            <span class="activity-time"> {{ activity.time }} </span>
-                        </div>
-                        
-                        
                         {% endfor %}
                     {% else %}
                     

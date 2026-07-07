@@ -82,6 +82,13 @@ def generate_password_token(user_id):
         salt="password-set-salt"
     )
 
+def generate_password_reset_token(user_id):
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return s.dumps(
+        user_id,
+        salt="password-reset-salt"
+    )
+
 # Get the encrytion key
 
 
@@ -153,6 +160,27 @@ def send_set_password_email(user):
         set_password_url=set_password_url,
         name=user.full_name
     )
+    if email_success:
+        return True
+    else:
+        return False
+
+def send_reset_password_email(user):
+    token = generate_password_reset_token(user.id)
+    set_password_url = url_for("update_password", token=token, _external=True)
+
+    subject = "Reset your password"
+    recepients = [user.contact_email]
+    template = "reset_password_email.html"
+
+    email_success = send_mail(
+        subject=subject,
+        recipients=recepients,
+        template=template,
+        set_password_url=set_password_url,
+        name=user.full_name
+    )
+
     if email_success:
         return True
     else:
@@ -232,7 +260,9 @@ def format_history_title(row):
         "admin_deleted_user": "User Account Deleted",
         "password_changed": "Password Changed",
         "email_change_requested": "Email Change Requested",
-        "email_change_verified": "Email Verified"
+        "email_change_verified": "Email Verified",
+        "password_reset_requested": "Password Reset Requested",
+        "password_reset_completed": "Password Updated"
     }
 
     return action_titles.get(row["action"], row["action"].replace("_", " ").title())
