@@ -27,8 +27,8 @@
 
                 <p class="dashboard-header-sub"><i class='bx bx-task'></i>
                     {% if pending_users %}
-                    You have <strong style="color:var(--accent-gold)">{{ pending_users|length }} application{{ 's' if
-                        pending_users|length != 1 }}</strong> awaiting review
+                    You have <strong style="color:var(--accent-gold)">{{ stats.pending_reviews }} application{{ 's' if
+                        stats.pending_reviews != 1 }}</strong> awaiting review
                     {% endif %}
                 </p>
 
@@ -59,7 +59,7 @@
                     <span class="stat-trend flat">Pending</span>
                 </div>
 
-                <div class="stat-value"> {{ pending_users | length }} </div>
+                <div class="stat-value">{{ stats.pending_reviews }}</div>
                 <div class="stat-label">Awaiting Review</div>
 
             </div>
@@ -75,7 +75,7 @@
                     <span class="stat-trend flat">Today</span>
                 </div>
 
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ stats.approved_today }}</div>
                 <div class="stat-label">Approved Today</div>
 
             </div>
@@ -91,7 +91,7 @@
                     <span class="stat-trend flat">Today</span>
                 </div>
 
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ stats.rejected_today }}</div>
                 <div class="stat-label">Rejected Today</div>
 
             </div>
@@ -107,7 +107,7 @@
                     <span class="stat-trend flat">Today</span>
                 </div>
 
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ stats.corrections_sent_today }}</div>
                 <div class="stat-label">Corrections Sent</div>
 
             </div>
@@ -165,7 +165,7 @@
 
                 {% endif %}
 
-                <a href="{{ url_for('reviewer_dashboard') }}" class="btn-review-all">
+                <a href="{{ url_for('reviewer_dashboard') }}" class="btn-review-all text-light">
                     <i class='bx bx-list-ul'></i>
                     Open Full Review Queue
                     <i class='bx bx-right-arrow-alt'></i>
@@ -193,10 +193,10 @@
 
                 <div class="col-6">
 
-                    <a href="{{ url_for('reviewed_documents') }}" class="action-card"> 
-                        <div class="action-card-icon"><i class='bx bx-check-square'></i></div>
-                        <h5>Reviewed</h5>
-                        <p>All completed reviews.</p>
+                    <a href="{{ url_for('history') }}" class="action-card"> 
+                        <div class="action-card-icon"><i class='bx bx-history'></i></div>
+                        <h5>Review History</h5>
+                        <p>View all actions taken.</p>
                         <i class='bx bx-right-arrow-alt action-card-arrow'></i>
                     </a>
                 </div>
@@ -208,18 +208,18 @@
 
                 <div class="perf-bar-wrap">
 
-                    <div class="perf-bar-label"><span>Approvals</span><span>0</span></div>
+                    <div class="perf-bar-label"><span>Approvals</span><span>{{ stats.approved_today }}</span></div>
                     <div class="perf-bar-track"><div class="perf-bar-fill green" style="width:0%"></div></div>
 
                 </div>
                 <div class="perf-bar-wrap">
 
-                    <div class="perf-bar-label"><span>Rejections</span><span>0</span></div>
+                    <div class="perf-bar-label"><span>Rejections</span><span>{{ stats.rejected_today }}</span></div>
                     <div class="perf-bar-track"><div class="perf-bar-fill red" style="width:0%"></div></div>
 
                 </div>
                 <div class="perf-bar-wrap">
-                    <div class="perf-bar-label"><span>Corrections Sent</span><span>0</span></div>
+                    <div class="perf-bar-label"><span>Corrections Sent</span><span>{{ stats.corrections_sent_today }}</span></div>
                     <div class="perf-bar-track"><div class="perf-bar-fill gold" style="width:0%"></div></div>
                 </div>
 

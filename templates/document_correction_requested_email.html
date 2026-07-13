@@ -1,0 +1,28 @@
+{% extends "email_layout.html" %}
+
+{% block title %}Action Needed: Correction Requested{% endblock %}
+
+{% block content %}
+    <p>Dear <strong>{{ name }}</strong>,</p>
+
+    <p>We have reviewed your submitted document and identified a few issues that need to be corrected before we can continue processing it.</p>
+
+    <p><strong>Reviewer feedback:</strong></p>
+
+    <div class="alert-box alert-warning">
+        <em>"{{ reviewer_message }}"</em>
+    </div>
+
+    <p>Please review the comments above and update your document or information so we can continue the verification process.</p>
+
+    {% if resubmit_link %}
+        <div style="text-align: center;">
+            <a href="{{ resubmit_link }}" class="btn-primary">Update Document</a>
+        </div>
+    {% endif %}
+
+    <p style="margin-top: 30px;">
+        Thank you for your cooperation,<br>
+        <strong>The SudaGuardian Verification Team</strong>
+    </p>
+{% endblock %}

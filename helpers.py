@@ -63,8 +63,6 @@ def roles_required(*roles):
     return decorator
 
 # Generate email verification token
-
-
 def generate_email_verification_token(user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return s.dumps(
@@ -73,8 +71,6 @@ def generate_email_verification_token(user_id):
     )
 
 # Generate password token
-
-
 def generate_password_token(user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return s.dumps(
@@ -213,8 +209,6 @@ def send_email_verification_email(user):
         return False
 
 # Create qr token
-
-
 def generate_document_qr_token(document_id, user_id):
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return s.dumps({"document_id": document_id, "user_id": user_id}, salt="document-qr")

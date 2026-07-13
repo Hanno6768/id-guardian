@@ -42,11 +42,6 @@
             </div>
         </div>
 
-        <!-- close button -->
-        <button type="button" class="btn-close-sidebar d-lg-none" data-bs-dismiss="offcanvas">
-            <i class='bx bx-x'></i>
-        </button>
-
     </div>
 
     <!-- sidebar body -->
@@ -131,7 +126,6 @@
             <a href="{{ url_for('manage_users') }}" class="menu-item">
                 <i class='bx bx-group'></i>
                 <span class="menu-text">Manage Users</span>
-                <span class="menu-badge">{{ total_users }}</span>
             </a>
 
             <a href="{{ url_for('system_settings') }}" class="menu-item">

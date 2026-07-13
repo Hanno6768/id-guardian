@@ -221,7 +221,8 @@
                                 <span class="profile-field-optional">Optional</span>
                             </label>
 
-                            <input type="text" class="profile-input" name="address" id="address" value=""
+                            <input type="text" class="profile-input" name="address" id="address"
+                                value="{{ current_user.address or '' }}"
                                 placeholder="Street, District, State, Sudan" disabled>
                             <div class="profile-field-hint">Used only for profile completion - not shared with third
                                 parties.</div>
@@ -405,7 +406,8 @@
 
                 <div class="profile-form-actions" style="margin-top:var(--space-5);">
                     <button class="btn-profile-save" id="btnSaveNotifications">
-                        <i class="bx bx-check"> Save Preferences</i>
+                        <i class="bx bx-check"></i>
+                        <span>Save Preferences</span>
                     </button>
                 </div>
 

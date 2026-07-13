@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from datetime import datetime
 from helpers import encrypt_national_id, decrypt_national_id, STANDARD_DOCUMENTS
 
-db = SQL("sqlite:///idguardian.db")
+db = SQL("sqlite:///sudaguardian.db")
 
 # created a user object using copilot to understand the structure
 
@@ -87,8 +87,7 @@ class User(UserMixin):
     @staticmethod
     def get_by_email(email):
         """Retrieve user by email"""
-        result = db.execute(
-            "SELECT * FROM users WHERE contact_email = ?", email)
+        result = db.execute("SELECT * FROM users WHERE contact_email = ?", email)
         if result:
             row = result[0]
             return User(
@@ -114,11 +113,9 @@ class User(UserMixin):
     @staticmethod
     def get_by_national_id(national_id):
         """Retrieve user by national id"""
-        national_id_hash = hashlib.sha256(
-            national_id.encode("utf-8")).hexdigest()
+        national_id_hash = hashlib.sha256(national_id.encode("utf-8")).hexdigest()
         national_id_fast = national_id_hash[-10:]
-        rows = db.execute(
-            "SELECT * FROM users WHERE national_id_fast = ?", national_id_fast)
+        rows = db.execute("SELECT * FROM users WHERE national_id_fast = ?", national_id_fast)
         if rows:
             row = rows[0]
             return User(
@@ -169,15 +166,25 @@ class User(UserMixin):
         """Update user password by their id returns true if successfull, false otherwise"""
         hashed_password = generate_password_hash(password)
         try:
-            db.execute(
-                "UPDATE users SET password_hash = ? WHERE id = ?",
-                hashed_password,
-                user_id
-            )
+            db.execute("UPDATE users SET password_hash = ? WHERE id = ?", hashed_password, user_id)
             return True
         except Exception as e:
             print(f"Error updating password: {e}")
             return False
+
+    @staticmethod
+    def get_total_users_count():
+        """Return the total number of user accounts."""
+        result = db.execute("SELECT COUNT(*) AS count FROM users")
+        return result[0]["count"] if result else 0
+
+    @staticmethod
+    def get_verified_users_count():
+        """Return the number of verified citizen accounts."""
+        result = db.execute(
+            "SELECT COUNT(*) AS count FROM users WHERE role = 'user' AND (verification_status = 'verified' OR verified_at IS NOT NULL)"
+        )
+        return result[0]["count"] if result else 0
 
     # update contact information for the current user
     @staticmethod
@@ -224,11 +231,7 @@ class User(UserMixin):
     def update_profile_picture(user_id, profile_picture_path):
         """Store the relative path of the user's profile picture."""
         try:
-            db.execute(
-                "UPDATE users SET profile_picture = ? WHERE id = ?",
-                profile_picture_path,
-                user_id
-            )
+            db.execute("UPDATE users SET profile_picture = ? WHERE id = ?", profile_picture_path, user_id)
             return True
         except Exception as e:
             print(f"Error updating profile picture: {e}")
@@ -248,10 +251,8 @@ class User(UserMixin):
     @staticmethod
     def update(user_id, original_username, username, full_name, birthdate, email, phone, role):
         """Updates user details on users & identities tables at a given id and returns the updated row from users table"""
-        result = db.execute("UPDATE users SET username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ?, role = ? WHERE id = ?",
-                            username, full_name, birthdate, email, phone, role, user_id)
-        db.execute("UPDATE identities set username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ? WHERE username = ?",
-                   username, full_name, birthdate, email, phone, original_username)
+        result = db.execute("UPDATE users SET username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ?, role = ? WHERE id = ?", username, full_name, birthdate, email, phone, role, user_id)
+        db.execute("UPDATE identities set username = ?, full_name = ?, birthdate = ?, contact_email = ?, contact_phone = ? WHERE username = ?", username, full_name, birthdate, email, phone, original_username)
         if result:
             return User.get_by_id(user_id)
         else:
@@ -288,10 +289,7 @@ class PendingUser():
     def get_by_id(user_id):
         """Returns user by their pending_verifications id"""
 
-        result = db.execute(
-            "SELECT * FROM pending_verifications WHERE id = ?",
-            user_id
-        )
+        result = db.execute("SELECT * FROM pending_verifications WHERE id = ?", user_id)
 
         if result:
             row = result[0]
@@ -706,8 +704,7 @@ class Document():
     def create_placeholders_for_user(user_id):
         """Initializes a documents entry in the documents table with has_file = 0"""
         for doc_type in STANDARD_DOCUMENTS.keys():
-            db.execute("INSERT INTO documents (user_id, document_type, has_file, status, updated_at) VALUES (?, ?, ?, ?, ?)",
-                       user_id, doc_type, 0, "not_uploaded", datetime.now())
+            db.execute("INSERT INTO documents (user_id, document_type, has_file, status, updated_at) VALUES (?, ?, ?, ?, ?)", user_id, doc_type, 0, "not_uploaded", datetime.now())
 
     @staticmethod
     def mark_pending(user_id, document_type):
@@ -730,6 +727,17 @@ class Document():
     def mark_rejected(user_id, document_type):
         """Updates the document status to rejected if approval is denied"""
         return db.execute("UPDATE documents SET status = 'rejected' WHERE user_id = ? AND document_type = ?", user_id, document_type)
+
+    @staticmethod
+    def get_stats_for_user(user_id):
+        """Return document counts for the user's dashboard."""
+        documents = Document.get_by_user(user_id) or []
+        return {
+            "total_documents": len(documents),
+            "verified_documents": sum(1 for doc in documents if doc.status == "verified"),
+            "pending_documents": sum(1 for doc in documents if doc.status == "pending"),
+            "needs_action_documents": sum(1 for doc in documents if doc.status in {"rejected", "correction_requested"})
+        }
 
 
 class PendingDocument():
@@ -820,6 +828,24 @@ class PendingDocument():
         """Updates the decidion email sent to true if email email was sent successfully"""
         return db.execute("Update pending_documents SET decision_email_sent = ? WHERE document_id = ?", 1, pending_document_id)
 
+    @staticmethod
+    def get_review_stats_today():
+        """Return today's review counts for approved, rejected, and correction-requested decisions."""
+        approved = db.execute(
+            "SELECT COUNT(*) AS count FROM pending_documents WHERE status = 'approved' AND DATE(reviewed_at) = DATE('now')"
+        )
+        rejected = db.execute(
+            "SELECT COUNT(*) AS count FROM pending_documents WHERE status = 'rejected' AND DATE(reviewed_at) = DATE('now')"
+        )
+        corrections = db.execute(
+            "SELECT COUNT(*) AS count FROM pending_documents WHERE status = 'correction_requested' AND DATE(reviewed_at) = DATE('now')"
+        )
+        return {
+            "approved_today": approved[0]["count"] if approved else 0,
+            "rejected_today": rejected[0]["count"] if rejected else 0,
+            "corrections_sent_today": corrections[0]["count"] if corrections else 0,
+        }
+
 
 class HistoryLog():
     def __init__(self, id=None, actor_user_id=None, target_user_id=None, action=None, entity_type=None, entity_id=None, status=None, description=None, created_at=None):
@@ -849,5 +875,11 @@ class HistoryLog():
     @staticmethod
     def get_by_user(user_id):
         return db.execute("SELECT * FROM history WHERE actor_user_id = ? OR target_user_id = ? ORDER BY created_at DESC", user_id, user_id)
+
+    @staticmethod
+    def get_action_count_today(action):
+        """Return how many events of a given action happened today."""
+        result = db.execute("SELECT COUNT(*) AS count FROM history WHERE action = ? AND DATE(created_at) = DATE('now')", action)
+        return result[0]["count"] if result else 0
     
     

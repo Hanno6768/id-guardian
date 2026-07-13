@@ -61,7 +61,7 @@
                     <span class="stat-trend flat">Today</span>
                 </div>
 
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ stats.approved_today }}</div>
                 <div class="stat-label">Approved Today</div>
 
             </div>
@@ -77,7 +77,7 @@
                     <span class="stat-trend up">↑ 4%</span>
                 </div>
 
-                <div class="stat-value">-</div>
+                <div class="stat-value">{{ stats.total_users }}</div>
                 <div class="stat-label">Total Users</div>
 
             </div>
@@ -93,7 +93,7 @@
                     <span class="stat-trend flat">Queue</span>
                 </div>
 
-                <div class="stat-value"> {{ pending_users| length if pending_users else '-' }} </div>
+                <div class="stat-value">{{ stats.pending_reviews }}</div>
                 <div class="stat-label">Pending-Reviews</div>
 
             </div>
@@ -109,7 +109,7 @@
                     <span class="stat-trend up">Active</span>
                 </div>
 
-                <div class="stat-value">-</div>
+                <div class="stat-value">{{ stats.verified_citizens }}</div>
                 <div class="stat-label">Verified Citizens</div>
 
             </div>
@@ -177,14 +177,14 @@
                 </div>
 
                 <div class="col-md-6">
-                    <a href="{{ url_for('reviewed_documents') }}" class="admin-manage-card">
+                    <a href="{{ url_for('history') }}" class="admin-manage-card">
 
                         <div class="admin-manage-icon" style="background:var(--success-light); color:var(--success);">
-                            <i class='bx bx-check-square'></i>   
+                            <i class='bx bx-history'></i>   
                         </div>
                         <div class="admin-manage-text">
-                            <h5>Reviewed Documents</h5>
-                            <p>Audit completed review history</p>
+                            <h5>System History</h5>
+                            <p>A complete Audit of all actions</p>
                         </div>
 
                     </a>

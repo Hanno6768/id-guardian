@@ -822,6 +822,16 @@ footer>small {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+.homepage-hero-section .btn-outline-light{
+    color: var(--text-light) ;
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+.homepage-hero-section .btn-outline-light:hover{
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
 .trust-bar {
     background: var(--primary-dark);
     color: var(--text-light);
@@ -1666,15 +1676,15 @@ footer>small {
 }
 
 .dashboard-section-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     font-size: var(--text-xs);
     font-weight: var(--weight-bold);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wider);
     color: var(--text-muted);
-    margin-bottom: var(--space-4);
-    font-display: flex;
-    align-items: center;
-    gap: var(--space-2)
+    margin: var(--space-6) 0 var(--space-4);
 }
 
 .dashboard-section-label::after {
@@ -5485,11 +5495,11 @@ as i'll use him to style the rest of pages */
     border-bottom: none;
 }
 
-.status-row span {
+.services-status-panel .status-row span {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: rgba(255, 255, 255, 0.78);
+    color: var(--text-light) !important;
     font-size: var(--text-sm);
 }
 

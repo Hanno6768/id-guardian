@@ -51,7 +51,7 @@
                     <span class="stat-trend flat">Total</span>
                 </div>
 
-                <div class="stat-value">6</div>
+                <div class="stat-value">{{ stats.total_documents }}</div>
                 <div class="stat-label">Documents</div>
 
             </div>
@@ -67,7 +67,7 @@
 
                 </div>
 
-                <div class="stat-value">3</div>
+                <div class="stat-value">{{ stats.verified_documents }}</div>
                 <div class="stat-label">Verified</div>
 
             </div>
@@ -83,7 +83,7 @@
 
                 </div>
 
-                <div class="stat-value">2</div>
+                <div class="stat-value">{{ stats.pending_documents }}</div>
                 <div class="stat-label">Pending</div>
 
             </div>
@@ -99,8 +99,8 @@
 
                 </div>
 
-                <div class="stat-value">1</div>
-                <div class="stat-label">Rejected</div>
+                <div class="stat-value">{{ stats.needs_action_documents }}</div>
+                <div class="stat-label">Needs Action</div>
 
             </div>
         </div>
@@ -195,16 +195,6 @@
                     </a>
                 </div>
 
-                <div class="col-6">
-                    <a href="{{ url_for('help_and_support') }}" class="action-card">
-                        <div class="action-card-icon">
-                          <i class='bx bx-help-circle'></i> 
-                        </div>
-                        <h5>Support</h5>
-                        <p>Get help or report an issue.</p>
-                        <i class='bx bx-right-arrow-alt action-card-arrow'></i>
-                    </a> 
-                </div>
             </div>
         </div>
 

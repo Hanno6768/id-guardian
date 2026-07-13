@@ -18,13 +18,11 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-app.config["NATIONAL_ID_ENCRYPTION_KEY"] = os.getenv(
-    "NATIONAL_ID_ENCRYPTION_KEY")
+app.config["NATIONAL_ID_ENCRYPTION_KEY"] = os.getenv("NATIONAL_ID_ENCRYPTION_KEY")
 app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH"))
 
 # Ensure that the upload folder exists
-app.config["UPLOAD_FOLDER"] = os.path.join(
-    app.root_path, os.getenv("UPLOAD_FOLDER"))
+app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, os.getenv("UPLOAD_FOLDER"))
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Enable debug mode
@@ -35,7 +33,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///idguardian.db")
+db = SQL("sqlite:///sudaguardian.db")
 
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
 app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT"))
@@ -307,7 +305,9 @@ def user_dashboard():
             "color": history_color(row.get("status"))
         })
 
-    return render_template("user_dashboard.html", user=current_user, history=history_events[:6])
+    stats = Document.get_stats_for_user(current_user.id)
+
+    return render_template("user_dashboard.html", user=current_user, history=history_events[:3], stats=stats)
 
 @app.route("/reviewer-dashboard")
 @login_required
@@ -316,6 +316,13 @@ def reviewer_dashboard():
 
     # Get all the pending users
     pending_users = PendingUser.get_verified_pending_users()
+    review_stats = PendingDocument.get_review_stats_today()
+    stats = {
+        "pending_reviews": len(pending_users),
+        "approved_today": review_stats["approved_today"],
+        "rejected_today": review_stats["rejected_today"],
+        "corrections_sent_today": review_stats["corrections_sent_today"]
+    }
 
     if pending_users:
 
@@ -324,19 +331,31 @@ def reviewer_dashboard():
             user["national_id"] = decrypt_national_id(
                 user["national_id_ciphertext"])
 
-        return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users)
+        return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=pending_users, stats=stats)
 
     else:
-        return render_template("reviewer_dashboard.html")
+        return render_template("reviewer_dashboard.html", current_user=current_user, pending_users=[], stats=stats)
 
 @app.route("/admin-dashboard")
 @login_required
 @roles_required("admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", user=current_user)
+    pending_users = PendingUser.get_verified_pending_users() or []
+    review_stats = PendingDocument.get_review_stats_today()
+    stats = {
+        "approved_today": review_stats["approved_today"],
+        "total_users": User.get_total_users_count(),
+        "pending_reviews": len(pending_users),
+        "verified_citizens": User.get_verified_users_count()
+    }
+    return render_template("admin_dashboard.html", user=current_user, stats=stats)
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
+
+    if current_user.is_authenticated:
+        return redirect(url_for(f"{current_user.role}_dashboard"))
+
     if request.method == "POST":
 
         email = request.form.get("email")
@@ -852,6 +871,7 @@ def verify_document(token):
             token,
             salt="document-qr"
         )
+        print("QR PAYLOAD:", payloads, type(payloads))
 
     except BadSignature:
         flash("Invalid verification request", "danger")
@@ -1382,6 +1402,8 @@ def review_document(pending_document_id):
             # Log history
             HistoryLog.log_action(current_user.id, pending_document.user_id, "document_rejected", "document",
                                   pending_document.document_id, "rejected", description=f"{format_document_type(pending_document.document_type)} rejected by reviewer")
+            
+            template = "document_rejected_email.html"
 
         else:
 
@@ -1399,15 +1421,17 @@ def review_document(pending_document_id):
             HistoryLog.log_action(current_user.id, pending_document.user_id, "correction_requested", "document", pending_document.document_id,
                                   "correction requested", description=f"correction requested for {format_document_type(pending_document.document_type)} by reviewer")
 
+            template = "document_correction_requested_email.html"
+
         recipients = [email]
-        template = "document_approved_email.html"
+        
 
         email_success = send_mail(
             subject=subject,
             recipients=recipients,
             template=template,
             name=name,
-            message=message
+            reviewer_message=message
         )
 
         if email_success:
@@ -1422,12 +1446,6 @@ def review_document(pending_document_id):
 
         flash("Invalid action", "danger")
         return redirect(url_for("review_queue"))
-
-@app.route("/reviewed-documents")
-@login_required
-@roles_required("admin", "reviewer")
-def reviewed_documents():
-    return render_template("reviewed_documents.html")
 
 @app.route("/privacy-policy")
 def privacy_policy():
@@ -1623,4 +1641,4 @@ def agencies():
     return render_template("agencies.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
